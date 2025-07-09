@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - Caminhos da Roça</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="d-flex vh-100">
+    <!-- Lado esquerdo com imagem -->
+    <div class="bg-image d-none d-md-block col-md-6"></div>
+
+    <!-- Lado direito com formulário -->
+    <div class="d-flex col-md-6 col-12 align-items-center justify-content-center bg-white p-4">
+      <div class="w-100" style="max-width: 400px;">
+        <div class="text-center mb-4">
+          <img src="assets/LogoCaminhodaRoca.png" alt="Caminhos da Roça" class="img-fluid" style="max-height: 200px;">
+        </div>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="email" class="form-label">Endereço de e-mail</label>
+            <input type="email" class="form-control" id="email" placeholder="usuario@empresa.com" required>
+          </div>
+          <div class="mb-3">
+            <label for="senha" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="senha" placeholder="********" required>
+          </div>
+          <div class="mb-3 text-end">
+            <a href="#" id="linkEsqueciSenha" class="small text-decoration-none text-success">Esqueci minha senha</a>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Acessar</button>
+        </form>
+
+        <!-- Formulário de recuperação -->
+        <form id="recuperarSenhaForm" class="d-none mt-4">
+          <div class="mb-3">
+            <label for="recEmail" class="form-label">E-mail para recuperação</label>
+            <input type="email" class="form-control" id="recEmail" placeholder="usuario@empresa.com" required>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success">Enviar</button>
+            <button type="button" class="btn btn-outline-dark" id="voltarLogin">Voltar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

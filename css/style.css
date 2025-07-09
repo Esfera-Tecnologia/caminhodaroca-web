@@ -1,0 +1,140 @@
+.bg-image {
+  background-image: url('../assets/background_login.png');
+  background-size: cover;
+  background-position: center;
+}
+body {
+  background-color: #f8f9fa;
+}
+a.text-success:hover {
+  color: #006D60 !important;
+}
+#voltarLogin {
+    border: 1px solid #006D60;
+    color: #006D60;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  #voltarLogin:hover {
+    background-color: #006D60;
+    color: #fff;
+  }
+
+  .layout-wrapper {
+    display: flex;
+  }
+  .bg-sidebar {
+    background-color: #006D60;
+    min-height: 100vh;
+  }
+  .sidebar-heading img {
+    max-width: 160px;
+  }
+  .list-group-item {
+    background-color: #006D60;
+    color: #fff;
+    border: none;
+  }
+  .list-group-item:hover {
+    background-color: #62B55A;
+    color: #fff;
+  }
+  .list-group-item.active {
+    background-color: #62B55A;
+    color: #fff;
+}
+
+  .hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .table-header-custom {
+    background-color: #E9F7F2;
+    color: #006D60;
+  }
+
+/* Botão Adicionar Novo com cor da sidebar */
+.btn-menu {
+    background-color: #007965;
+    color: #fff;
+    border: none;
+  }
+  .btn-menu:hover {
+    background-color: #006653;
+    color: #fff;
+  }
+  
+  .content-box {
+      background-color: #fff;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .table {
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 0.5rem;
+    }
+    .btn-warning {
+      background-color: #ffc107;
+      border: none;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+ /* Estilização da paginação do DataTables */
+
+  .active>.page-link, .page-link.active {
+    background-color: #007965 !important; /* Cor do menu lateral */
+  }
+  
+  .active>.page-link, .page-link.active:hover {
+    background-color: #007965 !important; /* Cor do menu lateral */
+  }
+
+ 
+
+
+  .content-box {
+      background-color: #fff;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .table {
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 0.5rem;
+    }
+    .btn-warning {
+      background-color: #ffc107;
+      border: none;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+    .table-responsive{
+        margin-top: 30px !important;
+    }
+
+    .category-block {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+  @media (max-width: 991.98px) {
+    .sidebar-desktop {
+      display: none;
+    }
+  }

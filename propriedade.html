@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Propriedades - Caminho da Roça</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+</head>
+<body>
+  <div class="layout-wrapper d-flex">
+    <!-- Sidebar -->
+   <div class="bg-sidebar text-white p-3 sidebar-desktop d-none d-lg-block" style="width: 250px;">
+    <div class="sidebar-heading text-center mb-4">
+      <img src="assets/Logobrancahorizontal.png" alt="Logo" class="img-fluid" style="max-height: 160px;">
+    </div>
+    <div class="list-group list-group-flush">
+      <a href="dashboard.html" class="list-group-item list-group-item-action "><i class="fas fa-chart-line me-2" ></i>Dashboard</a>
+      <a href="perfil.html" class="list-group-item list-group-item-action "><i class="fas fa-user-shield me-2"></i>Perfil de Acesso</a>
+      <a href="usuario.html" class="list-group-item list-group-item-action "><i class="fas fa-user me-2"></i>Usuário</a>
+      <a href="categoria.html" class="list-group-item list-group-item-action "><i class="fas fa-folder me-2"></i>Categoria</a>
+      <a href="subcategoria.html" class="list-group-item list-group-item-action "><i class="fas fa-puzzle-piece me-2"></i>Subcategoria</a>
+      <a href="propriedade.html" class="list-group-item list-group-item-action active"><i class="fas fa-tractor me-2"></i>Propriedade</a>
+    </div>
+  </div>
+    <!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start bg-sidebar text-white d-lg-none" tabindex="-1" id="sidebarMenu">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">
+          <img src="assets/Logobrancahorizontal.png" alt="Logo" class="img-fluid" style="max-height: 160px;">
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="list-group list-group-flush">
+           <a href="dashboard.html" class="list-group-item list-group-item-action "><i class="fas fa-chart-line me-2" ></i>Dashboard</a>
+          <a href="perfil.html" class="list-group-item list-group-item-action "><i class="fas fa-user-shield me-2"></i>Perfil de Acesso</a>
+          <a href="usuario.html" class="list-group-item list-group-item-action "><i class="fas fa-user me-2"></i>Usuário</a>
+          <a href="categoria.html" class="list-group-item list-group-item-action "><i class="fas fa-folder me-2"></i>Categoria</a>
+          <a href="subcategoria.html" class="list-group-item list-group-item-action "><i class="fas fa-puzzle-piece me-2"></i>Subcategoria</a>
+          <a href="propriedade.html" class="list-group-item list-group-item-action active"><i class="fas fa-tractor me-2"></i>Propriedade</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="flex-grow-1">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4">
+        <button class="btn btn-outline-success d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="ms-auto d-flex align-items-center gap-3">
+          <span class="fw-semibold">Olá, Denys</span>
+          <a href="index.html" class="btn btn-sm btn-outline-danger">Sair</a>
+        </div>
+      </nav>
+
+      <div class="container-fluid py-4">
+        <div class="content-box">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold mb-0">Propriedades</h2>
+            <a href="propriedade_cadastro.html" class="btn btn-primary" style="background-color: #007965;">
+              <i class="fas fa-plus me-1"></i> Adicionar Novo
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table id="tabelaPropriedades" class="table table-bordered table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Logo</th>
+                  <th>Nome Propriedade</th>
+                  <th>Cidade</th>
+                  <th>Categoria</th>
+                  <th>Subcategoria</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><img src="assets/teste1.png" alt="Logo" class="img-fluid" style="height: 40px;"></td>
+                  <td>Sítio Esperança</td>
+                  <td>Curitiba</td>
+                  <td>Categoria 1</td>
+                  <td>SubCategoria1</td>
+                  <td><span class="badge bg-success">Ativo</span></td>
+                  <td>
+                    <a href="propriedade_cadastro.html" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                    <button class="btn btn-sm btn-danger btn-excluir"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><img src="assets/teste2.png" alt="Logo" class="img-fluid" style="height: 40px;"></td>
+                  <td>Fazenda Bela Vista</td>
+                  <td>Londrina</td>
+                  <td>Categoria 1</td>
+                  <td>SubCategoria1</td>
+                  <td><span class="badge bg-danger">Inativo</span></td>
+                  <td>
+                    <a href="propriedade_cadastro.html" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                    <button class="btn btn-sm btn-danger btn-excluir"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><img src="assets/teste3.png" alt="Logo" class="img-fluid" style="height: 40px;"></td>
+                  <td>Chácara Boa Terra</td>
+                  <td>Maringá</td>
+                  <td>Categoria 1</td>
+                  <td>SubCategoria1</td>
+                  <td><span class="badge bg-success">Ativo</span></td>
+                  <td>
+                    <a href="propriedade_cadastro.html" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                    <button class="btn btn-sm btn-danger btn-excluir"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação -->
+  <div class="modal fade" id="modalConfirmacao" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Deseja realmente excluir esse registro?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#tabelaPropriedades').DataTable({
+        language: {
+          url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+        }
+      });
+
+      $('.btn-excluir').on('click', function () {
+        $('#modalConfirmacao').modal('show');
+      });
+    });
+  </script>
+</body>
+</html>
