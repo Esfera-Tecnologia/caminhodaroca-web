@@ -1,0 +1,226 @@
+.bg-image {
+  background-image: url('../assets/background_login.png');
+  background-size: cover;
+  background-position: center;
+}
+body {
+  background-color: #f8f9fa;
+}
+a.text-success:hover {
+  color: #006D60 !important;
+}
+#voltarLogin {
+    border: 1px solid #006D60;
+    color: #006D60;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  #voltarLogin:hover {
+    background-color: #006D60;
+    color: #fff;
+  }
+
+  .form-check-input:checked {
+    background-color: #62B55A;
+    border-color: #62B55A;
+  }
+
+  .layout-wrapper {
+    display: flex;
+  }
+  .bg-sidebar {
+    background-color: #006D60;
+    min-height: 100vh;
+    width: 250px !important;
+    max-width: 250px !important;
+  }
+  .sidebar-heading img {
+    max-width: 160px;
+  }
+  .list-group-item {
+    background-color: #006D60;
+    color: #fff;
+    border: none;
+  }
+  .list-group-item:hover {
+    background-color: #62B55A;
+    color: #fff;
+  }
+  .list-group-item.active {
+    background-color: #62B55A;
+    color: #fff;
+}
+
+  .hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .table-header-custom {
+    background-color: #E9F7F2;
+    color: #006D60;
+  }
+
+/* Botão Adicionar Novo com cor da sidebar */
+.btn-menu {
+    background-color: #007965;
+    color: #fff;
+    border: none;
+  }
+  .btn-menu:hover {
+    background-color: #006653;
+    color: #fff;
+  }
+  
+  .content-box {
+      background-color: #fff;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .table {
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 0.5rem;
+    }
+    .btn-warning {
+      background-color: #ffc107;
+      border: none;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+ /* Estilização da paginação do DataTables */
+
+  .active>.page-link, .page-link.active {
+    background-color: #007965 !important; /* Cor do menu lateral */
+  }
+  
+  .active>.page-link, .page-link.active:hover {
+    background-color: #007965 !important; /* Cor do menu lateral */
+  }
+
+ 
+
+
+  .content-box {
+      background-color: #fff;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .table {
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 0.5rem;
+    }
+    .btn-warning {
+      background-color: #ffc107;
+      border: none;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+    .table-responsive{
+        margin-top: 30px !important;
+    }
+
+    .category-block {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+ .preview-img {
+      width: 100%;
+      height: auto;
+      max-height: 165px;
+      object-fit: contain;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .gallery-preview img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .schedule-section {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      background: #f8f9fa;
+    }
+    .day-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .day-block {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .day-block.disabled {
+      background-color: #e9ecef;
+      pointer-events: none;
+    }
+
+   
+   /*ajusta o select 2 para manter o layout padrao */
+    .select2-container--bootstrap-5 .select2-selection {
+      padding-top: 0.375rem;
+      padding-bottom: 0.375rem;
+      height: auto !important;
+      min-height: 38px;
+    }
+    
+
+    /* Limita altura e permite rolagem no dropdown */
+    .select2-container--bootstrap-5 .select2-results__options {
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    /* Destaca a opção selecionada no menu */
+    .select2-container--bootstrap-5 .select2-results__option--selected {
+      background-color: #e6f4ea !important; /* verde claro sutil */
+      color: #000;
+    }
+
+    /* Ao passar o mouse, mantém o highlight visual */
+    .select2-container--bootstrap-5 .select2-results__option--highlighted {
+      background-color: #d0f0db !important;
+      color: #000;
+    }
+
+.border-end-green {
+  border-left: 5px solid #006D60; /* Ajuste a cor conforme o verde usado no menu */
+}
+
+.dashboard-card {
+  min-width: 265px;
+  border-radius: 0.5rem;
+  
+}
+
+
+  @media (max-width: 991.98px) {
+    .sidebar-desktop {
+      display: none;
+    }
+  }
