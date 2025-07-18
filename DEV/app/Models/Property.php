@@ -53,5 +53,15 @@ class Property extends Model
                     ->withPivot('category_id')
                     ->withTimestamps();
     }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'property_product');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(PropertyImage::class);
+    }
 }
 

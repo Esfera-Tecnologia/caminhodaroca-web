@@ -1,3 +1,4 @@
+
 @php
   $cidadesRJ = [
     'Angra dos Reis', 'Aperibé', 'Araruama', 'Areal', 'Armação dos Búzios', 'Arraial do Cabo', 'Barra do Piraí', 'Barra Mansa', 'Belford Roxo', 'Bom Jardim',
@@ -29,6 +30,7 @@
         <div class="col-md-4">
           <label class="form-label">WhatsApp *</label>
           <input type="text" name="whatsapp" class="form-control telefone" value="{{ old('whatsapp', $property->whatsapp ?? '') }}" required>
+          
         </div>
         <div class="col-md-4">
           <label class="form-label">Status *</label>
@@ -101,16 +103,41 @@
     </div>
   </div>
 
-  <div class="col-md-12 mt-4">
+
+
+<div class="col-md-12 mt-4">
     <label class="form-label">Fotos dos seus produtos ou do estabelecimento *</label>
-    <input type="file" name="galeria[]" multiple class="form-control">
-    @if(!empty($property->galeria_paths))
-      <div class="gallery-preview d-flex flex-wrap mt-2">
-        @foreach($property->galeria_paths as $img)
-          <img src="{{ asset('storage/' . $img) }}" alt="Galeria" class="me-2 mb-2" style="height: 120px; width: 120px; object-fit: cover;">
-        @endforeach
-      </div>
+<input type="file" name="images[]" id="imageUploader" multiple />
+
+
+<div class="property-gallery d-flex flex-wrap gap-3">
+   @if(isset($property) != '')
+    @foreach ($property->images as $image)
+        <div class="filepond--item position-relative" data-id="{{ $image->id }}" style="width: 150px; height: 150px; background-color: #1c1c1c; border-radius: 0.5rem; overflow: hidden;">
+            <div class="filepond--file-wrapper d-flex align-items-center justify-content-center" style="height: 100%;">
+                <div class="filepond--image-preview-wrapper" style="width: 100%; height: 100%;">
+                    <img src="{{ asset('storage/' . $image->path) }}"
+                         class="filepond--image-preview"
+                         style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+            </div>
+            <button type="button"
+                    class="btn btn-danger btn-sm position-absolute top-0 start-0 delete-image filepontCirulo"
+                    data-id="{{ $image->id }}">
+                ×
+            </button>
+        </div>
+    @endforeach
     @endif
-  </div>
+</div>
+
+   
+
+</div>
+<div id="custom-alert" class="alert d-none" role="alert"></div>
+
+
+  
+
 </div>
 

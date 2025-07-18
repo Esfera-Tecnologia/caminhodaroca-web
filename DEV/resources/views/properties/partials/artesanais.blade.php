@@ -22,32 +22,30 @@
 
   <div class="form-group mt-3" id="produtos-artesanais" style="{{ old('vende_produtos_artesanais', $property->vende_produtos_artesanais ?? false) ? '' : 'display:none' }}">
     <label class="form-label"><strong>Selecione os produtos abaixo:</strong></label>
-    @php
-      $produtos = [
-        'Queijos', 'Geleias', 'Doces em barra', 'Doces cristalizados', 'Compotas',
-        'Conservas', 'Molhos', 'Antepastos', 'Produtos desidratados',
-        'Pães integrais', 'Pães de fermentação natural', 'Pães e bolos caseiros',
-        'Cachaça e derivados', 'Licores', 'Vinhos'
-      ];
-      $selecionados = old('produtos_artesanais', $property->produtos_artesanais ?? []);
-    @endphp
 
-    <div class="row">
-      @foreach(array_chunk($produtos, 5) as $grupo)
-        <div class="col-md-4">
-          @foreach($grupo as $produto)
-            <div class="form-check">
-              <input class="form-check-input"
-                     type="checkbox"
-                     name="produtos_artesanais[]"
-                     value="{{ $produto }}"
-                     id="prod_{{ Str::slug($produto) }}"
-                     {{ in_array($produto, $selecionados) ? 'checked' : '' }}>
-              <label class="form-check-label" for="prod_{{ Str::slug($produto) }}">{{ $produto }}</label>
-            </div>
-          @endforeach
-        </div>
-      @endforeach
-    </div>
+   <div class="row">
+    @if(isset($product) != '')
+    @foreach(array_chunk($products->all(), 5) as $grupo)
+      <div class="col-md-4">
+        @foreach($grupo as $product)
+          <div class="form-check">
+            <input type="checkbox"
+                  name="product_ids[]"
+                  value="{{ $product->id }}"
+                  class="form-check-input"
+                  id="product_{{ $product->id }}"
+                  {{ in_array($product->id, old('product_ids', $property->products->pluck('id')->toArray() ?? [])) ? 'checked' : '' }}>
+            <label class="form-check-label" for="product_{{ $product->id }}">
+              {{ $product->nome }}
+            </label>
+          </div>
+        @endforeach
+      </div>
+    @endforeach
+    @endif
+  </div>
+
+
   </div>
 </div>
+

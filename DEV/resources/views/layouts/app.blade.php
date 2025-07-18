@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="icon" href="{{ asset('assets/favicon.ico') }}" type="image/x-icon">
+
   <title>@yield('title', 'Dashboard - Caminho da Roça')</title>
 
   <!-- Bootstrap & Font Awesome -->
@@ -10,6 +13,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+ 
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet"/>
 
 
   <!-- Custom CSS -->
@@ -19,7 +25,7 @@
   <div class="layout-wrapper">
     <!-- Sidebar Desktop -->
     <div class="bg-sidebar text-white p-3 sidebar-desktop d-none d-lg-block">
-      <div class="sidebar-heading text-center mb-4">
+      <div class="sidebar-heading text-center mb-3">
         <img src="{{ asset('assets/Logobrancahorizontal.png') }}" alt="Logo" class="img-fluid" style="max-height: 160px;">
       </div>
        @include('components.menu-sidebar')
@@ -58,52 +64,32 @@
     </div>
   </div>
 
-  <!-- Modal de Confirmação de Exclusão -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content rounded shadow">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="confirmDeleteModalLabel">Confirmação</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        Deseja realmente excluir esse registro?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
-        <form method="POST" id="deleteForm">
-          @csrf
-          @method('DELETE')
-          <button type="submit" class="btn btn-danger">Confirmar</button>
-        </form>
-       
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal de Confirmação de Exclusão -->
+@include('components.modal-confirmacao')
 
 <!-- Modal de Alerta de Validação -->
-<div class="modal fade" id="alertHorarioModal" tabindex="-1" aria-labelledby="alertHorarioModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border shadow">
-      <div class="modal-header text-dark">
-        <h5 class="modal-title" id="alertHorarioModalLabel">Atenção</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body text-dark">
-        Você deve preencher <strong>pelo menos um dia</strong> de funcionamento
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Ok, entendi</button>
-      </div>
-    </div>
-  </div>
-</div>
+@include('components.modal-validacao')
 
 <!-- Modal de adicionar categorias -->
 @include('components.modal-categoria')
 
-
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteLabel">Confirmar Remoção</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        Tem certeza que deseja remover esta imagem?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Remover</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -113,7 +99,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-
+<!-- FilePond JS -->
+<script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
 
   <script src="{{ asset('js/scripts.js') }}"></script>
 

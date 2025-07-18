@@ -52,6 +52,21 @@ $(document).ready(function () {
   //mascara de whats
    $('.telefone').mask('(00) 00000-0000');
 
+   $('.telefone').on('blur', function () {
+    const val = $(this).val();
+
+    if (val.length < 15 || val.includes('_')) {
+      $(this).addClass('is-invalid');
+      // Mensagem opcional
+      if (!$('#erro-whatsapp').length) {
+        $(this).after('<div id="erro-whatsapp" class="invalid-feedback d-block">Número incompleto</div>');
+      }
+    } else {
+      $(this).removeClass('is-invalid');
+      $('#erro-whatsapp').remove();
+    }
+  });
+
    //inicia select2
   $('.select2').each(function () {
       const $this = $(this);
@@ -130,6 +145,7 @@ function adicionarCategoria() {
   $col.append($block);
   $('#categorias-container').append($col);
    $('#category_id').val('');
+ $('#erro-categorias').remove();
 }
 
 
@@ -162,6 +178,8 @@ function gerarAgendaSemanal() {
     const dados = agenda[dia] || {};
     const ativo = dados.ativo === 1 || dados.ativo === true || dados.ativo === '1';
     const fechaAlmoco = dados.fecha_almoco === 1 || dados.fecha_almoco === true || dados.fecha_almoco === '1';
+    const abertura = dados.abertura || '';
+    const fechamento = dados.fechamento || '';
 
     const bloco = `
       <div class="day-block border rounded p-3 mb-3" data-dia="${dia}">
@@ -182,12 +200,12 @@ function gerarAgendaSemanal() {
           <div class="col-6">
             <label class="form-label">Abertura</label>
             <input type="time" class="form-control horario-abertura"
-              name="agenda_personalizada[${dia}][abertura]" value="${dados.abertura || ''}">
+              name="agenda_personalizada[${dia}][abertura]" value="${abertura}">
           </div>
           <div class="col-6">
             <label class="form-label">Fechamento</label>
             <input type="time" class="form-control horario-fechamento"
-              name="agenda_personalizada[${dia}][fechamento]" value="${dados.fechamento || ''}">
+              name="agenda_personalizada[${dia}][fechamento]" value="${fechamento}">
           </div>
         </div>
 
@@ -204,8 +222,9 @@ function gerarAgendaSemanal() {
     container.append(bloco);
   });
 
-  controlarInputsPorDia(); // Desabilita campos se o checkbox "Ativo" estiver desmarcado
+  controlarInputsPorDia(); // Desabilita campos de dias inativos
 }
+
 
 
 
@@ -220,66 +239,53 @@ $(document).ready(() => {
 });
 
 
-function ajustarHorarioFuncionamento() {
-  const tipo = $('input[name="tipo_funcionamento"]:checked').val();
+function ajustarHorarioFuncionamento(tipoSelecionado = null) {
+  const tipo = tipoSelecionado || $('input[name="tipo_funcionamento"]:checked').val();
 
-  if (tipo === 'todos' || tipo === 'fins') {
-    $('#agendaSemanal').removeClass('d-none');
-    $('#horarioTexto').addClass('d-none');
-    gerarAgendaSemanal();
+  const diasUteis = ['segunda','terça','quarta','quinta','sexta'];
+  const diasFinais = ['sábado', 'domingo'];
+  const todosDias = [...diasUteis, ...diasFinais];
 
-    if (tipo === 'fins') {
-      const diasUteis = ['segunda','terça','quarta','quinta','sexta'];
-
-      diasUteis.forEach(function(dia) {
-        const bloco = $(`.day-block[data-dia="${dia}"]`);
-        bloco.find('.ativar-dia').prop('checked', false).prop('disabled', true);
-        bloco.find('input[type="time"]').val('');
-        bloco.find('.fechar-almoco').prop('checked', false);
-      });
-    }
-
-  } else {
-    // Tipos de texto livre: feriados, agendamento, personalizado
+  //  Limpa agendas ou texto conforme o tipo atual
+  if (['agendamento', 'personalizado', 'feriados'].includes(tipo)) {
     $('#agendaSemanal').addClass('d-none');
     $('#horarioTexto').removeClass('d-none');
-    $('#horarioTexto textarea').val('');
+    return;
+  } else {
+    $('#agendaSemanal').removeClass('d-none');
+    $('#horarioTexto').addClass('d-none');
 
-    // ⚠️ Limpa todos os campos de horário e checkboxes da agenda
-    $('.day-block').each(function () {
-      const bloco = $(this);
-      bloco.find('input[type="time"]').val('');
-      bloco.find('.fechar-almoco').prop('checked', false);
-      bloco.find('.ativar-dia').prop('checked', false).prop('disabled', false);
+    // Se tipo é agendamento/personalizado → NÃO limpar!
+    if (!['agendamento', 'personalizado'].includes(tipo)) {
+      $('textarea[name="observacoes_funcionamento"]').val('');
+    }
+
+  }
+
+  gerarAgendaSemanal();
+
+  // 🧠 Regras específicas por tipo
+  if (tipo === 'todos') {
+    // Mantém tudo conforme estado do banco (ou default inativo, já tratado em gerarAgendaSemanal)
+    controlarInputsPorDia(); // ativa/desativa campos com base no checkbox "Ativo"
+
+  } else if (tipo === 'fins') {
+    todosDias.forEach((dia) => {
+      const bloco = $(`.day-block[data-dia="${dia}"]`);
+      const isUtil = diasUteis.includes(dia);
+
+      // Desativa e limpa dias úteis
+      if (isUtil) {
+        bloco.find('.ativar-dia').prop('checked', false).prop('disabled', true);
+        bloco.find('input[type="time"]').val('').prop('disabled', true);
+        bloco.find('.fechar-almoco').prop('checked', false).prop('disabled', true);
+      } else {
+        // Mantém finais de semana com base no estado atual (não força)
+        bloco.find('.ativar-dia').prop('disabled', false);
+      }
     });
   }
 }
-
-
-$('#form-propriedade').on('submit', function (e) {
-  const tipo = $('input[name="tipo_funcionamento"]:checked').val();
-
-  if (tipo === 'todos' || tipo === 'fins') {
-    let algumValido = false;
-
-    $('.day-block').each(function () {
-      const ativo = $(this).find('.ativar-dia').is(':checked');
-      const abertura = $(this).find('input[type="time"][name*="[abertura]"]').val();
-      const fechamento = $(this).find('input[type="time"][name*="[fechamento]"]').val();
-
-      if (ativo && abertura && fechamento) {
-        algumValido = true;
-      }
-    });
-
-    if (!algumValido) {
-      e.preventDefault();
-      const modal = new bootstrap.Modal(document.getElementById('alertHorarioModal'));
-      modal.show();
-      return false;
-    }
-  }
-});
 
 
 
@@ -294,7 +300,6 @@ $(document).ready(() => {
       if (['feriados', 'agendamento', 'personalizado'].includes(tipo)) {
         $('#horarioTexto').removeClass('d-none');
         $('#agendaSemanal').addClass('d-none');
-        $('#horarioTexto textarea').val(''); // limpa campo texto
       } else {
         $('#agendaSemanal').removeClass('d-none');
         $('#horarioTexto').addClass('d-none');
@@ -327,3 +332,162 @@ function previewLogo(input) {
     reader.readAsDataURL(input.files[0]);
   }
 }
+
+
+
+
+$('#form-propriedade').on('submit', function (e) {
+  let temErro = false;
+  const tipo = $('input[name="tipo_funcionamento"]:checked').val();
+
+  // Validação: pelo menos uma categoria
+  const temCategoria = $('#categorias-container .categoria-block').length > 0;
+  $('#erro-categorias').remove();
+  if (!temCategoria) {
+    const alerta = `<div id="erro-categorias" class="invalid-feedback d-block" style="margin-top: -25px;">Você deve adicionar pelo menos uma categoria antes de salvar.</div>`;
+    $('#categorias-container').before(alerta);
+    temErro = true;
+  }
+
+  // Validação: campo obrigatório para tipos com texto
+  $('#erro-observacoes').remove();
+  if (['agendamento', 'personalizado'].includes(tipo)) {
+    const texto = $('textarea[name="observacoes_funcionamento"]').val().trim();
+    if (!texto) {
+      const alerta = `<div id="erro-observacoes" class="invalid-feedback d-block">Informe os dias ou observações de funcionamento.</div>`;
+      $('#horarioTexto').after(alerta);
+      temErro = true;
+    }
+  } else {
+    // Se não for tipo com texto, limpamos para evitar envio indevido
+    $('textarea[name="observacoes_funcionamento"]').val('');
+  }
+
+
+  if (!['todos', 'fins'].includes(tipo)) {
+    // Remove valores da agenda semanal desativando todos os dias
+    $('.day-block').each(function () {
+      const bloco = $(this);
+      bloco.find('.ativar-dia').prop('checked', false);
+      bloco.find('input[type="time"]').val('');
+      bloco.find('.fechar-almoco').prop('checked', false);
+    });
+  }
+
+  // Validação de horários obrigatórios para dias ativos
+  $('.day-block').each(function () {
+    const bloco = $(this);
+    const dia = bloco.data('dia');
+    const ativo = bloco.find('.ativar-dia').is(':checked');
+
+    if (ativo) {
+      const abertura = bloco.find('input[name="agenda_personalizada[' + dia + '][abertura]"]').val();
+      const fechamento = bloco.find('input[name="agenda_personalizada[' + dia + '][fechamento]"]').val();
+
+      if (!abertura || !fechamento) {
+        temErro = true;
+
+        //  Adiciona feedback visual
+        if (!bloco.find('.erro-horario').length) {
+          const alerta = `<div class="erro-horario invalid-feedback d-block mt-1">Informe os horários de abertura e fechamento.</div>`;
+          bloco.append(alerta);
+        }
+
+        // Scroll até o erro (primeiro bloco com problema)
+        $('html, body').animate({
+          scrollTop: bloco.offset().top - 100
+        }, 300);
+
+        return false; // interrompe .each()
+      }
+    }
+  });
+
+  // Impede envio se houver erros
+  if (temErro) {
+    e.preventDefault();
+    $('html, body').animate({
+      scrollTop: $('.alert').first().offset().top - 100
+    }, 500);
+  }
+
+});
+
+// Remove erro de observação ao digitar
+$('textarea[name="observacoes_funcionamento"]').on('input', function () {
+  $('#erro-observacoes').remove();
+});
+
+$(document).on('input change', '.horario-abertura, .horario-fechamento, .ativar-dia', function () {
+  $(this).closest('.day-block').find('.erro-horario').remove();
+});
+
+
+// Exibe alerta visual bootstrap
+function showBootstrapAlert(message, type = 'danger') {
+    const alertBox = document.getElementById('custom-alert');
+    alertBox.className = `alert alert-${type} alert-dismissible fade show`;
+    alertBox.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertBox.classList.remove('d-none');
+}
+// IMAGENS 
+
+$(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+});
+
+// Plugins
+// Importante: registre os plugins
+FilePond.registerPlugin(
+    FilePondPluginImagePreview,
+    FilePondPluginFileValidateType
+);
+
+// Inicialize com atenção ao name e input original
+const inputElement = document.querySelector('#imageUploader');
+
+const pond = FilePond.create(inputElement, {
+    name: 'images[]', 
+    allowMultiple: true,
+    instantUpload: false,
+    allowRemove: true,
+    allowReorder: true,
+    storeAsFile: true, 
+    labelIdle: 'Arraste e solte as imagens ou <span class="filepond--label-action">clique para selecionar</span>'
+});
+
+
+
+
+$('.property-gallery').on('click', '.delete-image', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const imageId = $(this).data('id');
+    if (!imageId) {
+        alert('ID da imagem não encontrado.');
+        return;
+    }
+
+    if (confirm('Deseja excluir esta imagem?')) {
+        $.ajax({
+            url: `/property-images/${imageId}`,
+            type: 'DELETE',
+            success: function () {
+                // Remove o bloco com data-id correspondente
+                $(`.filepond--item[data-id="${imageId}"]`).remove();
+            },
+            error: function (xhr) {
+                alert('Erro ao excluir imagem.');
+                console.error(xhr.responseText);
+            }
+        });
+    }
+});

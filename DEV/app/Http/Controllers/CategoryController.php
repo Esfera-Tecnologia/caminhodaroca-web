@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -91,20 +92,24 @@ class CategoryController extends Controller
 
     public function storeAjax(Request $request)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:191|unique:categories,nome',
+        $nome = trim($request->input('nome'));
+
+        $request->merge(['nome' => $nome]);
+
+        $request->validate([
+            'nome' => ['required', Rule::unique('categories', 'nome')],
         ]);
 
         $categoria = Category::create([
-            'nome' => $validated['nome'],
+            'nome' => $nome,
             'status' => 'ativo',
         ]);
 
         return response()->json([
             'success' => true,
             'id' => $categoria->id,
-            'nome' => $categoria->nome,
-        ]);
+            'nome' => $categoria->nome
+        ], 200);
     }
 
 }

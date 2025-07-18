@@ -19,5 +19,3 @@
   </form>
 </div>
 @endsection
-
-@include('components.modal-categoria')

@@ -7,7 +7,7 @@
  
 
   <div class="col-md-4">
-    <label for="categoria_id" class="form-label">Categoria *</label>
+    <label for="categoria_id" class="form-label">Nome da Categoria *</label>
     <select name="category_id" id="category_id" class="form-select" required>
       <option value="">Selecione...</option>
       @foreach ($categories as $category)
@@ -29,7 +29,7 @@
 
 
   <div class="col-md-4">
-    <label for="nome" class="form-label">Nome *</label>
+    <label for="nome" class="form-label">Nome da Subcategoria *</label>
     <input type="text" name="nome" id="nome" value="{{ old('nome', $subcategory->nome ?? '') }}" class="form-control @error('nome') is-invalid @enderror" required>
     @error('nome')
       <div class="invalid-feedback">{{ $message }}</div>

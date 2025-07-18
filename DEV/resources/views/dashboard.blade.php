@@ -5,11 +5,11 @@
 @section('content')
 <h2 class="fw-bold mb-4">Dashboard</h2>
 
-<div class="row flex-nowrap overflow-auto g-3 pb-2">
+<div class="row g-3 pb-2 d-flex flex-wrap">
 
   {{-- Perfis --}}
-  <div class="col-auto">
-    <div class="card dashboard-card border-end-green shadow-sm">
+  <div class="dashboard-card-wrapper p-2">
+    <div class="card dashboard-card border-end-green shadow-sm h-100">
       <div class="card-body">
         <h6 class="card-title text-muted d-flex align-items-center">
           <i class="fas fa-user-shield me-2"></i> Perfis
@@ -20,8 +20,8 @@
   </div>
 
   {{-- Usuários --}}
-  <div class="col-auto">
-    <div class="card dashboard-card border-end-green shadow-sm">
+  <div class="dashboard-card-wrapper p-2">
+    <div class="card dashboard-card border-end-green shadow-sm h-100">
       <div class="card-body">
         <h6 class="card-title text-muted d-flex align-items-center">
           <i class="fas fa-user me-2"></i> Usuários
@@ -32,8 +32,8 @@
   </div>
 
   {{-- Categorias --}}
-  <div class="col-auto">
-    <div class="card dashboard-card border-end-green shadow-sm">
+  <div class="dashboard-card-wrapper p-2">
+    <div class="card dashboard-card border-end-green shadow-sm h-100">
       <div class="card-body">
         <h6 class="card-title text-muted d-flex align-items-center">
           <i class="fas fa-folder me-2"></i> Categorias
@@ -44,8 +44,8 @@
   </div>
 
   {{-- Subcategorias --}}
-  <div class="col-auto">
-    <div class="card dashboard-card border-end-green shadow-sm">
+  <div class="dashboard-card-wrapper p-2">
+    <div class="card dashboard-card border-end-green shadow-sm h-100">
       <div class="card-body">
         <h6 class="card-title text-muted d-flex align-items-center">
           <i class="fas fa-puzzle-piece me-2"></i> Subcategorias
@@ -56,8 +56,8 @@
   </div>
 
   {{-- Propriedades --}}
-  <div class="col-auto">
-    <div class="card dashboard-card border-end-green shadow-sm">
+  <div class="dashboard-card-wrapper p-2">
+    <div class="card dashboard-card border-end-green shadow-sm h-100">
       <div class="card-body">
         <h6 class="card-title text-muted d-flex align-items-center">
           <i class="fas fa-tractor me-2"></i> Propriedades

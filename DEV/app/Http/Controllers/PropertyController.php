@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Property;
 use App\Models\Category;
 use App\Models\Menu;
+use App\Models\Product;
+use App\Models\PropertyImage;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -38,6 +40,7 @@ class PropertyController extends Controller
         abort_unless($permissao?->can_create, 403);
 
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
+        $products = Product::where('status', 'ativo')->get();
         return view('properties.create', compact('categories'));
     }
 
@@ -54,14 +57,19 @@ class PropertyController extends Controller
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
 
-        // Upload da galeria
-        $galeriaPaths = [];
-        if ($request->hasFile('galeria')) {
-            foreach ($request->file('galeria') as $image) {
-                $galeriaPaths[] = $image->store('galeria', 'public');
+         if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('properties', 'public');
+
+                    PropertyImage::create([
+                        'property_id' => $property->id,
+                        'path' => $path,
+                    ]);
+                }
             }
-        }
-        $data['galeria_paths'] = $galeriaPaths;
+
+
+
 
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
@@ -69,6 +77,9 @@ class PropertyController extends Controller
 
         // Relacionamento categoria/subcategoria
         $this->syncCategoriasSubcategorias($property, $request);
+        // Relacionamento produto
+       $property->products()->sync($request->input('product_ids', []));
+       
 
         return redirect()->route('properties.index')->with('success', 'Propriedade cadastrada com sucesso!');
     }
@@ -80,8 +91,14 @@ class PropertyController extends Controller
        
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
         $property->load('categorias', 'subcategorias');
+        $products = Product::where('status', 'ativo')->get();
+        $selectedProducts = $property->products()->pluck('product_id')->toArray();
+
+        $galeria = collect($property->galeria_paths)->map(fn($path) => asset('storage/' . $path));
+
+
  
-        return view('properties.edit', compact('property', 'categories'));
+        return view('properties.edit', compact('property', 'categories', 'products','galeria'));
     }
 
     public function update(Request $request, Property $property)
@@ -89,37 +106,52 @@ class PropertyController extends Controller
 
         $data = $this->validateData($request, $property->id);
 
+        // Atualiza a logo
         if ($request->hasFile('logo')) {
-            // Remove logo antigo
             if ($property->logo_path) {
                 Storage::disk('public')->delete($property->logo_path);
             }
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
-
-        if ($request->hasFile('galeria')) {
-            // Remove imagens antigas
-            if ($property->galeria_paths) {
-                foreach ($property->galeria_paths as $img) {
-                    Storage::disk('public')->delete($img);
-                }
-            }
-            $galeriaPaths = [];
-            foreach ($request->file('galeria') as $image) {
-                $galeriaPaths[] = $image->store('galeria', 'public');
-            }
-            $data['galeria_paths'] = $galeriaPaths;
-        }
+      
 
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
 
-
+        
         $property->update($data);
 
+         // atualiza galeria
+       if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('properties', 'public');
+
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'path' => $path,
+                ]);
+            }
+        }
+
         $this->syncCategoriasSubcategorias($property, $request);
+        $property->products()->sync($request->input('product_ids', []));
 
         return redirect()->route('properties.index')->with('success', 'Propriedade atualizada com sucesso!');
+    }
+
+    public function deleteImage($id)
+    {
+        $image = PropertyImage::findOrFail($id);
+
+        // Apaga o arquivo físico
+        if (Storage::disk('public')->exists($image->path)) {
+            Storage::disk('public')->delete($image->path);
+        }
+
+        // Remove do banco
+        $image->delete();
+
+        return response()->json(['message' => 'Imagem excluída com sucesso.']);
     }
 
     public function destroy(Property $property)
@@ -165,6 +197,8 @@ class PropertyController extends Controller
             'possui_acessibilidade' => ['boolean'],
             'logo' => ['nullable', 'image'],
             'galeria.*' => ['nullable', 'image'],
+            'product_ids' => 'array',
+            'product_ids.*' => 'exists:products,id',
         ]);
     }
 

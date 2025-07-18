@@ -15,8 +15,8 @@
     @if ($canView)
       <a href="{{ route($routeName) }}"
          class="list-group-item list-group-item-action {{ request()->routeIs($menu->slug . '.*') ? 'active' : '' }}">
-        <i class="{{ $menu->icone }} me-2"></i> {{ $menu->nome }}
-      </a>
+        <i class="{{ $menu->icone }} me-2"></i> {{ $menu->nome }} 
+       </a>
     @endif
   @endforeach
 </div>

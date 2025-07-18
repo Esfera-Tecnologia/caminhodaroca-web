@@ -21,4 +21,3 @@
 </div>
 @endsection
 
-@include('components.modal-categoria')

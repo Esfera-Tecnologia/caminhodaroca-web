@@ -11,7 +11,7 @@
       </select>
       <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Adicionar</button>
     </div>
-     <div class="d-flex justify-content-end mt-1">
+     <div class="d-flex justify-content-end mt-1 addcategoria">
           <a href="#" class="d-block mt-2 text-secondary small" data-bs-toggle="modal" data-bs-target="#modalNovaCategoria">
           <i class="fas fa-plus me-1"></i> Adicionar Nova Categoria
         </a>

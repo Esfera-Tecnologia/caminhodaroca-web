@@ -7,6 +7,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PropertyImageController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SetPasswordController;
@@ -50,8 +52,15 @@ Route::resource('subcategories', SubcategoryController::class)->middleware('auth
 Route::post('/ajax/categories', [CategoryController::class, 'storeAjax'])->name('categories.ajax.store');
 
 
+Route::resource('products', ProductController::class)->middleware('auth');
+
+
 // Propriedades
+// routes/web.php
+Route::delete('/property-images/{id}', [PropertyImageController::class, 'destroy'])->name('property-images.destroy');
+
 Route::resource('properties', PropertyController::class)->middleware('auth');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

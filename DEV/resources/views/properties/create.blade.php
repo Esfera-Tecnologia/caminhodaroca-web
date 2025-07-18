@@ -22,7 +22,6 @@
 
   <form action="{{ route('properties.store') }}" id="form-propriedade" method="POST" enctype="multipart/form-data">
     @csrf
-    @method('PUT')
     @include('properties._form', ['property' => null])
     <div class="text-end mt-4">
       <a href="{{ route('properties.index') }}" class="btn btn-outline-secondary">Voltar</a>

@@ -30,7 +30,7 @@
     <table id="tabelaCategorias" class="table table-bordered table-hover datatable">
       <thead class="table-header-custom">
         <tr>
-          <th>Nome</th>
+          <th>Nome da Categoria</th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
