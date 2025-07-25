@@ -30,7 +30,7 @@ jobs:
 
       - name: Rodar comandos pós-deploy
         run: |
-          cd /var/www/caminhodaroca-web/DEV
+          cd /var/www/caminhodaroca-web
 
           mkdir -p storage bootstrap/cache
           # Ajustar permissões
