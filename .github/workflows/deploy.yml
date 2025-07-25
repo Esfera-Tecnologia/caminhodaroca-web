@@ -39,6 +39,7 @@ jobs:
         run: |
           cd /var/www/caminhodaroca-web/DEV
 
+          mkdir -p storage bootstrap/cache
           # Ajustar permissões
           sudo chown -R www-data:www-data storage bootstrap/cache
           sudo chmod -R 775 storage bootstrap/cache
