@@ -1,0 +1,54 @@
+name: Deploy Caminho da Roça (Self-Hosted)
+
+on:
+  push:
+    branches:
+      - main   # dispara quando fizer push na branch main
+
+jobs:
+  deploy:
+    name: Deploy para Servidor
+    runs-on: self-hosted   # importante: o runner está dentro da VPN
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, bcmath, intl
+
+      - name: Instalar dependências PHP (Composer)
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Atualizar diretório do projeto
+        run: |
+          # Defina o caminho do projeto no servidor (o runner roda aqui)
+          DEPLOY_PATH="/var/www/caminhodaroca-web/DEV/public"
+
+          # Garante que o diretório existe
+          sudo mkdir -p $DEPLOY_PATH
+          sudo chown -R $USER:$USER $DEPLOY_PATH
+
+          # Copia os arquivos do repositório para o diretório final
+          rsync -av --delete --exclude=".git" --exclude="node_modules" ./ $DEPLOY_PATH
+
+      - name: Rodar comandos pós-deploy
+        run: |
+          cd /var/www/caminhodaroca-web/DEV/public
+
+          # Ajustar permissões
+          sudo chown -R www-data:www-data storage bootstrap/cache
+          sudo chmod -R 775 storage bootstrap/cache
+
+          # Executar otimizações e migrations
+          php artisan migrate --force
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan config:cache
+          php artisan route:cache
+
+      - name: Finalizar
+        run: echo "Deploy concluído com sucesso!"
