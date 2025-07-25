@@ -26,7 +26,7 @@ jobs:
       - name: Atualizar diretório do projeto
         run: |
           # Defina o caminho do projeto no servidor (o runner roda aqui)
-          DEPLOY_PATH="/var/www/caminhodaroca-web/DEV/public"
+          DEPLOY_PATH="/var/www/caminhodaroca-web/DEV"
 
           # Garante que o diretório existe
           sudo mkdir -p $DEPLOY_PATH
@@ -37,7 +37,7 @@ jobs:
 
       - name: Rodar comandos pós-deploy
         run: |
-          cd /var/www/caminhodaroca-web/DEV/public
+          cd /var/www/caminhodaroca-web/DEV
 
           # Ajustar permissões
           sudo chown -R www-data:www-data storage bootstrap/cache
