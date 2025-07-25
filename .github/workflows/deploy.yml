@@ -26,7 +26,7 @@ jobs:
       - name: Atualizar diretório do projeto
         run: |
           # Defina o caminho do projeto no servidor (o runner roda aqui)
-          DEPLOY_PATH="/var/www/caminhodaroca-web/DEV"
+          DEPLOY_PATH="/var/www/caminhodaroca-web"
 
           # Garante que o diretório existe
           sudo mkdir -p $DEPLOY_PATH
