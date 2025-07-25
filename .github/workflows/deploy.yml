@@ -31,17 +31,17 @@ jobs:
       - name: Rodar comandos pós-deploy
         run: |
           cd /var/www/caminhodaroca-web
-
+          cp ../.env .env
           mkdir -p storage bootstrap/cache
           # Ajustar permissões
           sudo chown -R www-data:www-data storage bootstrap/cache
           sudo chmod -R 775 storage bootstrap/cache
 
           # Executar otimizações e migrations
-#          php artisan migrate --force
-#          php artisan config:clear
-#          php artisan cache:clear
-#          php artisan config:cache
+          php artisan migrate --force
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan config:cache
 #          php artisan route:cache
 
       - name: Finalizar

@@ -16,10 +16,10 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
          $this->call([
-            AccessProfileSeeder::class,
             MenuSeeder::class,
-            UserSeeder::class,
-            
+             AccessProfileSeeder::class,
+             UserSeeder::class,
+
         ]);
     }
 }
