@@ -24,7 +24,7 @@
     <label class="form-label"><strong>Selecione os produtos abaixo:</strong></label>
 
    <div class="row">
-    @if(isset($product) != '')
+    @if(isset($products) != '')
     @foreach(array_chunk($products->all(), 5) as $grupo)
       <div class="col-md-4">
         @foreach($grupo as $product)
@@ -34,7 +34,8 @@
                   value="{{ $product->id }}"
                   class="form-check-input"
                   id="product_{{ $product->id }}"
-                  {{ in_array($product->id, old('product_ids', $property->products->pluck('id')->toArray() ?? [])) ? 'checked' : '' }}>
+                  {{ in_array($product->id, old('product_ids', isset($property) ? $property->products->pluck('id')->toArray() : [])) ? 'checked' : '' }}
+
             <label class="form-check-label" for="product_{{ $product->id }}">
               {{ $product->nome }}
             </label>

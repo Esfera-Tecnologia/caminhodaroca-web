@@ -41,7 +41,7 @@ class PropertyController extends Controller
 
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
         $products = Product::where('status', 'ativo')->get();
-        return view('properties.create', compact('categories'));
+        return view('properties.create', compact('categories','products'));
     }
 
     public function store(Request $request)
@@ -57,23 +57,21 @@ class PropertyController extends Controller
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
 
-         if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $file) {
-                    $path = $file->store('properties', 'public');
-
-                    PropertyImage::create([
-                        'property_id' => $property->id,
-                        'path' => $path,
-                    ]);
-                }
-            }
-
-
-
-
+    
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
         $property = Property::create($data);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('properties', 'public');
+
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'path' => $path,
+                ]);
+            }
+        }
 
         // Relacionamento categoria/subcategoria
         $this->syncCategoriasSubcategorias($property, $request);
