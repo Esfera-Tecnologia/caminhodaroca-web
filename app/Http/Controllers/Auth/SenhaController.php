@@ -11,19 +11,30 @@ use App\Models\User;
 class SenhaController extends Controller
 {
   public function storeNovaSenha(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email|exists:users,email',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
+  {
+      $request->validate([
+          'email' => 'required|email|exists:users,email',
+          'password' => 'required|string|min:8|confirmed',
+      ]);
 
-    $user = User::where('email', $request->email)->firstOrFail();
+      $user = User::where('email', $request->email)->firstOrFail();
 
-    $user->password = Hash::make($request->password);
-    $user->save();
+      $user->password = Hash::make($request->password);
+      $user->save();
 
-    auth()->login($user);
+      auth()->login($user);
 
-    return redirect()->route('dashboard')->with('success', 'Senha definida com sucesso!');
-}
+      return redirect()->route('dashboard')->with('success', 'Senha definida com sucesso!');
+  }
+
+     public function formNovaSenha(Request $request, $token)
+    {
+        $email = $request->query('email');
+
+        return view('auth.set-password', [
+            'email' => $email,
+            'token' => $token
+        ]);
+    }
+
 }

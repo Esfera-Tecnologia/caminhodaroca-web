@@ -2,10 +2,12 @@
 
 namespace App\Notifications;
 
+
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Password;
 
 class WelcomeNewUserNotification extends Notification
 {
@@ -23,12 +25,19 @@ class WelcomeNewUserNotification extends Notification
 
     public function toMail($notifiable)
     {
-        // Gera um link temporário para a tela de definição de senha
+        // Gera um token de redefinição de senha
+        $token = Password::createToken($notifiable);
+
+        // Gera link com o token
         $url = URL::temporarySignedRoute(
-            'password.set', // Rota que vamos criar
+            'password.set',
             Carbon::now()->addMinutes(60),
-            ['email' => $notifiable->email]
+            [
+                'token' => $token,
+                'email' => $notifiable->email,
+            ]
         );
+        
 
         return (new MailMessage)
             ->subject('Bem-vindo(a) ao Caminho da Roça!')
