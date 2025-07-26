@@ -129,6 +129,11 @@ function adicionarCategoria() {
         </div>
       `);
     });
+
+     $block.append(`
+      <input type="hidden" class="subcategoria-hidden" name="categoria_ids[${categoriaId}][]" value="">
+    `);
+
   } else {
     // Exibe mensagem se não houver subcategorias
     $block.append(`

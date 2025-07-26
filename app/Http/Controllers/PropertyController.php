@@ -225,6 +225,7 @@ class PropertyController extends Controller
                 }
             }
         }
+        
 
         // Remove antigos e insere novos
         \DB::table('category_property_subcategories')->where('property_id', $property->id)->delete();
