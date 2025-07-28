@@ -39,9 +39,10 @@ jobs:
 
           # Executar otimizações e migrations
           cp ../.env .env
-#          php artisan migrate --force
-#          php artisan config:clear
-#          php artisan cache:clear
+          php artisan migrate
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan storage:link
 #          php artisan config:cache
 #          php artisan route:cache
 
