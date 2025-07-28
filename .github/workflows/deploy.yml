@@ -37,7 +37,7 @@ jobs:
           sudo chown -R www-data:www-data storage bootstrap/cache
           sudo chmod -R 775 storage bootstrap/cache
           sudo rm -rf storage/app/public
-          ln -s /var/www/storage-data storage/app/public
+          sudo ln -s /var/www/storage-data storage/app/public
 
           # Executar otimizações e migrations
           cp ../.env .env
