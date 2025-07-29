@@ -93,7 +93,7 @@ jobs:
           sudo ln -s /var/www/storage-data storage/app/public
 
           # Executar otimizações e migrations
-          php artisan migrate -f
+          php artisan migrate --force
           php artisan config:clear
           php artisan cache:clear
           php artisan storage:link
