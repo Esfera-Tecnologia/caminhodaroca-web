@@ -59,7 +59,13 @@ jobs:
 
       - name: Exportar todas as variáveis para .env
         run: |
-          printenv | grep -v "GITHUB_" | grep -v "RUNNER_" | grep -v "HOME=" | grep -v "PATH=" > .env
+          printenv \
+            | grep -v "GITHUB_" \
+            | grep -v "RUNNER_" \
+            | grep -v "HOME=" \
+            | grep -v "PATH=" \
+            | awk -F= '{ printf "%s=\"%s\"\n", $1, substr($0, index($0,$2)) }' > .env
+
           echo ".env gerado com base nas variáveis de ambiente:"
           cat .env
 
