@@ -87,7 +87,7 @@ jobs:
           sudo ln -s /var/www/storage-data storage/app/public
 
           # Executar otimizações e migrations
-#          cp ../.env .env
+          cp ../.env .env
           php artisan migrate
           php artisan config:clear
           php artisan cache:clear
