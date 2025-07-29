@@ -87,13 +87,10 @@ jobs:
           sudo ln -s /var/www/storage-data storage/app/public
 
           # Executar otimizações e migrations
-#          cp ../.env .env
           php artisan migrate -f
           php artisan config:clear
           php artisan cache:clear
           php artisan storage:link
-#          php artisan config:cache
-#          php artisan route:cache
 
       - name: Finalizar
         run: echo "Deploy concluído com sucesso!"
