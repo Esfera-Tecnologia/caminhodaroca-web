@@ -60,8 +60,12 @@ jobs:
       - name: Exportar todas as variáveis para .env
         run: |
           printenv \
-            | grep  "LARAVEL_VARS_" \
-            | awk -F= '{ printf "%s=\"%s\"\n", $1, substr($0, index($0,$2)) }' > .env
+            | grep "^LARAVEL_VARS_" \
+            | awk -F= '{
+            key = substr($1, length("LARAVEL_VARS_")+1);
+            val = substr($0, index($0, $2));
+            printf "%s=\"%s\"\n", key, val
+          }' > .env
 
           echo ".env gerado com base nas variáveis de ambiente:"
           cat .env
