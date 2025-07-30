@@ -36,15 +36,20 @@
                     @enderror
                 </div>
 
-                <!-- Senha -->
-                <div class="mb-3">
+    
+                <div class="mb-3 position-relative">
                     <label for="password" class="form-label">Senha</label>
-                    <input id="password" type="password" name="password"
+                    <div class="input-group">
+                                <input id="password" type="password" name="password"
                         class="form-control @error('password') is-invalid @enderror"
                         placeholder="********" required>
-                    @error('password')
+                        <button type="button" class="btn btn-outline-success" id="togglePassword" style="border-color: #ccc;">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                          @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                    </div>
                 </div>
 
 
@@ -62,5 +67,15 @@
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
+<script>
+    $(document).ready(function () {
+    $('#togglePassword').on('click', function () {
+        const input = $('#password');
+        const icon = $(this).find('i');
+        const type = input.attr('type') === 'password' ? 'text' : 'password';
+        input.attr('type', type);
+        icon.toggleClass('bi-eye bi-eye-slash'); // alterna ícone
+    });
+});
+</script> 
 @endpush

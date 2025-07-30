@@ -17,8 +17,10 @@
   <div class="row g-4">
     <div class="col-md-3">
       <label class="form-label">Logo da Propriedade *</label>
-        <input type="file" name="logo" class="form-control" onchange="previewLogo(this)">
+        <input type="file" name="logo" id="logo" class="form-control"  {{ !isset($property->logo_path) ? 'required' : '' }} accept=".jpg,.jpeg,.png,.gif" onchange="previewLogo(this)">
         <img id="preview-logo" src="{{ isset($property->logo_path) ? asset('storage/' . $property->logo_path) : asset('assets/teste3.png') }}" class="preview-img mt-2" alt="Preview Logo">
+        <div id="logo-error" class="text-danger mt-1" "></div>
+        
     </div>
 
     <div class="col-md-9">
@@ -47,7 +49,7 @@
                     name="instagram"
                     class="form-control"
                     aria-describedby="at-sign"
-                    placeholder="usuario.exemplo"
+                    placeholder="usuario.exemplo" required
                     value="{{ old('instagram', ltrim($property->instagram ?? '', '@')) }}">
             </div>
           </div>
@@ -107,8 +109,8 @@
 
 <div class="col-md-12 mt-4">
     <label class="form-label">Fotos dos seus produtos ou do estabelecimento *</label>
-<input type="file" name="images[]" id="imageUploader" multiple />
-
+    <input type="file" name="images[]"  id="imageUploader" multiple />
+    <div id="images-error" class="alert alert-danger mt-2 d-none"></div>
 
 <div class="property-gallery d-flex flex-wrap gap-3">
    @if(isset($property) != '')

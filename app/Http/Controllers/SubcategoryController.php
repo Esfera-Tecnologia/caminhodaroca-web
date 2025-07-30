@@ -76,6 +76,11 @@ class SubcategoryController extends Controller
         $permissao = $this->getPermissao('subcategories');
         abort_unless($permissao?->can_delete, 403);
 
+
+        if ($subcategory->properties()->exists()) {
+            return back()->with('error', 'Não é possível excluir esta subcategoria. Existem propriedades vinculadas a ela.');
+        }
+
         $subcategory->delete();
 
         return redirect()->route('subcategories.index')->with('success', 'Subcategoria excluída com sucesso.');

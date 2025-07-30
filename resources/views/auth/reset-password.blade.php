@@ -34,7 +34,7 @@
                 <!-- Email -->
                 <div class="mb-3">
                     <label for="email" class="form-label">E-mail</label>
-                    <input id="email" type="email" name="email"
+                    <input id="email" type="email" name="email" 
                            class="form-control @error('email') is-invalid @enderror"
                            value="{{ old('email', $request->email) }}" required autofocus>
                     @error('email')
@@ -42,26 +42,36 @@
                     @enderror
                 </div>
 
-                <!-- Nova senha -->
-                <div class="mb-3">
-                    <label for="password" class="form-label">Nova senha</label>
-                    <input id="password" type="password" name="password"
+               
+
+                <div class="mb-3 position-relative">
+                    <label for="password" class="form-label">Nova Senha</label>
+                    <div class="input-group">
+                        <input id="password" type="password" name="password" placeholder="********"
                            class="form-control @error('password') is-invalid @enderror"
                            required autocomplete="new-password">
-                    @error('password')
+                        <button type="button"  style="border-color: #ccc;" class="btn btn-outline-success" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                    </div>
                 </div>
 
-                <!-- Confirmação de senha -->
-                <div class="mb-3">
-                    <label for="password_confirmation" class="form-label">Confirme a nova senha</label>
-                    <input id="password_confirmation" type="password" name="password_confirmation"
+                <div class="mb-3 position-relative">
+                    <label for="password_confirmation" class="form-label">Confirmar Nova Senha</label>
+                    <div class="input-group">
+                        <input id="password_confirmation" type="password" name="password_confirmation" placeholder="********"
                            class="form-control @error('password_confirmation') is-invalid @enderror"
                            required autocomplete="new-password">
-                    @error('password_confirmation')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                        <button type="button"  style="border-color: #ccc;" class="btn btn-outline-success togglePasswordConfirm">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        @error('password_confirmation')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="d-grid">
@@ -73,3 +83,27 @@
     </div>
 </div>
 @endsection
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function () {
+    // Campo de senha principal
+    $('#togglePassword').on('click', function () {
+        const input = $('#password');
+        const icon = $(this).find('i');
+        const type = input.attr('type') === 'password' ? 'text' : 'password';
+        input.attr('type', type);
+        icon.toggleClass('bi-eye bi-eye-slash');
+    });
+
+    // Campo de confirmação de senha
+    $('.togglePasswordConfirm').on('click', function () {
+        const input = $('#password_confirmation');
+        const icon = $(this).find('i');
+        const type = input.attr('type') === 'password' ? 'text' : 'password';
+        input.attr('type', type);
+        icon.toggleClass('bi-eye bi-eye-slash');
+    });
+});
+</script> 
+@endpush

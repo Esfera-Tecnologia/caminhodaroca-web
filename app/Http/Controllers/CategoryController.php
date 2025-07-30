@@ -74,6 +74,9 @@ class CategoryController extends Controller
         if ($category->subcategories()->exists()) {
             return back()->with('error', 'Não é possível excluir esta categoria. Existem subcategorias vinculadas a ela.');
         }
+         if ($category->properties()->exists()) {
+            return back()->with('error', 'Não é possível excluir esta categoria. Existem propriedades vinculadas a ela.');
+        }
 
         $category->delete();
 

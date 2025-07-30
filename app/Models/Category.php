@@ -12,5 +12,11 @@ class Category extends Model
     {
         return $this->hasMany(Subcategory::class);
     }
+    public function properties()
+    {
+        return $this->belongsToMany(Property::class, 'category_property_subcategories')
+                    ->withPivot('subcategory_id')
+                    ->withTimestamps();
+    }
 }
 

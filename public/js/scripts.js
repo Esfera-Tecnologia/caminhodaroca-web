@@ -340,7 +340,6 @@ function previewLogo(input) {
 
 
 
-
 $('#form-propriedade').on('submit', function (e) {
   let temErro = false;
   const tipo = $('input[name="tipo_funcionamento"]:checked').val();
@@ -379,34 +378,46 @@ $('#form-propriedade').on('submit', function (e) {
     });
   }
 
-  // Validação de horários obrigatórios para dias ativos
+
+
+  // Validação de horários obrigatórios e consistentes para dias ativos
   $('.day-block').each(function () {
-    const bloco = $(this);
-    const dia = bloco.data('dia');
-    const ativo = bloco.find('.ativar-dia').is(':checked');
+      const bloco = $(this);
+      const dia = bloco.data('dia');
+      const ativo = bloco.find('.ativar-dia').is(':checked');
 
-    if (ativo) {
-      const abertura = bloco.find('input[name="agenda_personalizada[' + dia + '][abertura]"]').val();
-      const fechamento = bloco.find('input[name="agenda_personalizada[' + dia + '][fechamento]"]').val();
+      // Remove mensagens antigas antes de validar novamente
+      bloco.find('.erro-horario').remove();
 
-      if (!abertura || !fechamento) {
-        temErro = true;
+      if (ativo) {
+          const abertura = bloco.find(`input[name="agenda_personalizada[${dia}][abertura]"]`).val();
+          const fechamento = bloco.find(`input[name="agenda_personalizada[${dia}][fechamento]"]`).val();
 
-        //  Adiciona feedback visual
-        if (!bloco.find('.erro-horario').length) {
-          const alerta = `<div class="erro-horario invalid-feedback d-block mt-1">Informe os horários de abertura e fechamento.</div>`;
-          bloco.append(alerta);
-        }
+          // Valida se os campos estão preenchidos
+          if (!abertura || !fechamento) {
+              temErro = true;
+              const alerta = `<div class="erro-horario invalid-feedback d-block mt-1">Informe os horários de abertura e fechamento.</div>`;
+              bloco.append(alerta);
 
-        // Scroll até o erro (primeiro bloco com problema)
-        $('html, body').animate({
-          scrollTop: bloco.offset().top - 100
-        }, 300);
+              $('html, body').animate({ scrollTop: bloco.offset().top - 100 }, 300);
+              return false; // interrompe .each()
+          }
 
-        return false; // interrompe .each()
+          // Valida se a abertura é anterior ao fechamento
+          if (abertura >= fechamento) {
+              temErro = true;
+              const alerta = `<div class="erro-horario invalid-feedback d-block mt-1">O horário de abertura deve ser anterior ao horário de fechamento.</div>`;
+              bloco.append(alerta);
+
+              $('html, body').animate({ scrollTop: bloco.offset().top - 100 }, 300);
+              return false;
+          }
       }
-    }
   });
+
+
+
+
 
   // Impede envio se houver erros
   if (temErro) {
@@ -448,14 +459,16 @@ $(document).ready(function () {
     });
 });
 
+
+
 // Plugins
 // Importante: registre os plugins
 FilePond.registerPlugin(
     FilePondPluginImagePreview,
-    FilePondPluginFileValidateType
+    FilePondPluginFileValidateType,
+    FilePondPluginFileValidateSize
 );
 
-// Inicialize com atenção ao name e input original
 const inputElement = document.querySelector('#imageUploader');
 
 const pond = FilePond.create(inputElement, {
@@ -465,8 +478,48 @@ const pond = FilePond.create(inputElement, {
     allowRemove: true,
     allowReorder: true,
     storeAsFile: true, 
-    labelIdle: 'Arraste e solte as imagens ou <span class="filepond--label-action">clique para selecionar</span>'
+    maxFiles: 6, 
+    acceptedFileTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'], 
+    fileValidateTypeLabelExpectedTypes: 'Apenas imagens (JPG, JPEG, PNG, GIF) são permitidas.',
+    labelIdle: 'Arraste e solte as imagens ou <span class="filepond--label-action">clique para selecionar</span>',
+     beforeAddFile: (file) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+
+        if (!allowedTypes.includes(file.fileType)) {
+            alert('Apenas imagens (JPG, JPEG, PNG, GIF) são permitidas.');
+            return false; // 🔥 bloqueia o arquivo
+        }
+        return true;
+    }
+
+
 });
+pond.on('addfile', (error, file) => {
+    if (error) {
+        // Remove o arquivo imediatamente
+        pond.removeFile(file.id);
+        
+        const msg = document.createElement('div');
+        msg.innerText = 'Apenas imagens com o formato "JPG, JPEG, PNG, GIF" são permitidas.';
+        msg.classList.add('alert', 'alert-warning', 'mt-2');
+        document.querySelector('#imageUploader').parentNode.appendChild(msg);
+        setTimeout(() => msg.remove(), 4000);
+
+    }
+});
+
+// Evento para impedir mais arquivos e mostrar alerta
+pond.on('warning', (error, file) => {
+    if (error.body === 'Max files') {
+        const msg = document.createElement('div');
+        msg.innerText = 'Limite máximo de 6 imagens atingido!\nEscolha as imagens novamente.';
+        msg.classList.add('alert', 'alert-warning', 'mt-2');
+        document.querySelector('#imageUploader').parentNode.appendChild(msg);
+        setTimeout(() => msg.remove(), 4000);
+    }
+});
+
+
 
 
 
@@ -495,4 +548,27 @@ $('.property-gallery').on('click', '.delete-image', function (event) {
             }
         });
     }
+});
+
+$(document).ready(function () {
+    $('#logo').on('change', function () {
+        const file = this.files[0];
+        const errorDiv = $('#logo-error');
+
+        if (file) {
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+            if (!allowedTypes.includes(file.type)) {
+                errorDiv.removeClass('d-none').text('Arquivo inválido. Apenas imagens (JPG, JPEG, PNG, GIF) são permitidas.');
+                $(this).val(''); // limpa o input
+            } else {
+                errorDiv.addClass('d-none').text(''); // limpa se válido
+            
+            }
+        } else {
+            errorDiv.addClass('d-none').text('');
+           
+        }
+        
+    });
 });
