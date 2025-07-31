@@ -1,25 +1,31 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Models\PropertyImage;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Models\PropertyImage;
 
 class PropertyImageController extends Controller
 {
-   public function destroy($id)
-{
-    $image = PropertyImage::findOrFail($id);
 
-    // Apagar o arquivo
-    if (Storage::disk('public')->exists($image->path)) {
-        Storage::disk('public')->delete($image->path);
+    public function remover(Request $request)
+    {
+        $id = $request->input('id');
+
+        $image = PropertyImage::find($id);
+
+        if (!$image) {
+            return response()->json(['error' => 'Imagem não encontrada'], 404);
+        }
+
+        // Remove do disco
+        if (Storage::disk('public')->exists($image->path)) {
+            Storage::disk('public')->delete($image->path);
+        }
+
+        // Remove do banco
+        $image->delete();
+
+        return response()->json(['success' => true]);
     }
-
-    // Remover do banco
-    $image->delete();
-
-    return response()->json(['success' => true]);
-}
 }

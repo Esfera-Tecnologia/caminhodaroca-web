@@ -20,7 +20,7 @@
     </div>
   @endif
 
-  <form action="{{ route('properties.store') }}" id="form-propriedade" method="POST" enctype="multipart/form-data">
+  <form action="{{ route('properties.store') }}" id="form-propriedade" method="POST"  novalidate enctype="multipart/form-data">
     @csrf
     @include('properties._form', ['property' => null])
     <div class="text-end mt-4">

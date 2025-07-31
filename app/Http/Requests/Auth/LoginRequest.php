@@ -19,10 +19,13 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    
+
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
+        // Tenta autenticar normalmente
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
@@ -31,8 +34,32 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Recupera o usuário autenticado
+        $user = Auth::user();
+
+        // Verifica se o usuário está inativo
+        if ($user->status !== 'ativo') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Usuário inativo. Entre em contato com o administrador.',
+            ]);
+        }
+
+        // Verifica se o perfil de acesso está inativo
+        if ($user->accessProfile && $user->accessProfile->status !== 'ativo') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'O perfil de acesso vinculado ao usuário está inativo. Contate o administrador.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
+
+
+
 
     public function ensureIsNotRateLimited(): void
     {

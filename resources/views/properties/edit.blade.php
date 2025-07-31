@@ -19,7 +19,7 @@
     </div>
   @endif
 
-  <form action="{{ route('properties.update', $property) }}" id="form-propriedade" method="POST" enctype="multipart/form-data">
+  <form action="{{ route('properties.update', $property) }}" id="form-propriedade" novalidate method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     @include('properties._form', ['property' => $property])

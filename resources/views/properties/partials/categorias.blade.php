@@ -1,7 +1,7 @@
 <div class="row g-3">
   
 <div class="col-md-12">
-    <label class="form-label">Selecione uma Categoria</label>
+    <label class="form-label">Selecione uma Categoria * </label>
     <div class="input-group">
       <select class="form-select" id="category_id">
         <option value="">Selecione uma Categoria</option>

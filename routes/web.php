@@ -57,7 +57,9 @@ Route::resource('products', ProductController::class)->middleware('auth');
 
 // Propriedades
 // routes/web.php
-Route::delete('/property-images/{id}', [PropertyImageController::class, 'destroy'])->name('property-images.destroy');
+
+Route::post('/imagens/remover', [PropertyImageController::class, 'remover'])->name('imagens.remover');
+
 
 Route::resource('properties', PropertyController::class)->middleware('auth');
 
