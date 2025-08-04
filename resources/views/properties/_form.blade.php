@@ -136,71 +136,120 @@
       }
     }
 
-    function adicionarCategoria() {
-      const select = $('#category_id');
-      const categoriaId = select.val();
-      const categoriaNome = select.find('option:selected').text();
-      const categoriaHtmlId = 'categoria_' + categoriaId;
+   function adicionarCategoria() {
+  const select = $('#category_id');
+  const categoriaId = select.val();
+  const categoriaNome = select.find('option:selected').text();
+  const categoriaHtmlId = 'categoria_' + categoriaId;
 
-      if (!categoriaId) {
-        alert('Por favor, selecione uma categoria válida.');
-        return;
-      }
+  if (!categoriaId) {
+    alert('Por favor, selecione uma categoria válida.');
+    return;
+  }
 
-      if ($('#' + categoriaHtmlId).length > 0) return;
+  if ($('#' + categoriaHtmlId).length > 0) return;
 
-      // Cria o bloco container
-      const $col = $('<div>', { class: 'col-md-6', id: categoriaHtmlId });
-      const $block = $('<div>', { class: 'categoria-block border p-3 h-100' });
+  // Cria o bloco da categoria
+  const $col = $('<div>', {
+    class: 'col-md-6',
+    id: categoriaHtmlId
+  });
 
+  const $block = $('<div>', {
+    class: 'categoria-block border p-3 h-100'
+  });
+
+  $block.append(`
+    <div class="d-flex justify-content-between">
+      <strong>${categoriaNome}</strong>
+      <button type="button" class="btn btn-sm btn-outline-danger">Remover</button>
+    </div>
+  `);
+
+  const subcategorias = window.subcategoriasPorCategoria?.[categoriaId] || [];
+
+  if (subcategorias.length > 0) {
+    subcategorias.forEach(sub => {
       $block.append(`
-        <div class="d-flex justify-content-between">
-          <strong>${categoriaNome}</strong>
-          <button type="button" class="btn btn-sm btn-outline-danger">Remover</button>
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox"
+                name="categoria_ids[${categoriaId}][]" value="${sub.id}"
+                id="sub${sub.id}-${categoriaId}">
+          <label class="form-check-label" for="sub${sub.id}-${categoriaId}">
+            ${sub.nome}
+          </label>
         </div>
       `);
+    });
 
-      // Evento remover
-      $block.find('button').on('click', () => $col.remove());
+    $block.append(`
+      <input type="hidden" class="subcategoria-hidden" name="categoria_ids[${categoriaId}][]" value="">
+    `);
+  } else {
+    $block.append(`
+      <div class="text-muted mt-2 small">
+        Essa categoria não possui subcategorias.
+      </div>
+      <input type="hidden" name="categoria_ids[${categoriaId}][]" value="">
+    `);
+  }
 
-      const subcategorias = window.subcategoriasPorCategoria?.[categoriaId] || [];
+  $col.append($block);
 
-      if (subcategorias.length > 0) {
-        subcategorias.forEach(sub => {
-          $block.append(`
-            <div class="form-check mt-2">
-              <input class="form-check-input" type="checkbox"
-                    name="categoria_ids[${categoriaId}][]" value="${sub.id}"
-                    id="sub${sub.id}-${categoriaId}">
-              <label class="form-check-label" for="sub${sub.id}-${categoriaId}">
-                ${sub.nome}
-              </label>
-            </div>
-          `);
-        });
+  // Verifica se já existe uma row com menos de 2 colunas
+  const $container = $('#categorias-container');
+  let $lastRow = $container.children('.row.g-3').last();
 
-        $block.append(`
-          <input type="hidden" class="subcategoria-hidden" name="categoria_ids[${categoriaId}][]" value="">
-        `);
+  if (!$lastRow.length || $lastRow.children('.col-md-6').length >= 2) {
+    $lastRow = $('<div class="row g-3 mb-2"></div>');
+    $container.append($lastRow);
+  }
 
-      } else {
-        // Exibe mensagem se não houver subcategorias
-        $block.append(`
-          <div class="text-muted mt-2 small">
-            Essa categoria não possui subcategorias.
-          </div>
-        `);
-        // Cria input hidden para enviar valor da categoria sem subcategoria
-        $block.append(`
-          <input type="hidden" name="categoria_ids[${categoriaId}][]" value="">
-        `);
+  $lastRow.append($col);
+
+  // Botão de remover com reestruturação automática
+  $block.find('button').on('click', function () {
+    $col.remove();
+
+    // Após remoção, reestruturar todas as colunas novamente em pares de dois
+    const $allCols = $('#categorias-container .col-md-6').detach();
+    $('#categorias-container').empty();
+
+    for (let i = 0; i < $allCols.length; i += 2) {
+      const $row = $('<div class="row g-3 mb-2"></div>');
+      $row.append($allCols[i]);
+
+      if ($allCols[i + 1]) {
+        $row.append($allCols[i + 1]);
       }
 
-      $col.append($block);
-        $('#categorias-container').append($col);
-        $('#category_id').val('');
-        $('#erro-categorias').remove();
+      $('#categorias-container').append($row);
     }
+  });
+
+  // Resetar select
+  $('#category_id').val('');
+  $('#erro-categorias').remove();
+}
+
+
+
+$(document).on('click', '.btn-remover-categoria', function () {
+  const $col = $(this).closest('.col-md-6');
+  $col.remove();
+
+  // Reorganiza novamente as linhas (duplas)
+  const $container = $('#categorias-container');
+  const $restantes = $container.find('.col-md-6').toArray();
+  $container.empty();
+
+  for (let i = 0; i < $restantes.length; i += 2) {
+    const $linha = $('<div class="row g-3"></div>');
+    $linha.append($restantes[i]);
+    if ($restantes[i + 1]) $linha.append($restantes[i + 1]);
+    $container.append($linha);
+  }
+});
 
 
  // mostra produtos artesanais
