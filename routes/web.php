@@ -15,6 +15,10 @@ use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Auth\SenhaController;
 
 
+Route::get('/phpini', function (){
+    phpinfo();
+});
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
