@@ -2,7 +2,6 @@
 
 @section('title', 'Cadastrar Propriedade')
 
-
 @section('content')
 <div class="content-box mx-auto" style="max-width: 1400px;">
   <div class="d-flex justify-content-between align-items-center mb-3">

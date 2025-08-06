@@ -49,23 +49,19 @@ $(document).ready(function () {
     });
   });
 
-  //mascara de whats
-   $('.telefone').mask('(00) 00000-0000');
 
-   $('.telefone').on('blur', function () {
-    const val = $(this).val();
 
-    if (val.length < 15 || val.includes('_')) {
-      $(this).addClass('is-invalid');
-      // Mensagem opcional
-      if (!$('#erro-whatsapp').length) {
-        $(this).after('<div id="erro-whatsapp" class="invalid-feedback d-block">Número incompleto</div>');
-      }
-    } else {
-      $(this).removeClass('is-invalid');
-      $('#erro-whatsapp').remove();
-    }
-  });
+    var SPMaskBehavior = function(val) {
+        return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
+    };
+    var spOptions = {
+        onKeyPress: function(val, e, field, options) {
+            field.mask(SPMaskBehavior.apply({}, arguments), options);
+        }
+    };
+    $('.telefone').mask(SPMaskBehavior, spOptions);
+
+
 
    //inicia select2
   $('.select2').each(function () {

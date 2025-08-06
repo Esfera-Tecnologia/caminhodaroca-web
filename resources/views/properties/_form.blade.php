@@ -104,7 +104,7 @@
 <!-- Upload moderno -->
 
 <div class="mb-4">
-  <label class="form-label">Fotos dos seus produtos ou do estabelecimento *</label>
+  <label class="form-label">Fotos dos seus produtos ou do estabelecimento</label>
 
   <div id="uploadBox" class="upload-box">
     <p class="upload-message m-0">
@@ -136,119 +136,119 @@
       }
     }
 
-   function adicionarCategoria() {
-  const select = $('#category_id');
-  const categoriaId = select.val();
-  const categoriaNome = select.find('option:selected').text();
-  const categoriaHtmlId = 'categoria_' + categoriaId;
+  function adicionarCategoria() {
+      const select = $('#category_id');
+      const categoriaId = select.val();
+      const categoriaNome = select.find('option:selected').text();
+      const categoriaHtmlId = 'categoria_' + categoriaId;
 
-  if (!categoriaId) {
-    alert('Por favor, selecione uma categoria válida.');
-    return;
-  }
-
-  if ($('#' + categoriaHtmlId).length > 0) return;
-
-  // Cria o bloco da categoria
-  const $col = $('<div>', {
-    class: 'col-md-6',
-    id: categoriaHtmlId
-  });
-
-  const $block = $('<div>', {
-    class: 'categoria-block border p-3 h-100'
-  });
-
-  $block.append(`
-    <div class="d-flex justify-content-between">
-      <strong>${categoriaNome}</strong>
-      <button type="button" class="btn btn-sm btn-outline-danger">Remover</button>
-    </div>
-  `);
-
-  const subcategorias = window.subcategoriasPorCategoria?.[categoriaId] || [];
-
-  if (subcategorias.length > 0) {
-    subcategorias.forEach(sub => {
-      $block.append(`
-        <div class="form-check mt-2">
-          <input class="form-check-input" type="checkbox"
-                name="categoria_ids[${categoriaId}][]" value="${sub.id}"
-                id="sub${sub.id}-${categoriaId}">
-          <label class="form-check-label" for="sub${sub.id}-${categoriaId}">
-            ${sub.nome}
-          </label>
-        </div>
-      `);
-    });
-
-    $block.append(`
-      <input type="hidden" class="subcategoria-hidden" name="categoria_ids[${categoriaId}][]" value="">
-    `);
-  } else {
-    $block.append(`
-      <div class="text-muted mt-2 small">
-        Essa categoria não possui subcategorias.
-      </div>
-      <input type="hidden" name="categoria_ids[${categoriaId}][]" value="">
-    `);
-  }
-
-  $col.append($block);
-
-  // Verifica se já existe uma row com menos de 2 colunas
-  const $container = $('#categorias-container');
-  let $lastRow = $container.children('.row.g-3').last();
-
-  if (!$lastRow.length || $lastRow.children('.col-md-6').length >= 2) {
-    $lastRow = $('<div class="row g-3 mb-2"></div>');
-    $container.append($lastRow);
-  }
-
-  $lastRow.append($col);
-
-  // Botão de remover com reestruturação automática
-  $block.find('button').on('click', function () {
-    $col.remove();
-
-    // Após remoção, reestruturar todas as colunas novamente em pares de dois
-    const $allCols = $('#categorias-container .col-md-6').detach();
-    $('#categorias-container').empty();
-
-    for (let i = 0; i < $allCols.length; i += 2) {
-      const $row = $('<div class="row g-3 mb-2"></div>');
-      $row.append($allCols[i]);
-
-      if ($allCols[i + 1]) {
-        $row.append($allCols[i + 1]);
+      if (!categoriaId) {
+        alert('Por favor, selecione uma categoria válida.');
+        return;
       }
 
-      $('#categorias-container').append($row);
+      if ($('#' + categoriaHtmlId).length > 0) return;
+
+      // Cria o bloco da categoria
+      const $col = $('<div>', {
+        class: 'col-md-6',
+        id: categoriaHtmlId
+      });
+
+      const $block = $('<div>', {
+        class: 'categoria-block border p-3 h-100'
+      });
+
+      $block.append(`
+        <div class="d-flex justify-content-between">
+          <strong>${categoriaNome}</strong>
+          <button type="button" class="btn btn-sm btn-outline-danger">Remover</button>
+        </div>
+      `);
+
+      const subcategorias = window.subcategoriasPorCategoria?.[categoriaId] || [];
+
+      if (subcategorias.length > 0) {
+        subcategorias.forEach(sub => {
+          $block.append(`
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox"
+                    name="categoria_ids[${categoriaId}][]" value="${sub.id}"
+                    id="sub${sub.id}-${categoriaId}">
+              <label class="form-check-label" for="sub${sub.id}-${categoriaId}">
+                ${sub.nome}
+              </label>
+            </div>
+          `);
+        });
+
+        $block.append(`
+          <input type="hidden" class="subcategoria-hidden" name="categoria_ids[${categoriaId}][]" value="">
+        `);
+      } else {
+        $block.append(`
+          <div class="text-muted mt-2 small">
+            Essa categoria não possui subcategorias.
+          </div>
+          <input type="hidden" name="categoria_ids[${categoriaId}][]" value="">
+        `);
+      }
+
+      $col.append($block);
+
+      // Verifica se já existe uma row com menos de 2 colunas
+      const $container = $('#categorias-container');
+      let $lastRow = $container.children('.row.g-3').last();
+
+      if (!$lastRow.length || $lastRow.children('.col-md-6').length >= 2) {
+        $lastRow = $('<div class="row g-3 mb-2"></div>');
+        $container.append($lastRow);
+      }
+
+      $lastRow.append($col);
+
+      // Botão de remover com reestruturação automática
+      $block.find('button').on('click', function () {
+        $col.remove();
+
+        // Após remoção, reestruturar todas as colunas novamente em pares de dois
+        const $allCols = $('#categorias-container .col-md-6').detach();
+        $('#categorias-container').empty();
+
+        for (let i = 0; i < $allCols.length; i += 2) {
+          const $row = $('<div class="row g-3 mb-2"></div>');
+          $row.append($allCols[i]);
+
+          if ($allCols[i + 1]) {
+            $row.append($allCols[i + 1]);
+          }
+
+          $('#categorias-container').append($row);
+        }
+      });
+
+      // Resetar select
+      $('#category_id').val('');
+      $('#erro-categorias').remove();
     }
-  });
-
-  // Resetar select
-  $('#category_id').val('');
-  $('#erro-categorias').remove();
-}
 
 
 
-$(document).on('click', '.btn-remover-categoria', function () {
-  const $col = $(this).closest('.col-md-6');
-  $col.remove();
+    $(document).on('click', '.btn-remover-categoria', function () {
+    const $col = $(this).closest('.col-md-6');
+    $col.remove();
 
-  // Reorganiza novamente as linhas (duplas)
-  const $container = $('#categorias-container');
-  const $restantes = $container.find('.col-md-6').toArray();
-  $container.empty();
+    // Reorganiza novamente as linhas (duplas)
+    const $container = $('#categorias-container');
+    const $restantes = $container.find('.col-md-6').toArray();
+    $container.empty();
 
-  for (let i = 0; i < $restantes.length; i += 2) {
-    const $linha = $('<div class="row g-3"></div>');
-    $linha.append($restantes[i]);
-    if ($restantes[i + 1]) $linha.append($restantes[i + 1]);
-    $container.append($linha);
-  }
+    for (let i = 0; i < $restantes.length; i += 2) {
+      const $linha = $('<div class="row g-3"></div>');
+      $linha.append($restantes[i]);
+      if ($restantes[i + 1]) $linha.append($restantes[i + 1]);
+      $container.append($linha);
+    }
 });
 
 
@@ -305,27 +305,43 @@ $(document).on('click', '.btn-remover-categoria', function () {
       e.stopPropagation();
     }
 
-    function handleFiles(files) {
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+    
 
+    // Limites
+    const MAX_FILES = 6;
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+
+    function handleFiles(files) {
       for (const file of files) {
-        if (!allowedTypes.includes(file.type)) {
+        // 1) Tipo permitido
+        if (!ALLOWED_TYPES.includes(file.type)) {
           showImageAlert('Apenas imagens nos formatos PNG, JPG, JPEG e GIF são permitidas.');
           continue;
         }
 
-        // 👉 AQUI verifica se ultrapassou o limite
-        if ((selectedFiles.length + loadedImageIds.size) >= maxFiles) {
-          showImageAlert('Você só pode enviar no máximo ' + maxFiles + ' imagens.');
-          break;
+        // 2) Tamanho permitido (2MB)
+        if (file.size > MAX_FILE_SIZE) {
+          const mb = (file.size / (1024 * 1024)).toFixed(2);
+          showImageAlert(`A imagem "${file.name}" tem ${mb} MB. O limite é 2 MB.`);
+          continue;
         }
 
-        selectedFiles.push(file); // ✅ Só adiciona se passou nos testes acima
+        // 3) Limite de quantidade
+        const totalImagens = selectedFiles.length + loadedImageIds.size;
+        if (totalImagens >= MAX_FILES) {
+          showImageAlert(`Você só pode enviar no máximo ${MAX_FILES} imagens.`);
+          break; // para de processar o restante deste lote
+        }
+
+        // 4) OK: adiciona e renderiza
+        selectedFiles.push(file);
         renderThumbnail(file);
       }
 
-      updateFileInput();
+      updateFileInput(); // mantém o input em sincronia
     }
+
 
 
 
