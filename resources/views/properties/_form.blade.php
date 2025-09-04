@@ -19,7 +19,7 @@
       <label class="form-label">Logo da Propriedade *</label>
         <input type="file" name="logo" id="logo" class="form-control" value="{{ isset($property->logo_path) ? asset('storage/' . $property->logo_path) : '' }}"  accept=".jpg,.jpeg,.png,.gif" onchange="previewLogo(this)">
         <img id="preview-logo" src="{{ isset($property->logo_path) ? asset('storage/' . $property->logo_path) : asset('assets/teste3.png') }}" class="preview-img mt-2" alt="Preview Logo">
-        <div id="logo-error" class="text-danger mt-1" "></div>
+        <div id="logo-error" class="text-danger mt-1"></div>
         
     </div>
 
@@ -47,17 +47,27 @@
           <input type="text" name="instagram"  id="instagram" class="form-control" value="{{ old('instagram', ltrim($property->instagram ?? '', '@')) }}" required>
         </div>
 
-      
         <div class="col-md-6">
           <label class="form-label">Endereço do Empreendimento *</label>
           <input type="text" name="endereco_principal" id="endereco_principal" class="form-control" value="{{ old('endereco_principal', $property->endereco_principal ?? '') }}" required>
         </div>
-        
-        <div class="col-md-6">
-          <label class="form-label">Endereço Secundário</label>
-          <input type="text" name="endereco_secundario" class="form-control" value="{{ old('endereco_secundario', $property->endereco_secundario ?? '') }}">
+
+        <div class="col-md-4">
+          <label class="form-label">Link do Google Maps</label>
+          <input type="url" name="google_maps_url" id="google_maps_url" class="form-control" required value="{{ old('google_maps_url', $property->google_maps_url ?? '') }}" placeholder="Cole o link do Google Maps aqui">
         </div>
-        <div class="col-md-6">
+
+        <div class="col-md-2">
+          <label class="form-label">Latitude</label>
+          <input type="text" name="latitude" id="latitude" class="form-control" value="{{ old('latitude', $property->latitude ?? '') }}" required placeholder="Latitude">
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Longitude</label>
+          <input type="text" name="longitude" id="longitude" class="form-control" value="{{ old('longitude', $property->longitude ?? '') }}" required placeholder="Longitude">
+        </div>
+
+        <div class="col-md-4">
           <label class="form-label">Cidade *</label>
             <select name="cidade" id="cidade" class="form-select select2" required>
                 <option value="">Selecione uma Cidade</option>
@@ -120,8 +130,6 @@
 
 
 <div id="custom-alert" class="alert d-none" role="alert"></div>
-
-
 
 </div>
 
@@ -442,10 +450,6 @@
       }, 5000);
     }
 
-
-
-
-
 function gerarAgendaSemanal() {
   const dias = [
     'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'
@@ -506,10 +510,6 @@ function gerarAgendaSemanal() {
 
   controlarInputsPorDia(); // Desabilita campos de dias inativos
 }
-
-
-
-
 
 $(document).ready(() => {
   gerarAgendaSemanal();
@@ -613,6 +613,42 @@ $(document).ready(controlarInputsPorDia);
     $(this).closest('.day-block').find('.erro-horario').remove();
   });
 
+
+  $(document).ready(function () {
+    $('#google_maps_url').on('blur', function () {
+      const url = $(this).val();
+      if (!url) return;
+
+      let lat = '';
+      let lng = '';
+
+      // Captura todos os !3dLAT!4dLONG do link
+      const regexAll = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g;
+      let match, lastMatch;
+
+      while ((match = regexAll.exec(url)) !== null) {
+        lastMatch = match; // sempre pega o último par encontrado
+      }
+
+      if (lastMatch) {
+        lat = lastMatch[1];
+        lng = lastMatch[2];
+      } else {
+        // Se não tiver !3d / !4d, tenta pegar o @lat,long
+        const regexAt = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+        const matchAt = url.match(regexAt);
+
+        if (matchAt) {
+          lat = matchAt[1];
+          lng = matchAt[2];
+        }
+      }
+
+      // Preenche os campos (ou limpa se não encontrou)
+      $('#latitude').val(lat);
+      $('#longitude').val(lng);
+    });
+  });
 
 
   </script>

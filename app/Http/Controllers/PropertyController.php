@@ -197,6 +197,9 @@ class PropertyController extends Controller
             'galeria.*' => ['nullable', 'image'],
             'product_ids' => 'array',
             'product_ids.*' => 'exists:products,id',
+            'google_maps_url' => ['required', 'url'],
+            'latitude' => ['required', 'regex:/^-?\d{1,2}\.\d+$/'],
+            'longitude' => ['required', 'regex:/^-?\d{1,3}\.\d+$/'],
         ]);
     }
 
