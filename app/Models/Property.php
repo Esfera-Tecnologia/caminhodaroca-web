@@ -37,7 +37,6 @@ class Property extends Model
         'description',
         'type',
         'rating',
-        'logo',
         'weekday_hours',
         'weekend_hours',
         'products_description',

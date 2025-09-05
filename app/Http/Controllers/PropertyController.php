@@ -9,6 +9,8 @@ use App\Models\Product;
 use App\Models\PropertyImage;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +20,7 @@ class PropertyController extends Controller
     {
         $menuId = Menu::where('slug', $slug)->value('id');
 
-        return auth()->user()
+        return Auth::user()
             ->accessProfile
             ->permissions
             ->firstWhere('menu_id', $menuId);
@@ -231,10 +233,10 @@ class PropertyController extends Controller
         
 
         // Remove antigos e insere novos
-        \DB::table('category_property_subcategories')->where('property_id', $property->id)->delete();
+        DB::table('category_property_subcategories')->where('property_id', $property->id)->delete();
 
         if (!empty($registros)) {
-            \DB::table('category_property_subcategories')->insert($registros);
+            DB::table('category_property_subcategories')->insert($registros);
         }
     }
 
