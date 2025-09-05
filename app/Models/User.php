@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +22,12 @@ class User extends Authenticatable
         'password',
         'access_profile_id',
         'status',
+        'state',
+        'age_range',
+        'travel_with',
+        'category_id',
+        'avatar',
+        'registration_source',
     ];
 
     /**
@@ -53,4 +58,18 @@ class User extends Authenticatable
         return $this->belongsTo(AccessProfile::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function subcategories()
+    {
+        return $this->belongsToMany(Subcategory::class, 'user_subcategories');
+    }
+
+    public function favoriteProperties()
+    {
+        return $this->belongsToMany(Property::class, 'user_favorite_properties');
+    }
 }

@@ -30,7 +30,20 @@ class Property extends Model
         'aceita_animais',
         'possui_acessibilidade',
         'logo_path',
-        'galeria_paths'
+        'galeria_paths',
+        'phone',
+        'city',
+        'state',
+        'description',
+        'type',
+        'rating',
+        'logo',
+        'weekday_hours',
+        'weekend_hours',
+        'products_description',
+        'accessibility',
+        'pet_policy',
+        'category_id',
     ];
 
     protected $casts = [
@@ -41,7 +54,50 @@ class Property extends Model
         'galeria_paths' => 'array',
         'aceita_animais' => 'boolean',
         'possui_acessibilidade' => 'boolean',
-        ];
+        'rating' => 'decimal:1',
+    ];
+
+    // Accessors para compatibilidade
+    public function getPhoneAttribute()
+    {
+        return $this->whatsapp;
+    }
+
+    public function getCityAttribute()
+    {
+        return $this->cidade;
+    }
+
+    public function getDescriptionAttribute()
+    {
+        return $this->descricao_servico;
+    }
+
+    public function getProductsAttribute()
+    {
+        return $this->produtos_artesanais ? implode(', ', $this->produtos_artesanais) : null;
+    }
+
+    public function getAccessibilityAttribute()
+    {
+        return $this->possui_acessibilidade ? 'Acesso para cadeirantes, estacionamento disponível' : 'Sem informações de acessibilidade';
+    }
+
+    public function getPetPolicyAttribute()
+    {
+        return $this->aceita_animais ? 'Nosso estabelecimento permite a entrada de animais de estimação' : 'Animais não são permitidos';
+    }
+
+    public function getLogoAttribute()
+    {
+        return $this->logo_path ?: 'https://picsum.photos/200/300';
+    }
+
+    // Relacionamentos
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function categorias()
     {
@@ -50,11 +106,16 @@ class Property extends Model
                     ->withTimestamps();
     }
 
-    public function subcategorias()
+    public function subcategories()
     {
         return $this->belongsToMany(Subcategory::class, 'category_property_subcategories')
                     ->withPivot('category_id')
                     ->withTimestamps();
+    }
+
+    public function subcategorias()
+    {
+        return $this->subcategories();
     }
 
     public function products()
@@ -65,6 +126,11 @@ class Property extends Model
     public function images()
     {
         return $this->hasMany(PropertyImage::class);
+    }
+
+    public function favoritedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_favorite_properties');
     }
 }
 

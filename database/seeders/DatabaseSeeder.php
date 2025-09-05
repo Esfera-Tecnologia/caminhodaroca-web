@@ -17,9 +17,10 @@ class DatabaseSeeder extends Seeder
 
          $this->call([
             MenuSeeder::class,
-             AccessProfileSeeder::class,
-             UserSeeder::class,
-
+            AccessProfileSeeder::class,
+            UserSeeder::class,
+            // StatesSeeder::class,
+            // CitiesSeeder::class,
         ]);
     }
 }

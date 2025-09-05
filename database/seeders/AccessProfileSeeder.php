@@ -11,7 +11,8 @@ class AccessProfileSeeder extends Seeder
 {
     public function run(): void
     {
-        $profile = AccessProfile::firstOrCreate(
+        // Perfil 1: Administrador de Sistema
+        $adminProfile = AccessProfile::firstOrCreate(
             ['nome' => 'Administrador de Sistema'],
             [
                 'descricao' => 'Controle total do sistema',
@@ -19,10 +20,20 @@ class AccessProfileSeeder extends Seeder
             ]
         );
 
+        // Perfil 2: Usuário Comum
+        $userProfile = AccessProfile::firstOrCreate(
+            ['nome' => 'Usuário'],
+            [
+                'descricao' => 'Usuário comum do sistema',
+                'status' => 'ativo',
+            ]
+        );
+
+        // Permissões para Admin (todos os menus)
         foreach (Menu::all() as $menu) {
             AccessProfileMenuPermission::updateOrCreate(
                 [
-                    'access_profile_id' => $profile->id,
+                    'access_profile_id' => $adminProfile->id,
                     'menu_id' => $menu->id
                 ],
                 [
@@ -33,5 +44,9 @@ class AccessProfileSeeder extends Seeder
                 ]
             );
         }
+
+        // Permissões para Usuário (apenas visualização limitada)
+        // Usuários comuns não têm permissões específicas de menu
+        // Suas permissões são controladas via middleware e policies
     }
 }

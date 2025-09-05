@@ -37,6 +37,15 @@ class LoginRequest extends FormRequest
         // Recupera o usuário autenticado
         $user = Auth::user();
 
+        // Verifica se usuário criado via API está tentando fazer login via web
+        if ($user->registration_source === 'api') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Este usuário não tem permissão para acessar via web. Utilize o aplicativo móvel.',
+            ]);
+        }
+
         // Verifica se o usuário está inativo
         if ($user->status !== 'ativo') {
             Auth::logout();

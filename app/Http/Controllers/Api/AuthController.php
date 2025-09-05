@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+
+class AuthController extends Controller
+{
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $credentials = $request->validated();
+
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Os dados informados são inválidos.',
+                'errors' => [
+                    'email' => ['Usuário não encontrado. Verifique suas credenciais de login e senha.']
+                ]
+            ], 422);
+        }
+
+        // Revoga todos os tokens existentes
+        $user->tokens()->delete();
+
+        // Cria um novo token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'token' => $token,
+        ]);
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuário não encontrado.'
+            ], 404);
+        }
+
+        Password::sendResetLink($request->only('email'));
+
+        return response()->json([
+            'message' => 'E-mail de recuperação enviado com sucesso.'
+        ]);
+    }
+
+    public function logout(): JsonResponse
+    {
+        request()->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout realizado com sucesso.'
+        ]);
+    }
+}

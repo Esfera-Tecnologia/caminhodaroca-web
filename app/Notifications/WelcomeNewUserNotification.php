@@ -30,7 +30,7 @@ class WelcomeNewUserNotification extends Notification
 
         // Gera link com o token
         $url = URL::temporarySignedRoute(
-            'password.set',
+            'password.set.token',
             Carbon::now()->addMinutes(60),
             [
                 'token' => $token,

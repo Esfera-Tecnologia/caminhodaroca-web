@@ -42,8 +42,8 @@ Route::get('/definir-senha', [SetPasswordController::class, 'showSetPasswordForm
 
 Route::post('/definir-senha', [SetPasswordController::class, 'storePassword'])->name('password.store'); 
 
-Route::get('/definir-senha/{token}', [SenhaController::class, 'formNovaSenha'])->name('password.set');
-Route::post('/definir-senha', [SenhaController::class, 'storeNovaSenha'])->name('definir-senha.store');
+Route::get('/definir-senha/{token}', [SenhaController::class, 'formNovaSenha'])->name('password.set.token');
+Route::post('/definir-senha/{token}', [SenhaController::class, 'storeNovaSenha'])->name('definir-senha.store');
 
 
 
