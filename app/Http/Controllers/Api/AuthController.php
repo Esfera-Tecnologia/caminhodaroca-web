@@ -28,6 +28,17 @@ class AuthController extends Controller
             ], 422);
         }
 
+        if ($user->status !== 'ativo') {
+            return response()->json([
+                'message' => 'Conta inativa.',
+                'errors' => [
+                    'status' => [
+                        'Seu usuário está inativo. Entre em contato com o suporte para mais informações.'
+                    ]
+                ]
+            ], 403);
+        }
+
         // Revoga todos os tokens existentes
         $user->tokens()->delete();
 
