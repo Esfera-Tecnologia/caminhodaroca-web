@@ -55,7 +55,7 @@ class RegisterController extends Controller
             'avatar' => 'https://picsum.photos/200/300',
             'registration_source' => 'api',
             'status' => 1,
-            'access_profile_id' => 2, // Perfil padrão de usuário
+            'access_profile_id' => 0, // Perfil padrão de usuário
         ]);
 
         // Associa as subcategorias se fornecidas
