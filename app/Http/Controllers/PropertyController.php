@@ -90,7 +90,7 @@ class PropertyController extends Controller
         abort_unless($permissao?->can_edit, 403);
        
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
-        $property->load('categorias', 'subcategorias');
+        $property->load('categorias', 'subcategorias', 'products');
         $products = Product::where('status', 'ativo')->get();
         $selectedProducts = $property->products()->pluck('product_id')->toArray();
 
