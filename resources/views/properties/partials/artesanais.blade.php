@@ -34,7 +34,7 @@
                   value="{{ $product->id }}"
                   class="form-check-input"
                   id="product_{{ $product->id }}"
-                  {{ in_array($product->id, old('product_ids', (isset($property) && $property->products) ? $property->products->pluck('id')->toArray() : [])) ? 'checked' : '' }}>
+                  {{ in_array($product->id, old('product_ids', (isset($property) && $property->relationLoaded('products') && $property->products) ? $property->products->pluck('id')->toArray() : [])) ? 'checked' : '' }}>
 
             <label class="form-check-label" for="product_{{ $product->id }}">
               {{ $product->nome }}
