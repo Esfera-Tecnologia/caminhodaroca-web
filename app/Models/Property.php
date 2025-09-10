@@ -89,7 +89,7 @@ class Property extends Model
 
     public function getLogoAttribute()
     {
-        return $this->logo_path ?: 'https://picsum.photos/200/300';
+        return asset('/storage/' . $this->logo_path) ?: 'https://picsum.photos/200/300';
     }
 
     // Relacionamentos

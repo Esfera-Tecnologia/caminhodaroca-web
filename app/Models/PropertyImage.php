@@ -18,4 +18,9 @@ class PropertyImage extends Model
     {
         return $this->belongsTo(Property::class);
     }
+
+    public function getImageAttribute()
+    {
+        return asset('/storage/' . $this->path);
+    }
 }

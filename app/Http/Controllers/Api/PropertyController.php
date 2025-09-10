@@ -55,7 +55,7 @@ class PropertyController extends Controller
             return [
                 'id' => $property->id,
                 'name' => $property->name,
-                'logo' => $property->logo ?? 'https://picsum.photos/200/300',
+                'logo' => $property->logo,
                 'type' => $property->type ?? 'Propriedade Rural',
                 'rating' => $property->rating ?? 0,
                 'location' => [
@@ -81,7 +81,7 @@ class PropertyController extends Controller
             ], 404);
         }
 
-        $gallery = $property->images->pluck('url')->toArray();
+        $gallery = $property->images->pluck('image')->toArray();
         if (empty($gallery)) {
             $gallery = [
                 'https://picsum.photos/200/300',
@@ -93,7 +93,7 @@ class PropertyController extends Controller
         return response()->json([
             'id' => $property->id,
             'name' => $property->name,
-            'logo' => $property->logo ?? 'https://picsum.photos/200/300',
+            'logo' => $property->logo,
             'phone' => $property->phone,
             'rating' => $property->rating ?? 0,
             'type' => $property->type ?? 'Propriedade Rural',
