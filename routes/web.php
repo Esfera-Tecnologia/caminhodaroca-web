@@ -9,7 +9,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyImageController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Auth\SenhaController;
@@ -18,15 +17,6 @@ use Illuminate\Support\Facades\Artisan;
 
 Route::get('/phpini', function (){
     phpinfo();
-});
-
-Route::get('/run-seeds', function () {
-    try {
-        $output = Artisan::call('db:seed', [], ['--force' => true]);
-        return nl2br(Artisan::output() ?: 'Seeders executados!');
-    } catch (\Exception $e) {
-        return 'Erro: ' . $e->getMessage();
-    }
 });
 
 Route::get('/', function () {
