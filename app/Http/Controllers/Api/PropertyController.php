@@ -56,6 +56,8 @@ class PropertyController extends Controller
 
         $properties = $query->get();
 
+        dd($properties);
+
         if ($properties->isEmpty()) {
         return response()->json([
             'message' => 'Propriedade não encontrada'
