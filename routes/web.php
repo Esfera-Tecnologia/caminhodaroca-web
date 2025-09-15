@@ -22,9 +22,6 @@ Route::get('/phpini', function (){
 
 
 Route::get('/run-seeds', function () {
-    if (!app()->environment('local')) {
-        abort(403, 'Acesso negado');
-    }
     $output = Artisan::call('db:seed');
     return nl2br(Artisan::output() ?: 'Seeders executados!');
 });
