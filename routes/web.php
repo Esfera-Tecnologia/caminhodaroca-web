@@ -20,9 +20,13 @@ Route::get('/phpini', function (){
     phpinfo();
 });
 
+
 Route::get('/run-seeds', function () {
-    Artisan::call('db:seed');
-    return 'Seeders executados!';
+    if (!app()->environment('local')) {
+        abort(403, 'Acesso negado');
+    }
+    $output = Artisan::call('db:seed');
+    return nl2br(Artisan::output() ?: 'Seeders executados!');
 });
 
 Route::get('/', function () {
