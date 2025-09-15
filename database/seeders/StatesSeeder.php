@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\State;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -43,7 +44,7 @@ class StatesSeeder extends Seeder
         ];
 
         foreach ($states as $state) {
-            State::create($state);
+            State::firstOrCreate($state);
         }
     }
 }

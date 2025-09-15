@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
             MenuSeeder::class,
             AccessProfileSeeder::class,
             UserSeeder::class,
-            // StatesSeeder::class,
-            // CitiesSeeder::class,
+            StatesSeeder::class,
+            CitiesSeeder::class,
         ]);
     }
 }
