@@ -20,12 +20,6 @@ Route::get('/phpini', function (){
     phpinfo();
 });
 
-
-Route::get('/run-seeds', function () {
-    $output = Artisan::call('db:seed', [], ['--force' => true]);
-    return nl2br(Artisan::output() ?: 'Seeders executados!');
-});
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
