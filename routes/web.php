@@ -13,10 +13,16 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Auth\SenhaController;
+use Illuminate\Support\Facades\Artisan;
 
 
 Route::get('/phpini', function (){
     phpinfo();
+});
+
+Route::get('/run-seeds', function () {
+    Artisan::call('db:seed');
+    return 'Seeders executados!';
 });
 
 Route::get('/', function () {
