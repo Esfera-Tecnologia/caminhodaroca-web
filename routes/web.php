@@ -22,7 +22,7 @@ Route::get('/phpini', function (){
 
 
 Route::get('/run-seeds', function () {
-    $output = Artisan::call('db:seed');
+    $output = Artisan::call('db:seed', [], ['--force' => true]);
     return nl2br(Artisan::output() ?: 'Seeders executados!');
 });
 
