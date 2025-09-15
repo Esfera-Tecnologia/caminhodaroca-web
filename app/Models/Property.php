@@ -42,7 +42,6 @@ class Property extends Model
         'products_description',
         'accessibility',
         'pet_policy',
-        'category_id',
     ];
 
     protected $casts = [
@@ -93,11 +92,6 @@ class Property extends Model
     }
 
     // Relacionamentos
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
     public function categorias()
     {
         return $this->belongsToMany(Category::class, 'category_property_subcategories')

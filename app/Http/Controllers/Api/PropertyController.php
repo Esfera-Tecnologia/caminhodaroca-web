@@ -10,35 +10,38 @@ class PropertyController extends Controller
 {
     public function index(): JsonResponse
     {
-        $query = Property::with(['category', 'subcategories', 'images']);
+        $query = Property::with(['categorias', 'subcategories', 'images']);
 
-        // Filtro por palavra-chave
         if ($keyword = request()->query('keyword')) {
             $query->where(function($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('description', 'like', "%{$keyword}%");
+                  ->orWhere('descricao_servico', 'like', "%{$keyword}%");
             });
         }
 
-        // Filtro por categorias
-        if ($categories = request()->query('categories', [])) {
-            // Aceita tanto array quanto string CSV
+        if ($categories = request()->query('categories')) {
+            // Garantir que é array
             if (!is_array($categories)) {
                 $categories = is_string($categories) ? explode(',', $categories) : [$categories];
             }
+            // Filtrar e converter para inteiros
             $categories = array_filter(array_map('intval', $categories));
+            
             if (!empty($categories)) {
-                $query->whereIn('category_id', $categories);
+                $query->whereHas('categorias', function($q) use ($categories) {
+                    $q->whereIn('categories.id', $categories);
+                });
             }
         }
 
-        // Filtro por subcategorias
-        if ($subcategories = request()->query('subcategories', [])) {
-            // Aceita tanto array quanto string CSV
+        if ($subcategories = request()->query('subcategories')) {
+            // Garantir que é array
             if (!is_array($subcategories)) {
                 $subcategories = is_string($subcategories) ? explode(',', $subcategories) : [$subcategories];
             }
+            // Filtrar e converter para inteiros
             $subcategories = array_filter(array_map('intval', $subcategories));
+            
             if (!empty($subcategories)) {
                 $query->whereHas('subcategories', function($q) use ($subcategories) {
                     $q->whereIn('subcategories.id', $subcategories);
@@ -46,12 +49,20 @@ class PropertyController extends Controller
             }
         }
 
-        // Filtro por localização
+        // Filtro por localização(sujeito a mudanças pois tem que enviar nome da cidade e nao o ID)
         if ($propertyLocationId = request()->query('propertyLocationId')) {
-            $query->where('city_id', $propertyLocationId);
+            $query->where('cidade', 'like', "%{$propertyLocationId}%");
         }
 
-        $properties = $query->get()->map(function($property) {
+        $properties = $query->get();
+
+        if ($properties->isEmpty()) {
+        return response()->json([
+            'message' => 'Propriedade não encontrada'
+        ], 404);
+    }
+
+        $properties = $properties->map(function($property) {
             return [
                 'id' => $property->id,
                 'name' => $property->name,
@@ -73,7 +84,7 @@ class PropertyController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $property = Property::with(['category', 'subcategories', 'images'])->find($id);
+        $property = Property::with(['categorias', 'subcategories', 'images'])->find($id);
 
         if (!$property) {
             return response()->json([
@@ -106,7 +117,7 @@ class PropertyController extends Controller
                 ]
             ],
             'description' => $property->description ?? 'Descrição não disponível',
-            'category' => $property->category->name ?? 'Categoria não informada',
+            'category' => $property->categorias->first()->name ?? 'Categoria não informada',
             'subcategory' => $property->subcategories->first()->name ?? 'Subcategoria não informada',
             'openingHours' => [
                 'weekdays' => $property->weekday_hours ?? '08:00 às 18:00',

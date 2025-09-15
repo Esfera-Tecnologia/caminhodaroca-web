@@ -23,9 +23,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/forgot-password ', [PasswordResetLinkController::class, 'create'])->name('password.request');
-
-
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 
@@ -40,7 +37,7 @@ Route::get('/definir-senha', [SetPasswordController::class, 'showSetPasswordForm
     ->name('password.set')
     ->middleware('signed');
 
-Route::post('/definir-senha', [SetPasswordController::class, 'storePassword'])->name('password.store'); 
+Route::post('/definir-senha', [SetPasswordController::class, 'storePassword'])->name('password.set.store'); 
 
 Route::get('/definir-senha/{token}', [SenhaController::class, 'formNovaSenha'])->name('password.set.token');
 Route::post('/definir-senha/{token}', [SenhaController::class, 'storeNovaSenha'])->name('definir-senha.store');
