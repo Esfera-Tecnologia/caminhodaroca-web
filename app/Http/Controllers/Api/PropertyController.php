@@ -8,6 +8,32 @@ use Illuminate\Http\JsonResponse;
 
 class PropertyController extends Controller
 {
+    /**
+     * Mapeia dias da semana português para inglês
+     */
+    private const DAY_MAPPING = [
+        'segunda' => 'monday',
+        'terça' => 'tuesday',
+        'quarta' => 'wednesday',
+        'quinta' => 'thursday',
+        'sexta' => 'friday',
+        'sábado' => 'saturday',
+        'domingo' => 'sunday'
+    ];
+
+    /**
+     * Estrutura padrão de horários
+     */
+    private const DEFAULT_OPENING_HOURS = [
+        'monday'    => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'tuesday'   => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'wednesday' => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'thursday'  => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'friday'    => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'saturday'  => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'sunday'    => ['open' => null, 'close' => null, 'lunchBreak' => false],
+        'custom'    => ''
+    ];
     public function index(): JsonResponse
     {
         $query = Property::with(['categorias', 'subcategories', 'images']);
@@ -92,22 +118,6 @@ class PropertyController extends Controller
             ], 404);
         }
 
-        $gallery = $property->images->pluck('image')->toArray();
-        if (empty($gallery)) {
-            $gallery = [
-                'https://picsum.photos/200/300',
-                'https://picsum.photos/200/300',
-                'https://picsum.photos/200/300',
-            ];
-        }
-
-        // Função reutilizável para obter nomes separados por vírgula sem duplicatas
-        $getCommaSeparatedNames = function($collection, $default = 'Não informado') {
-            return $collection->isNotEmpty() 
-                ? $collection->pluck('name')->unique()->implode(', ')
-                : $default;
-        };
-
         return response()->json([
             'id' => $property->id,
             'name' => $property->name,
@@ -124,16 +134,13 @@ class PropertyController extends Controller
                 ]
             ],
             'description' => $property->description ?? 'Descrição não disponível',
-            'category' => $getCommaSeparatedNames($property->categorias, 'Categoria não informada'),
-            'subcategory' => $getCommaSeparatedNames($property->subcategories, 'Subcategoria não informada'),
-            'openingHours' => [
-                'weekdays' => $property->weekday_hours ?? '08:00 às 18:00',
-                'weekend' => $property->weekend_hours ?? '09:00 às 17:00',
-            ],
+            'category' => $this->getCommaSeparatedNames($property->categorias, 'Categoria não informada'),
+            'subcategory' => $this->getCommaSeparatedNames($property->subcategories, 'Subcategoria não informada'),
+            'openingHours' => $this->formatOpeningHours($property),
             'products' => $property->products ?? 'Produtos não informados',
             'accessibility' => $property->accessibility ?? 'Informações de acessibilidade não disponíveis',
             'petPolicy' => $property->pet_policy ?? 'Política para animais não informada',
-            'gallery' => $gallery,
+            'gallery' => $this->getGallery($property),
         ]);
     }
 
@@ -170,6 +177,135 @@ class PropertyController extends Controller
                 'favorited' => true,
                 'message' => 'Propriedade adicionada aos favoritos'
             ]);
+        }
+    }
+
+    /**
+     * Obtém nomes separados por vírgula sem duplicatas
+     */
+    private function getCommaSeparatedNames($collection, string $default = 'Não informado'): string
+    {
+        return $collection->isNotEmpty() 
+            ? $collection->pluck('name')->unique()->implode(', ')
+            : $default;
+    }
+
+    /**
+     * Obtém galeria de imagens da propriedade
+     */
+    private function getGallery(Property $property): array
+    {
+        $gallery = $property->images->pluck('image')->toArray();
+        
+        if (empty($gallery)) {
+            return [
+                'https://picsum.photos/200/300',
+                'https://picsum.photos/200/300',
+                'https://picsum.photos/200/300',
+            ];
+        }
+
+        return $gallery;
+    }
+
+    /**
+     * Formata horários de funcionamento conforme tipo de funcionamento
+     */
+    private function formatOpeningHours(Property $property): array
+    {
+        $openingHours = self::DEFAULT_OPENING_HOURS;
+        $tipoFuncionamento = $property->tipo_funcionamento ?? 'todos';
+
+        switch ($tipoFuncionamento) {
+            case 'agendamento':
+                return $this->formatAgendamentoHours($property, $openingHours);
+            
+            case 'personalizado':
+                return $this->formatPersonalizadoHours($property, $openingHours);
+            
+            case 'fins':
+                return $this->formatFinsHours($property, $openingHours);
+            
+            case 'todos':
+            default:
+                return $this->formatTodosHours($property, $openingHours);
+        }
+    }
+
+    /**
+     * Formata horários para tipo 'agendamento'
+     */
+    private function formatAgendamentoHours(Property $property, array $openingHours): array
+    {
+        $openingHours['custom'] = $property->observacoes_funcionamento ?? 'Abertura apenas sob agendamento com a equipe';
+        return $openingHours;
+    }
+
+    /**
+     * Formata horários para tipo 'personalizado'
+     */
+    private function formatPersonalizadoHours(Property $property, array $openingHours): array
+    {
+        $openingHours['custom'] = $property->observacoes_funcionamento ?? 'Horário personalizado - consulte a propriedade';
+        return $openingHours;
+    }
+
+    /**
+     * Formata horários para tipo 'fins' (apenas finais de semana)
+     */
+    private function formatFinsHours(Property $property, array $openingHours): array
+    {
+        $this->applyScheduleFromJson($property, $openingHours, ['saturday', 'sunday']);
+        $openingHours['custom'] = 'Funcionamento apenas nos finais de semana';
+        return $openingHours;
+    }
+
+    /**
+     * Formata horários para tipo 'todos' (todos os dias)
+     */
+    private function formatTodosHours(Property $property, array $openingHours): array
+    {
+        $this->applyScheduleFromJson($property, $openingHours);
+        $openingHours['custom'] = $property->observacoes_funcionamento ?? '';
+        return $openingHours;
+    }
+
+    /**
+     * Aplica horários do JSON da agenda personalizada
+     */
+    private function applyScheduleFromJson(Property $property, array &$openingHours, array $allowedDays = null): void
+    {
+        if (!$property->agenda_personalizada) {
+            return;
+        }
+
+        $agenda = is_string($property->agenda_personalizada) 
+            ? json_decode($property->agenda_personalizada, true) 
+            : $property->agenda_personalizada;
+
+        if (!is_array($agenda)) {
+            return;
+        }
+
+        foreach ($agenda as $diaPt => $dados) {
+            $diaEn = self::DAY_MAPPING[$diaPt] ?? null;
+            
+            if (!$diaEn || !isset($dados['ativo'])) {
+                continue;
+            }
+
+            // Se allowedDays está definido, aplicar apenas para esses dias
+            if ($allowedDays !== null && !in_array($diaEn, $allowedDays)) {
+                continue;
+            }
+
+            if ($dados['ativo'] == '1' || $dados['ativo'] === true) {
+                $openingHours[$diaEn] = [
+                    'open' => $dados['abertura'] ?? null,
+                    'close' => $dados['fechamento'] ?? null,
+                    'lunchBreak' => ($dados['fecha_almoco'] == '1' || $dados['fecha_almoco'] === true)
+                ];
+            }
         }
     }
 }

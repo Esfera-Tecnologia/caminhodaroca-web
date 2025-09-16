@@ -56,10 +56,22 @@ class CategoryController extends Controller
             return [(int) $request->query('category')];
         }
         
-        // Formato 3: categories (string separada por vírgula)
+        // Formato 3: categories (string separada por vírgula ou array)
         if ($request->has('categories')) {
             $categories = $request->query('categories');
-            return array_map('intval', explode(',', $categories));
+            
+            // Se já é array, usar diretamente
+            if (is_array($categories)) {
+                return array_map('intval', $categories);
+            }
+            
+            // Se é string, fazer explode
+            if (is_string($categories)) {
+                return array_map('intval', explode(',', $categories));
+            }
+            
+            // Se não é nem array nem string, converter para array
+            return [(int) $categories];
         }
         
         return [];
