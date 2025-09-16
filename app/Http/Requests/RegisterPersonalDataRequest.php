@@ -21,7 +21,7 @@ class RegisterPersonalDataRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'state' => 'required|string|size:2',
-            'ageRange' => 'required|string|in:FROM_18_TO_29,FROM_30_TO_39,FROM_40_TO_49,FROM_50_TO_59,OVER_60',
+            'ageRange' => 'required|string|in:UNDER_18,FROM_18_TO_29,FROM_30_TO_44,FROM_45_TO_59,ABOVE_60',
             'travelWith' => 'nullable|string|in:ALONE,COUPLE,FAMILY,FRIENDS,GROUPS',
         ];
     }
