@@ -101,6 +101,13 @@ class PropertyController extends Controller
             ];
         }
 
+        // Função reutilizável para obter nomes separados por vírgula
+        $getCommaSeparatedNames = function($collection, $default = 'Não informado') {
+            return $collection->isNotEmpty() 
+                ? $collection->pluck('name')->implode(', ')
+                : $default;
+        };
+
         return response()->json([
             'id' => $property->id,
             'name' => $property->name,
@@ -117,8 +124,8 @@ class PropertyController extends Controller
                 ]
             ],
             'description' => $property->description ?? 'Descrição não disponível',
-            'category' => $property->categorias->first()->name ?? 'Categoria não informada',
-            'subcategory' => $property->subcategories->first()->name ?? 'Subcategoria não informada',
+            'category' => $getCommaSeparatedNames($property->categorias, 'Categoria não informada'),
+            'subcategory' => $getCommaSeparatedNames($property->subcategories, 'Subcategoria não informada'),
             'openingHours' => [
                 'weekdays' => $property->weekday_hours ?? '08:00 às 18:00',
                 'weekend' => $property->weekend_hours ?? '09:00 às 17:00',
