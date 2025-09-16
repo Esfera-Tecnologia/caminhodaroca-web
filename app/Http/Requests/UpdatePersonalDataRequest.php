@@ -21,11 +21,11 @@ class UpdatePersonalDataRequest extends FormRequest
         $ageRangeValues = implode(',', AgeRange::values());
         
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $userId,
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $userId,
             'password' => 'nullable|string|min:8',
-            'state' => 'required|string|size:2',
-            'ageRange' => "required|string|in:{$ageRangeValues}",
+            'state' => 'nullable|string|size:2',
+            'ageRange' => "nullable|string|in:{$ageRangeValues}",
             'travelWith' => 'nullable|string|in:ALONE,COUPLE,FAMILY,FRIENDS,GROUPS',
         ];
     }
