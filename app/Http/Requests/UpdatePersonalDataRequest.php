@@ -21,11 +21,10 @@ class UpdatePersonalDataRequest extends FormRequest
         $ageRangeValues = implode(',', AgeRange::values());
         
         return [
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $userId,
-            'password' => 'nullable|string|min:8',
-            'state' => 'nullable|string|size:2',
-            'ageRange' => "nullable|string|in:{$ageRangeValues}",
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $userId,
+            'state' => 'required|string|size:2',
+            'ageRange' => "required|string|in:{$ageRangeValues}",
             'travelWith' => 'nullable|string|in:ALONE,COUPLE,FAMILY,FRIENDS,GROUPS',
         ];
     }
@@ -37,7 +36,6 @@ class UpdatePersonalDataRequest extends FormRequest
             'email.required' => 'O campo email é obrigatório.',
             'email.email' => 'O email deve ter um formato válido.',
             'email.unique' => 'O e-mail informado já está em uso.',
-            'password.min' => 'A senha deve ter no mínimo 8 caracteres.',
             'state.required' => 'O campo estado é obrigatório.',
             'ageRange.required' => 'O campo faixa etária é obrigatório.',
         ];

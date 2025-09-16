@@ -16,15 +16,17 @@ class ProfileController extends Controller
     {
         $user = request()->user();
         $data = $request->validated();
-
-        $user->update([
+        
+        // Prepara os dados para atualização (remove a senha completamente)
+        $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
             'state' => $data['state'],
             'age_range' => $data['ageRange'],
             'travel_with' => $data['travelWith'] ?? $user->travel_with,
-        ]);
+        ];
+
+        $user->update($updateData);
 
         return response()->json([
             'message' => 'As informações pessoais foram atualizadas com sucesso!'
