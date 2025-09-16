@@ -101,10 +101,10 @@ class PropertyController extends Controller
             ];
         }
 
-        // Função reutilizável para obter nomes separados por vírgula
+        // Função reutilizável para obter nomes separados por vírgula sem duplicatas
         $getCommaSeparatedNames = function($collection, $default = 'Não informado') {
             return $collection->isNotEmpty() 
-                ? $collection->pluck('name')->implode(', ')
+                ? $collection->pluck('name')->unique()->implode(', ')
                 : $default;
         };
 
