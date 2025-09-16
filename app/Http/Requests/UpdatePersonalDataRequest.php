@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AgeRange;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Traits\ApiValidationResponse;
 
@@ -17,13 +18,14 @@ class UpdatePersonalDataRequest extends FormRequest
     public function rules(): array
     {
         $userId = \Illuminate\Support\Facades\Auth::id();
+        $ageRangeValues = implode(',', AgeRange::values());
         
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $userId,
-            'password' => 'required|string|min:8',
+            'password' => 'nullable|string|min:8',
             'state' => 'required|string|size:2',
-            'ageRange' => 'required|string|in:FROM_18_TO_29,FROM_30_TO_39,FROM_40_TO_49,FROM_50_TO_59,OVER_60',
+            'ageRange' => "required|string|in:{$ageRangeValues}",
             'travelWith' => 'nullable|string|in:ALONE,COUPLE,FAMILY,FRIENDS,GROUPS',
         ];
     }
@@ -35,7 +37,6 @@ class UpdatePersonalDataRequest extends FormRequest
             'email.required' => 'O campo email é obrigatório.',
             'email.email' => 'O email deve ter um formato válido.',
             'email.unique' => 'O e-mail informado já está em uso.',
-            'password.required' => 'O campo senha é obrigatório.',
             'password.min' => 'A senha deve ter no mínimo 8 caracteres.',
             'state.required' => 'O campo estado é obrigatório.',
             'ageRange.required' => 'O campo faixa etária é obrigatório.',
