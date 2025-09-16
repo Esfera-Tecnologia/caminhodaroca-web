@@ -55,7 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('profile')->group(function () {
         Route::put('/personal-data', [ProfileController::class, 'updatePersonalData']);
         Route::put('/categories', [ProfileController::class, 'updateCategories']);
-        Route::post('/photo', [ProfileController::class, 'updatePhoto']);
+        Route::put('/photo', [ProfileController::class, 'updatePhoto']);
     });
 
     // Rotas administrativas (requer privilégios de admin)
