@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -106,7 +107,7 @@ class AdminController extends Controller
             'state' => $user->state,
             'age_range' => $user->age_range,
             'travel_with' => $user->travel_with,
-            'avatar' => $user->avatar,
+            'avatar' =>$user->avatar ? url(Storage::url($user->avatar)) : null,
             'category' => $user->category ? [
                 'id' => $user->category->id,
                 'name' => $user->category->name

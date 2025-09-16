@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -51,7 +51,7 @@ class AuthController extends Controller
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
-            'avatar' => $user->avatar,
+            'avatar' => $user->avatar ? url(Storage::url($user->avatar)) : null,
             'email' => $user->email,
             'state' => $user->state,
             'ageRange' => $user->age_range,
