@@ -103,7 +103,7 @@ class ProfileController extends Controller
 
             return response()->json([
                 'message' => 'Foto de perfil atualizada com sucesso!',
-                'filePath' => Storage::url($path)
+                'filePath' => url(Storage::url($path))
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -166,7 +166,7 @@ class ProfileController extends Controller
 
                         return response()->json([
                             'message' => 'Foto de perfil atualizada com sucesso!',
-                            'filePath' => Storage::url($path)
+                            'filePath' => url(Storage::url($path))
                         ]);
                     }
                 }
@@ -222,7 +222,7 @@ class ProfileController extends Controller
 
             return response()->json([
                 'message' => 'Foto de perfil atualizada com sucesso!',
-                'filePath' => Storage::url($path)
+                'filePath' => url(Storage::url($path))
             ]);
             
         } catch (\Exception $e) {
