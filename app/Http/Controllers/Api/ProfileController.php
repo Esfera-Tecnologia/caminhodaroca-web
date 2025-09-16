@@ -56,29 +56,179 @@ class ProfileController extends Controller
     {
         $user = request()->user();
         
-        if ($request->hasFile('photo')) {
+        // Verifica se é arquivo tradicional parseado pelo PHP
+        $fileField = $this->findFileField($request);
+        if ($fileField) {
+            return $this->saveUploadedFile($request->file($fileField), $user);
+        }
+        
+        // Se é multipart mas não foi parseado pelo PHP, processa manualmente
+        if (str_contains($request->header('Content-Type', ''), 'multipart/form-data')) {
+            return $this->processMultipartManually($request, $user);
+        }
+        
+        // Verifica se é base64 string (JSON)
+        if ($request->has('photo') && is_string($request->input('photo'))) {
+            return $this->processBase64Image($request->input('photo'), $user);
+        }
+
+        return response()->json([
+            'message' => 'Nenhuma foto válida foi enviada.'
+        ], 400);
+    }
+    
+    private function findFileField($request)
+    {
+        $possibleFields = ['photo', 'image', 'file', 'avatar', 'picture'];
+        
+        foreach ($possibleFields as $field) {
+            if ($request->hasFile($field)) {
+                return $field;
+            }
+        }
+        
+        return null;
+    }
+    
+    private function saveUploadedFile($file, $user)
+    {
+        try {
             // Remove a foto anterior se existir
             if ($user->avatar && Storage::exists($user->avatar)) {
                 Storage::delete($user->avatar);
             }
 
-            // Salva a nova foto
-            $path = $request->file('photo')->store('avatars', 'public');
-            
-            $user->update([
-                'avatar' => $path
-            ]);
-
-            $filePath = Storage::url($path);
+            $path = $file->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
 
             return response()->json([
                 'message' => 'Foto de perfil atualizada com sucesso!',
-                'filePath' => $filePath
+                'filePath' => Storage::url($path)
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao salvar o arquivo: ' . $e->getMessage()
+            ], 500);
         }
+    }
+    
+    private function processMultipartManually($request, $user)
+    {
+        try {
+            $content = $request->getContent();
+            $contentType = $request->header('Content-Type');
+            
+            // Extrai o boundary
+            preg_match('/boundary=(.+)$/', $contentType, $matches);
+            if (!isset($matches[1])) {
+                throw new \Exception('Boundary not found in Content-Type');
+            }
+            
+            $boundary = '--' . $matches[1];
+            $parts = explode($boundary, $content);
+            
+            foreach ($parts as $part) {
+                if (strpos($part, 'Content-Disposition: form-data; name="photo"') !== false) {
+                    // Encontrou o campo photo
+                    $headerEndPos = strpos($part, "\r\n\r\n");
+                    if ($headerEndPos === false) continue;
+                    
+                    $headers = substr($part, 0, $headerEndPos);
+                    $fileData = substr($part, $headerEndPos + 4);
+                    $fileData = rtrim($fileData, "\r\n");
+                    
+                    // Extrai informações do header
+                    if (preg_match('/filename="([^"]*)"/', $headers, $filenameMatch)) {
+                        $filename = $filenameMatch[1];
+                        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                        
+                        // Valida se é imagem
+                        if (!in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif'])) {
+                            throw new \Exception('Tipo de arquivo não suportado');
+                        }
+                        
+                        // Valida tamanho (2MB)
+                        if (strlen($fileData) > 2048 * 1024) {
+                            throw new \Exception('Arquivo muito grande (máximo 2MB)');
+                        }
+                        
+                        // Remove a foto anterior se existir
+                        if ($user->avatar && Storage::exists($user->avatar)) {
+                            Storage::delete($user->avatar);
+                        }
+                        
+                        // Salva o arquivo
+                        $newFilename = 'avatar_' . $user->id . '_' . time() . '.' . $extension;
+                        $path = 'avatars/' . $newFilename;
+                        
+                        Storage::disk('public')->put($path, $fileData);
+                        $user->update(['avatar' => $path]);
 
-        return response()->json([
-            'message' => 'Nenhuma foto foi enviada, mas a solicitação foi processada com sucesso.'
-        ], 200);
+                        return response()->json([
+                            'message' => 'Foto de perfil atualizada com sucesso!',
+                            'filePath' => Storage::url($path)
+                        ]);
+                    }
+                }
+            }
+            
+            throw new \Exception('Campo photo não encontrado no multipart');
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao processar o arquivo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    private function processBase64Image($photoData, $user)
+    {
+        try {
+            // Remove o prefixo data:image/xxx;base64, se existir
+            if (strpos($photoData, 'data:image') === 0) {
+                $photoData = substr($photoData, strpos($photoData, ',') + 1);
+            }
+            
+            // Decodifica o base64
+            $imageData = base64_decode($photoData);
+            if ($imageData === false) {
+                throw new \Exception('Dados base64 inválidos');
+            }
+            
+            // Detecta o tipo de imagem
+            $imageInfo = getimagesizefromstring($imageData);
+            if (!$imageInfo) {
+                throw new \Exception('Dados de imagem inválidos');
+            }
+            
+            $extension = match($imageInfo['mime']) {
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                default => throw new \Exception('Tipo de imagem não suportado: ' . $imageInfo['mime'])
+            };
+            
+            // Remove a foto anterior se existir
+            if ($user->avatar && Storage::exists($user->avatar)) {
+                Storage::delete($user->avatar);
+            }
+            
+            // Salva o arquivo
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $extension;
+            $path = 'avatars/' . $filename;
+            
+            Storage::disk('public')->put($path, $imageData);
+            $user->update(['avatar' => $path]);
+
+            return response()->json([
+                'message' => 'Foto de perfil atualizada com sucesso!',
+                'filePath' => Storage::url($path)
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao processar a imagem: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -16,8 +16,31 @@ class UpdatePhotoRequest extends FormRequest
 
     public function rules(): array
     {
+        // Se receber como JSON base64, aceita string
+        if ($this->isJson() || $this->header('Content-Type') === 'application/json') {
+            return [
+                'photo' => 'required|string',
+            ];
+        }
+        
+        // Se é multipart mas PHP não parseia, permite processamento manual no controller
+        if (str_contains($this->header('Content-Type', ''), 'multipart/form-data')) {
+            return []; // Sem validação - processamento manual
+        }
+        
+        // Verifica se tem arquivo em qualquer campo comum
+        $possibleFields = ['photo', 'image', 'file', 'avatar', 'picture'];
+        foreach ($possibleFields as $field) {
+            if ($this->hasFile($field)) {
+                return [
+                    $field => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                ];
+            }
+        }
+        
+        // Fallback para o campo esperado
         return [
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 
