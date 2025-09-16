@@ -42,13 +42,22 @@ class AuthController extends Controller
         // Revoga todos os tokens existentes
         $user->tokens()->delete();
 
+        // Carrega as subcategorias do usuário
+        $user->load('subcategories');
+
         // Cria um novo token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
+            'avatar' => $user->avatar,
             'email' => $user->email,
+            'state' => $user->state,
+            'ageRange' => $user->age_range,
+            'travelWith' => $user->travel_with,
+            'category' => $user->category_id,
+            'subcategories' => $user->subcategories->pluck('id')->toArray(),
             'token' => $token,
         ]);
     }
