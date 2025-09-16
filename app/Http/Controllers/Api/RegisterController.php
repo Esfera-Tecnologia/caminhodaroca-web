@@ -70,7 +70,7 @@ class RegisterController extends Controller
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
-            'avatar' => $user->avatar ? url(Storage::url($user->avatar)) : null,
+            'avatar' => null,
             'email' => $user->email,
             'state' => $user->state,
             'ageRange' => $user->age_range,

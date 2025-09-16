@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\AgeRange;
+use App\Enums\TravelWith;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Traits\ApiValidationResponse;
 
@@ -18,6 +19,7 @@ class RegisterPersonalDataRequest extends FormRequest
     public function rules(): array
     {
         $ageRangeValues = implode(',', AgeRange::values());
+        $travelWithValues = implode(',', TravelWith::values());
         
         return [
             'name' => 'required|string|max:255',
@@ -25,7 +27,7 @@ class RegisterPersonalDataRequest extends FormRequest
             'password' => 'required|string|min:8',
             'state' => 'required|string|size:2',
             'ageRange' => "required|string|in:{$ageRangeValues}",
-            'travelWith' => 'nullable|string|in:ALONE,COUPLE,FAMILY,FRIENDS,GROUPS',
+            'travelWith' => "nullable|string|in:{$travelWithValues}",
         ];
     }
 

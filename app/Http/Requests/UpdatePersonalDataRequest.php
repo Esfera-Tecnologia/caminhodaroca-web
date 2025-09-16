@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\AgeRange;
+use App\Enums\TravelWith;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Traits\ApiValidationResponse;
+use Illuminate\Support\Facades\Auth;
 
 class UpdatePersonalDataRequest extends FormRequest
 {
@@ -17,15 +19,16 @@ class UpdatePersonalDataRequest extends FormRequest
 
     public function rules(): array
     {
-        $userId = \Illuminate\Support\Facades\Auth::id();
+        $userId = Auth::id();
         $ageRangeValues = implode(',', AgeRange::values());
-        
+        $travelWithValues = implode(',', TravelWith::values());
+
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $userId,
             'state' => 'required|string|size:2',
             'ageRange' => "required|string|in:{$ageRangeValues}",
-            'travelWith' => 'nullable|string|in:ALONE,COUPLE,FAMILY,FRIENDS,GROUPS',
+            'travelWith' => "nullable|string|in:{$travelWithValues}",
         ];
     }
 

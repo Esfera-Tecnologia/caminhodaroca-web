@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AgeRange;
+use App\Enums\TravelWith;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -52,6 +53,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'age_range' => AgeRange::class,
+            'travel_with' => TravelWith::class,
         ];
     }
 
