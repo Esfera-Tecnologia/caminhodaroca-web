@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class PropertyController extends Controller
 {
@@ -117,6 +118,10 @@ class PropertyController extends Controller
             ], 404);
         }
 
+        // Verifica se o usuário está logado e se a propriedade está favoritada
+        $user = request()->user() ?? Auth::guard('sanctum')->user();
+        $isFavorited = $user?->favoriteProperties()->where('property_id', $id)->exists() ?? false;
+        
 
         return response()->json([
             'id' => $property->id,
@@ -126,6 +131,7 @@ class PropertyController extends Controller
             'rating' => $property->rating ?? 0,
             'type' => $property->type ?? 'Propriedade Rural',
             'link_google_maps' => $property->google_maps_url ?? '',
+            'isFavorited' => $isFavorited,
             'location' => [
                 'city' => $property->city ?? 'Cidade não informada',
                 'state' => $property->state ?? 'Rio de Janeiro',
