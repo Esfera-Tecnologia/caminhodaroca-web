@@ -84,9 +84,7 @@ class PropertyController extends Controller
         $properties = $query->get();
 
         if ($properties->isEmpty()) {
-        return response()->json([
-            'message' => 'Propriedade não encontrada'
-        ], 404);
+        return response()->json([], 200);
     }
 
         $properties = $properties->map(function($property) {
@@ -127,6 +125,7 @@ class PropertyController extends Controller
             'phone' => $property->phone,
             'rating' => $property->rating ?? 0,
             'type' => $property->type ?? 'Propriedade Rural',
+            'link_google_maps' => $property->google_maps_url ?? '',
             'location' => [
                 'city' => $property->city ?? 'Cidade não informada',
                 'state' => $property->state ?? 'Rio de Janeiro',
