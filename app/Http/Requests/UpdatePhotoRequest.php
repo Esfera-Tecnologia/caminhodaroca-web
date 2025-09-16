@@ -17,14 +17,13 @@ class UpdatePhotoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB
         ];
     }
 
     public function messages(): array
     {
         return [
-            'photo.required' => 'A foto é obrigatória.',
             'photo.image' => 'O arquivo deve ser uma imagem.',
             'photo.mimes' => 'A foto deve ser do tipo: jpeg, png, jpg ou gif.',
             'photo.max' => 'A foto deve ter no máximo 2 MB.',

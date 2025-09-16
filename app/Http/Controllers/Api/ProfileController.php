@@ -78,7 +78,7 @@ class ProfileController extends Controller
         }
 
         return response()->json([
-            'message' => 'Nenhuma foto foi enviada.'
-        ], 422);
+            'message' => 'Nenhuma foto foi enviada, mas a solicitação foi processada com sucesso.'
+        ], 200);
     }
 }
