@@ -34,9 +34,10 @@ class PropertyController extends Controller
         'sunday'    => ['open' => null, 'close' => null, 'lunchBreak' => false],
         'custom'    => ''
     ];
+
     public function index(): JsonResponse
     {
-        $query = Property::with(['categorias', 'subcategories', 'images']);
+        $query = Property::with(['categorias', 'subcategories', 'images', 'products']);
 
         if ($keyword = request()->query('keyword')) {
             $query->where(function($q) use ($keyword) {
@@ -110,13 +111,14 @@ class PropertyController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $property = Property::with(['categorias', 'subcategories', 'images'])->find($id);
+        $property = Property::with(['categorias', 'subcategories', 'images', 'products'])->find($id);
 
         if (!$property) {
             return response()->json([
                 'message' => 'Propriedade não encontrada'
             ], 404);
         }
+
 
         return response()->json([
             'id' => $property->id,
@@ -127,7 +129,7 @@ class PropertyController extends Controller
             'type' => $property->type ?? 'Propriedade Rural',
             'location' => [
                 'city' => $property->city ?? 'Cidade não informada',
-                'state' => $property->state ?? 'Estado não informado',
+                'state' => $property->state ?? 'Rio de Janeiro',
                 'coordinates' => [
                     'lat' => $property->latitude ?? 0,
                     'lng' => $property->longitude ?? 0,
@@ -137,7 +139,7 @@ class PropertyController extends Controller
             'category' => $this->getCommaSeparatedNames($property->categorias, 'Categoria não informada'),
             'subcategory' => $this->getCommaSeparatedNames($property->subcategories, 'Subcategoria não informada'),
             'openingHours' => $this->formatOpeningHours($property),
-            'products' => $property->products ?? 'Produtos não informados',
+            'products' => $this->getProductNames($property->products),
             'accessibility' => $property->accessibility ?? 'Informações de acessibilidade não disponíveis',
             'petPolicy' => $property->pet_policy ?? 'Política para animais não informada',
             'gallery' => $this->getGallery($property),
@@ -188,6 +190,16 @@ class PropertyController extends Controller
         return $collection->isNotEmpty() 
             ? $collection->pluck('name')->unique()->implode(', ')
             : $default;
+    }
+
+    /**
+     * Obtém nomes de produtos separados por vírgula
+     */
+    private function getProductNames($products): string
+    {
+        return $products->isNotEmpty() 
+            ? $products->pluck('nome')->unique()->implode(', ')
+            : 'Produtos não informados';
     }
 
     /**

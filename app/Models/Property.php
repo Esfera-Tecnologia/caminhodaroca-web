@@ -71,7 +71,7 @@ class Property extends Model
         return $this->descricao_servico;
     }
 
-    public function getProductsAttribute()
+    public function getProductsDescriptionAttribute()
     {
         return $this->produtos_artesanais ? implode(', ', $this->produtos_artesanais) : null;
     }
