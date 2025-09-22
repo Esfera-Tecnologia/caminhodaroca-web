@@ -24,7 +24,23 @@ class RegisterPersonalDataRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                function ($attribute, $value, $fail) {
+                    $hasUpper = preg_match('/[A-Z]/', $value);
+                    $hasLower = preg_match('/[a-z]/', $value);
+                    $hasNumber = preg_match('/[0-9]/', $value);
+                    $hasSpecial = preg_match('/[!@#$%&*()_+\-=\[\]{};\':"\\|,.<>\/?]/', $value);
+                    
+                    $typesCount = $hasUpper + $hasLower + $hasNumber + $hasSpecial;
+                    
+                    if ($typesCount < 2) {
+                        $fail('A senha deve conter pelo menos 2 dos seguintes tipos de caracteres: letras maiúsculas (A-Z), letras minúsculas (a-z), números (0-9) ou caracteres especiais (!@#$%&*, etc.).');
+                    }
+                }
+            ],
             'state' => 'required|string|size:2',
             'ageRange' => "required|string|in:{$ageRangeValues}",
             'travelWith' => "nullable|string|in:{$travelWithValues}",

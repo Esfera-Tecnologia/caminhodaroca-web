@@ -8,7 +8,7 @@
     <div class="bg-image d-none d-md-block col-md-6"></div>
 
     <!-- Lado direito com formulário -->
-    <div class="d-flex col-md-6 col-12 align-items-center justify-content-center bg-white p-4">
+    <div class="d-flex flex-column col-md-6 col-12 align-items-center justify-content-center bg-white p-4 gap-3">
         <div class="w-100" style="max-width: 400px;">
             <div class="text-center mb-4">
                 <img src="{{ asset('assets/LogoCaminhodaRoca.png') }}" alt="Caminhos da Roça" class="img-fluid" style="max-height: 200px;">
@@ -60,6 +60,9 @@
                 <button type="submit" class="btn btn-success w-100">Acessar</button>
             </form>
 
+        </div>
+        <div class="version-info text-center mt-5">
+            <small class="text-muted">Versão {{ config('app.version') }}</small>
         </div>
     </div>
 </div>
