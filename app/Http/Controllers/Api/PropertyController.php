@@ -38,7 +38,8 @@ class PropertyController extends Controller
 
     public function index(): JsonResponse
     {
-        $query = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings']);
+        $query = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
+                         ->where('status', 'ativo');
 
         if ($keyword = request()->query('keyword')) {
             $query->where(function($q) use ($keyword) {
@@ -125,7 +126,9 @@ class PropertyController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $property = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings'])->find($id);
+        $property = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
+                           ->where('status', 'ativo')
+                           ->find($id);
 
         if (!$property) {
             return response()->json([
@@ -178,7 +181,7 @@ class PropertyController extends Controller
             ], 401);
         }
 
-        $property = Property::find($id);
+        $property = Property::where('status', 'ativo')->find($id);
 
         if (!$property) {
             return response()->json([
