@@ -56,6 +56,7 @@ class UserController extends Controller
 
         $user = new User($request->except('password'));
         $user->password = Hash::make($request->password);
+        $user->registration_source = 'web';
         $user->save();
 
         $user->notify(new WelcomeNewUserNotification($user));

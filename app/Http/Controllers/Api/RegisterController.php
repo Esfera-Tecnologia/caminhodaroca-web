@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\WelcomeNewUserNotification;
 
 class RegisterController extends Controller
 {
@@ -63,6 +64,9 @@ class RegisterController extends Controller
         if (!empty($data['subcategories'])) {
             $user->subcategories()->sync($data['subcategories']);
         }
+
+        // Envia e-mail de boas-vindas
+        $user->notify(new WelcomeNewUserNotification($user));
 
         // Cria o token de autenticação
         $token = $user->createToken('auth_token')->plainTextToken;
