@@ -21,7 +21,11 @@ class RegisterFinishRequest extends FormRequest
             $this->merge(['ageRange' => strtoupper($this->ageRange)]);
         }
         if ($this->travelWith) {
-            $this->merge(['travelWith' => strtoupper($this->travelWith)]);
+            if (is_array($this->travelWith)) {
+                $this->merge(['travelWith' => array_map('strtoupper', $this->travelWith)]);
+            } else {
+                $this->merge(['travelWith' => [strtoupper($this->travelWith)]]);
+            }
         }
         if ($this->state) {
             $this->merge(['state' => strtoupper($this->state)]);

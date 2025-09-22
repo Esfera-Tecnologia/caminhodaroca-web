@@ -52,7 +52,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'state' => $data['state'],
             'age_range' => $data['ageRange'],
-            'travel_with' => $data['travelWith'] ?? null,
+            'travel_with' => $data['travelWith'] ?? null, // Agora é array
             'category_id' => $data['category'],
             'avatar' => 'https://picsum.photos/200/300',
             'registration_source' => 'api',
@@ -78,7 +78,7 @@ class RegisterController extends Controller
             'email' => $user->email,
             'state' => $user->state,
             'ageRange' => $user->age_range,
-            'travelWith' => $user->travel_with,
+            'travelWith' => $user->travel_with, // Retorna como array
             'category' => $user->category_id,
             'subcategories' => $data['subcategories'] ?? [],
             'token' => $token,

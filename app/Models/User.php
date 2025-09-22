@@ -53,7 +53,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'age_range' => AgeRange::class,
-            'travel_with' => TravelWith::class,
+            'travel_with' => 'json',
         ];
     }
 

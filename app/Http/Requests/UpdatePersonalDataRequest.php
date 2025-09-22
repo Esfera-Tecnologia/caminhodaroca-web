@@ -17,6 +17,24 @@ class UpdatePersonalDataRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        // Normaliza campos se necessário
+        if ($this->ageRange) {
+            $this->merge(['ageRange' => strtoupper($this->ageRange)]);
+        }
+        if ($this->travelWith) {
+            if (is_array($this->travelWith)) {
+                $this->merge(['travelWith' => array_map('strtoupper', $this->travelWith)]);
+            } else {
+                $this->merge(['travelWith' => [strtoupper($this->travelWith)]]);
+            }
+        }
+        if ($this->state) {
+            $this->merge(['state' => strtoupper($this->state)]);
+        }
+    }
+
     public function rules(): array
     {
         $userId = Auth::id();
@@ -28,7 +46,8 @@ class UpdatePersonalDataRequest extends FormRequest
             'email' => 'required|email|unique:users,email,' . $userId,
             'state' => 'required|string|size:2',
             'ageRange' => "required|string|in:{$ageRangeValues}",
-            'travelWith' => "nullable|string|in:{$travelWithValues}",
+            'travelWith' => 'nullable|array|min:1',
+            'travelWith.*' => "required|string|in:{$travelWithValues}",
         ];
     }
 
@@ -41,6 +60,12 @@ class UpdatePersonalDataRequest extends FormRequest
             'email.unique' => 'O e-mail informado já está em uso.',
             'state.required' => 'O campo estado é obrigatório.',
             'ageRange.required' => 'O campo faixa etária é obrigatório.',
+            'ageRange.in' => 'A faixa etária selecionada é inválida.',
+            'travelWith.array' => 'As opções de viagem devem ser uma lista.',
+            'travelWith.min' => 'Você deve selecionar pelo menos uma opção de viagem.',
+            'travelWith.*.required' => 'Cada opção de viagem é obrigatória.',
+            'travelWith.*.string' => 'Cada opção de viagem deve ser uma string.',
+            'travelWith.*.in' => 'Uma ou mais opções de viagem selecionadas são inválidas.',
         ];
     }
 }
