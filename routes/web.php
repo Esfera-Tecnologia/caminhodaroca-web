@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Auth\SenhaController;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\DeleteAccountController;
 
 
 Route::get('/phpini', function (){
@@ -58,6 +59,11 @@ Route::resource('products', ProductController::class)->middleware('auth');
 
 // Propriedades
 // routes/web.php
+
+
+Route::get('/account/delete', [DeleteAccountController::class, 'showDeleteForm'])->name('account.delete.form');
+Route::post('/account/delete', [DeleteAccountController::class, 'deleteAccount'])->name('account.delete');
+
 
 Route::post('/imagens/remover', [PropertyImageController::class, 'remover'])->name('imagens.remover');
 
