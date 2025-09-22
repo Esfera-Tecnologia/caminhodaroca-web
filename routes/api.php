@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\PropertyRatingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Propriedades
     Route::post('/properties/{id}/favorite', [PropertyController::class, 'toggleFavorite']);
+    Route::post('/properties/{id}/rating', [PropertyRatingController::class, 'rateProperty'])->name('api.properties.rating');
     
     // Perfil do usuário
     Route::prefix('profile')->group(function () {

@@ -38,7 +38,7 @@ class PropertyController extends Controller
 
     public function index(): JsonResponse
     {
-        $query = Property::with(['categorias', 'subcategories', 'images', 'products']);
+        $query = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings']);
 
         if ($keyword = request()->query('keyword')) {
             $query->where(function($q) use ($keyword) {
@@ -82,6 +82,21 @@ class PropertyController extends Controller
             $query->where('cidade', 'like', "%{$propertyLocationId}%");
         }
 
+        // Filtro por favoritos (requer autenticação)
+        if (request()->query('isFavorite') === 'true' || request()->query('isFavorite') === true) {
+            $user = request()->user() ?? Auth::guard('sanctum')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Usuário não autenticado'
+                ], 401);
+            }
+            
+            $query->whereHas('favoritedByUsers', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+
         $properties = $query->get();
 
         if ($properties->isEmpty()) {
@@ -94,7 +109,7 @@ class PropertyController extends Controller
                 'name' => $property->name,
                 'logo' => $property->logo,
                 'type' => $property->type ?? 'Propriedade Rural',
-                'rating' => $property->rating ?? 0,
+                'rating' => round($property->average_rating, 1),
                 'location' => [
                     'city' => $property->city ?? 'Cidade não informada',
                     'coordinates' => [
@@ -110,7 +125,7 @@ class PropertyController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $property = Property::with(['categorias', 'subcategories', 'images', 'products'])->find($id);
+        $property = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings'])->find($id);
 
         if (!$property) {
             return response()->json([
@@ -128,10 +143,12 @@ class PropertyController extends Controller
             'name' => $property->name,
             'logo' => $property->logo,
             'phone' => $property->phone,
-            'rating' => $property->rating ?? 0,
+            'rating' => round($property->average_rating, 1),
             'type' => $property->type ?? 'Propriedade Rural',
             'link_google_maps' => $property->google_maps_url ?? '',
             'isFavorited' => $isFavorited,
+            'address' => $this->formatAddress($property),
+            'instagram' => $property->instagram ?? '',
             'location' => [
                 'city' => $property->city ?? 'Cidade não informada',
                 'state' => $property->state ?? 'Rio de Janeiro',
@@ -185,6 +202,20 @@ class PropertyController extends Controller
                 'message' => 'Propriedade adicionada aos favoritos'
             ]);
         }
+    }
+
+    /**
+     * Formata o endereço da propriedade
+     */
+    private function formatAddress(Property $property): string
+    {
+        $enderecoPrincipal = $property->endereco_principal ?? '';
+        
+        if (empty($enderecoPrincipal)) {
+            return 'Endereço não informado';
+        }
+        
+        return $enderecoPrincipal;
     }
 
     /**

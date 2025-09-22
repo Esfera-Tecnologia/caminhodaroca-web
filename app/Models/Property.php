@@ -125,5 +125,29 @@ class Property extends Model
     {
         return $this->belongsToMany(User::class, 'user_favorite_properties');
     }
+
+    /**
+     * Get all ratings for this property
+     */
+    public function ratings()
+    {
+        return $this->hasMany(PropertyRating::class);
+    }
+
+    /**
+     * Get the average rating for this property
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get rating for a specific user
+     */
+    public function getUserRating($userId)
+    {
+        return $this->ratings()->where('user_id', $userId)->first()?->rating;
+    }
 }
 
