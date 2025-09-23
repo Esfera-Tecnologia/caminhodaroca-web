@@ -31,6 +31,7 @@
 @endsection
 
 @include('components.modal-categoria')
+@include('components.modal-subcategoria')
 
 
 

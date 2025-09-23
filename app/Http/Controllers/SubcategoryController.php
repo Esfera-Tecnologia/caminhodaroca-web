@@ -95,4 +95,30 @@ class SubcategoryController extends Controller
             ->permissions
             ->firstWhere('menu_id', $menuId);
     }
+
+    public function storeAjax(Request $request)
+    {
+        $nome = trim($request->input('nome'));
+        $categoryId = $request->input('category_id');
+
+        $request->merge(['nome' => $nome]);
+
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'nome' => 'required|string|max:191|unique:subcategories,nome,NULL,id,category_id,' . $categoryId,
+        ]);
+
+        $subcategoria = Subcategory::create([
+            'category_id' => $categoryId,
+            'nome' => $nome,
+            'status' => 'ativo',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'id' => $subcategoria->id,
+            'nome' => $subcategoria->nome,
+            'category_id' => $subcategoria->category_id
+        ], 200);
+    }
 }
