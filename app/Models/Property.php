@@ -58,7 +58,12 @@ class Property extends Model
     // Accessors para compatibilidade
     public function getPhoneAttribute()
     {
-        return $this->whatsapp;
+        $phone = preg_replace('/\D/', '', $this->whatsapp);
+
+        if (!str_starts_with($phone, '55')) {
+            $phone = '55' . $phone;
+        }
+        return $phone;
     }
 
     public function getCityAttribute()
