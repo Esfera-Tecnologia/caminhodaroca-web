@@ -164,10 +164,14 @@
       });
 
       const $block = $('<div>', {
-        class: 'categoria-block border p-3 h-100'
+        class: 'categoria-block border p-3 h-100 d-flex flex-column justify-content-between'
       });
 
-      $block.append(`
+      // Cria a div wrapper para o conteúdo principal
+      const $contentDiv = $('<div>');
+
+      // Adiciona o header com título e botão remover
+      $contentDiv.append(`
         <div class="d-flex justify-content-between">
           <strong>${categoriaNome}</strong>
           <button type="button" class="btn btn-sm btn-outline-danger">Remover</button>
@@ -178,7 +182,7 @@
 
       if (subcategorias.length > 0) {
         subcategorias.forEach(sub => {
-          $block.append(`
+          $contentDiv.append(`
             <div class="form-check mt-2">
               <input class="form-check-input" type="checkbox"
                     name="categoria_ids[${categoriaId}][]" value="${sub.id}"
@@ -190,17 +194,29 @@
           `);
         });
 
-        $block.append(`
+        $contentDiv.append(`
           <input type="hidden" class="subcategoria-hidden" name="categoria_ids[${categoriaId}][]" value="">
         `);
       } else {
-        $block.append(`
+        $contentDiv.append(`
           <div class="text-muted mt-2 small">
             Essa categoria não possui subcategorias.
           </div>
           <input type="hidden" name="categoria_ids[${categoriaId}][]" value="">
         `);
       }
+
+      // Adiciona a div de conteúdo ao bloco principal
+      $block.append($contentDiv);
+
+      // Adiciona o link para criar nova subcategoria (separado do conteúdo principal)
+      $block.append(`
+        <div class="d-flex justify-content-end mt-2">
+          <a href="#" class="text-secondary small" onclick="abrirModalSubcategoria(${categoriaId}); return false;">
+            <i class="fas fa-plus me-1"></i> Adicionar Subcategoria
+          </a>
+        </div>
+      `);
 
       $col.append($block);
 

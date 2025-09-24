@@ -31,7 +31,7 @@
 </div>
 @endsection
 
-
+@include('components.modal-subcategoria')
 
 @push('scripts')
 <script>

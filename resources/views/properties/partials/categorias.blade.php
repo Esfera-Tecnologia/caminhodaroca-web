@@ -47,35 +47,40 @@
             @endphp
 
             <div class="col-md-6" id="categoria_{{ $categoria->id }}">
-              <div class="categoria-block border p-3 h-100">
-                <div class="d-flex justify-content-between">
-                  <strong>{{ $categoria->nome }}</strong>
-                  <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.col-md-6').remove()">Remover</button>
-                </div>
-
-                @if($categoria->subcategories->isNotEmpty())
-                  @foreach($categoria->subcategories as $sub)
-                    <div class="form-check mt-2">
-                      <input class="form-check-input"
-                            type="checkbox"
-                            name="categoria_ids[{{ $categoria->id }}][]"
-                            value="{{ $sub->id }}"
-                            id="sub{{ $sub->id }}-{{ $categoria->id }}"
-                            {{ in_array($sub->id, $subSelecionadas) ? 'checked' : '' }}>
-                      <label class="form-check-label" for="sub{{ $sub->id }}-{{ $categoria->id }}">{{ $sub->nome }}</label>
+              <div class="categoria-block border p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between">
+                    <strong>{{ $categoria->nome }}</strong>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.col-md-6').remove()">Remover</button>
+                  </div>
+                  @if($categoria->subcategories->isNotEmpty())
+                    @foreach($categoria->subcategories as $sub)
+                      <div class="form-check mt-2">
+                        <input class="form-check-input"
+                              type="checkbox"
+                              name="categoria_ids[{{ $categoria->id }}][]"
+                              value="{{ $sub->id }}"
+                              id="sub{{ $sub->id }}-{{ $categoria->id }}"
+                              {{ in_array($sub->id, $subSelecionadas) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="sub{{ $sub->id }}-{{ $categoria->id }}">{{ $sub->nome }}</label>
+                      </div>
+                    @endforeach
+                    @if($semSubcategoriasSelecionadas)
+                      <input type="hidden" name="categoria_ids[{{ $categoria->id }}][]" value="">
+                    @endif
+                  @else
+                    <div class="text-muted mt-2 small">
+                      Essa categoria não possui subcategorias.
                     </div>
-                  @endforeach
-
-                  @if($semSubcategoriasSelecionadas)
                     <input type="hidden" name="categoria_ids[{{ $categoria->id }}][]" value="">
                   @endif
-                @else
-                  <div class="text-muted mt-2 small">
-                    Essa categoria não possui subcategorias.
-                  </div>
-                  <input type="hidden" name="categoria_ids[{{ $categoria->id }}][]" value="">
-                @endif
+                </div>
 
+                <div class="d-flex justify-content-end mt-2">
+                  <a href="#" class="text-secondary small" onclick="abrirModalSubcategoria({{ $categoria->id }}); return false;">
+                    <i class="fas fa-plus me-1"></i> Adicionar Subcategoria
+                  </a>
+                </div>
               </div>
             </div>
           @endfor

@@ -52,6 +52,7 @@ Route::resource('categories', CategoryController::class)->middleware('auth');
 // Subcategorias
 Route::resource('subcategories', SubcategoryController::class)->middleware('auth');
 Route::post('/ajax/categories', [CategoryController::class, 'storeAjax'])->name('categories.ajax.store');
+Route::post('/ajax/subcategories', [SubcategoryController::class, 'storeAjax'])->name('subcategories.ajax.store');
 
 
 Route::resource('products', ProductController::class)->middleware('auth');
