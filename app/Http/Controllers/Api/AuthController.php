@@ -32,7 +32,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Conta inativa.',
                 'errors' => [
-                    'status' => [
+                    'email' => [
                         'Seu usuário está inativo. Entre em contato com o suporte para mais informações.'
                     ]
                 ]
