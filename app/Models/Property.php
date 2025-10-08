@@ -144,7 +144,9 @@ class Property extends Model
      */
     public function getAverageRatingAttribute()
     {
-        return $this->ratings()->avg('rating') ?? 0;
+        $rating = $this->ratings()->avg('rating');
+
+        return $rating > 0 ? $rating : 5;
     }
 
     /**
