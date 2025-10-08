@@ -139,7 +139,7 @@ class PropertyController extends Controller
         // Verifica se o usuário está logado e se a propriedade está favoritada
         $user = request()->user() ?? Auth::guard('sanctum')->user();
         $isFavorited = $user?->favoriteProperties()->where('property_id', $id)->exists() ?? false;
-        
+        $userRating = $user ? ($property->ratings()->where('user_id', $user->id)->first()?->rating ?: null) : null;
 
         return response()->json([
             'id' => $property->id,
@@ -147,6 +147,7 @@ class PropertyController extends Controller
             'logo' => $property->logo,
             'phone' => $property->phone,
             'rating' => round($property->average_rating, 1),
+            'user_rating' => $userRating,
             'type' => $property->type ?? 'Propriedade Rural',
             'link_google_maps' => $property->google_maps_url ?? '',
             'isFavorited' => $isFavorited,
