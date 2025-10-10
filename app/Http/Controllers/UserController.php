@@ -26,9 +26,13 @@ class UserController extends Controller
     public function index()
     {
         $permissao = $this->getPermissao('users');
+
         abort_unless($permissao?->can_view, 403);
         
-        $users = User::with('accessProfile')->get();
+        $users = User::query()
+            ->where('registration_source', 'web')
+            ->with('accessProfile')
+            ->get();
 
         return view('users.index', compact('users'));
     }
@@ -36,6 +40,7 @@ class UserController extends Controller
     public function create()
     {
         $permissao = $this->getPermissao('users');
+        
         abort_unless($permissao?->can_create, 403);
         
         $accessProfiles = AccessProfile::where('status', 'ativo')->orderBy('nome')->get();
