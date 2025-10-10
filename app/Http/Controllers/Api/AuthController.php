@@ -59,6 +59,7 @@ class AuthController extends Controller
             'category' => $user->category_id,
             'subcategories' => $user->subcategories->pluck('id')->toArray(),
             'token' => $token,
+            'source' => $user->registration_source
         ]);
     }
 
