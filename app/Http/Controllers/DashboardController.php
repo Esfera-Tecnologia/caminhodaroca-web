@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         return view('dashboard', [
             'perfisCount' => AccessProfile::count(),
-            'usuariosCount' => User::count(),
+            'usuariosCount' => User::where('registration_source', 'web')->count(),
             'categoriasCount' => Category::count(),
             'subcategoriasCount' => Subcategory::count(),
             'propriedadesCount' => Property::count(),
