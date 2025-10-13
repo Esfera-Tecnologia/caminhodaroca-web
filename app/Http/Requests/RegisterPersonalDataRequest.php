@@ -56,7 +56,7 @@ class RegisterPersonalDataRequest extends FormRequest
             ],
             'state' => 'required|string|size:2',
             'ageRange' => "required|string|in:{$ageRangeValues}",
-            'travelWith' => 'nullable|array|min:1',
+            'travelWith' => 'nullable|array',
             'travelWith.*' => "required|string|in:{$travelWithValues}",
         ];
     }
@@ -75,7 +75,6 @@ class RegisterPersonalDataRequest extends FormRequest
             'ageRange.required' => 'O campo faixa etária é obrigatório.',
             'ageRange.in' => 'A faixa etária selecionada é inválida.',
             'travelWith.array' => 'As opções de viagem devem ser uma lista.',
-            'travelWith.min' => 'Você deve selecionar pelo menos uma opção de viagem.',
             'travelWith.*.required' => 'Cada opção de viagem é obrigatória.',
             'travelWith.*.string' => 'Cada opção de viagem deve ser uma string.',
             'travelWith.*.in' => 'Uma ou mais opções de viagem selecionadas são inválidas.',
