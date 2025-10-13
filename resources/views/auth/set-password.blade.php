@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-           <form method="POST" action="{{ route('definir-senha.store') }}">
+           <form method="POST" action="{{ route('definir-senha.store', $token) }}">
                 @csrf
 
                 <input type="hidden" name="email" value="{{ $email }}">
