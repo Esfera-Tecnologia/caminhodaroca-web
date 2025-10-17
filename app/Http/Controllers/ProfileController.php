@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-
+use Illuminate\Support\Str;
 class ProfileController extends Controller
 {
     /**
@@ -50,10 +50,15 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
-
+        $user->update([
+            'email' => 'usuario@deletado',
+            'nome' => 'Usuário deletado',
+            'password'  => bcrypt(Str::random(40)),
+            'avatar' => ''
+        ]);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        $user->tokens()->delete();
 
         return Redirect::to('/');
     }

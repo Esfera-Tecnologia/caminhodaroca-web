@@ -7,8 +7,12 @@ use App\Http\Requests\UpdatePersonalDataRequest;
 use App\Http\Requests\UpdateCategoriesRequest;
 use App\Http\Requests\UpdatePhotoRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
@@ -230,5 +234,31 @@ class ProfileController extends Controller
                 'message' => 'Erro ao processar a imagem: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Delete the user's account.
+     */
+    public function deleteAccount(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->update([
+            'email' => 'usuario@deletado',
+            'nome' => 'Usuário deletado',
+            'password'  => bcrypt(Str::random(40)),
+            'avatar' => ''
+        ]);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        $user->tokens()->delete();
+
+        return Redirect::to('/');
     }
 }
