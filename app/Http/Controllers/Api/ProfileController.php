@@ -247,8 +247,6 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
-
         $user->update([
             'email' => 'usuario@deletado',
             'nome' => 'Usuário deletado',
