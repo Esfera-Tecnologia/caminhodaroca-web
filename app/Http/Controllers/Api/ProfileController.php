@@ -253,8 +253,6 @@ class ProfileController extends Controller
             'password'  => bcrypt(Str::random(40)),
             'avatar' => ''
         ]);
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
         $user->tokens()->delete();
     }
 }
