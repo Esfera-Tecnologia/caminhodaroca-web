@@ -21,8 +21,8 @@ class ProfileController extends Controller
         $updateData = [
             'name' => $data['name'],
             'email' => $data['email'],
-            'state' => $data['state'],
-            'age_range' => $data['ageRange'],
+            'state' => $data['state'] ?? '',
+            'age_range' => $data['ageRange'] ?? '',
             'travel_with' => $data['travelWith'] ?? $user->travel_with,
         ];
 

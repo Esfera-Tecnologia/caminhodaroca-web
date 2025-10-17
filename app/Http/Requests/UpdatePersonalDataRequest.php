@@ -44,8 +44,8 @@ class UpdatePersonalDataRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $userId,
-            'state' => 'required|string|size:2',
-            'ageRange' => "required|string|in:{$ageRangeValues}",
+            'state' => 'nullable|string|size:2',
+            'ageRange' => "nullable|string|in:{$ageRangeValues}",
             'travelWith' => 'nullable|array|min:1',
             'travelWith.*' => "required|string|in:{$travelWithValues}",
         ];
@@ -58,8 +58,6 @@ class UpdatePersonalDataRequest extends FormRequest
             'email.required' => 'O campo email é obrigatório.',
             'email.email' => 'O email deve ter um formato válido.',
             'email.unique' => 'O e-mail informado já está em uso.',
-            'state.required' => 'O campo estado é obrigatório.',
-            'ageRange.required' => 'O campo faixa etária é obrigatório.',
             'ageRange.in' => 'A faixa etária selecionada é inválida.',
             'travelWith.array' => 'As opções de viagem devem ser uma lista.',
             'travelWith.min' => 'Você deve selecionar pelo menos uma opção de viagem.',

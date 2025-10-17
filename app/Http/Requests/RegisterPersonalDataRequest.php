@@ -54,8 +54,8 @@ class RegisterPersonalDataRequest extends FormRequest
                     }
                 }
             ],
-            'state' => 'required|string|size:2',
-            'ageRange' => "required|string|in:{$ageRangeValues}",
+            'state' => 'nullable|string|size:2',
+            'ageRange' => "nullable|string|in:{$ageRangeValues}",
             'travelWith' => 'nullable|array',
             'travelWith.*' => "required|string|in:{$travelWithValues}",
         ];
@@ -70,9 +70,7 @@ class RegisterPersonalDataRequest extends FormRequest
             'email.unique' => 'O e-mail informado já está em uso.',
             'password.required' => 'O campo senha é obrigatório.',
             'password.min' => 'A senha deve ter no mínimo 8 caracteres.',
-            'state.required' => 'O campo estado é obrigatório.',
             'state.size' => 'O estado deve ter exatamente 2 caracteres.',
-            'ageRange.required' => 'O campo faixa etária é obrigatório.',
             'ageRange.in' => 'A faixa etária selecionada é inválida.',
             'travelWith.array' => 'As opções de viagem devem ser uma lista.',
             'travelWith.*.required' => 'Cada opção de viagem é obrigatória.',

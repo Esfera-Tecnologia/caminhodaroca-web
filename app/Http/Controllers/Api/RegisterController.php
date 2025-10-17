@@ -50,8 +50,8 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'state' => $data['state'],
-            'age_range' => $data['ageRange'],
+            'state' => $data['state'] ?? '',
+            'age_range' => $data['ageRange'] ?? '',
             'travel_with' => $data['travelWith'] ?? null, // Agora é array
             'category_id' => $data['category'],
             'avatar' => 'https://picsum.photos/200/300',
