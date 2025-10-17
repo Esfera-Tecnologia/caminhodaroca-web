@@ -22,7 +22,7 @@ class ProfileController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'state' => $data['state'] ?? '',
-            'age_range' => $data['ageRange'] ?? '',
+            'age_range' => $data['ageRange'] ?? null,
             'travel_with' => $data['travelWith'] ?? $user->travel_with,
         ];
 
