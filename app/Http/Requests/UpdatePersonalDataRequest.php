@@ -46,7 +46,7 @@ class UpdatePersonalDataRequest extends FormRequest
             'email' => 'required|email|unique:users,email,' . $userId,
             'state' => 'nullable|string|size:2',
             'ageRange' => "nullable|string|in:{$ageRangeValues}",
-            'travelWith' => 'nullable|array|min:1',
+            'travelWith' => 'nullable|array',
             'travelWith.*' => "required|string|in:{$travelWithValues}",
         ];
     }
