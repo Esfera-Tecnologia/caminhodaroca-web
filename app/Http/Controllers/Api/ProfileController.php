@@ -248,7 +248,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $user->update([
-            'email' => 'usuario@deletado',
+            'email' => 'deleted_' . Str::uuid() . '@example.com',
             'nome' => 'Usuário deletado',
             'password'  => bcrypt(Str::random(40)),
             'avatar' => ''
