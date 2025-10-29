@@ -158,3 +158,9 @@ a.text-success:hover {
       display: none;
     }
   }
+
+.dashboard-cards{gap:1rem;}
+.dashboard-cards>.col{flex:0 0 calc(20% - 0.8rem);max-width:calc(20% - 0.8rem);}
+@media(max-width:1199.98px){.dashboard-cards>.col{flex:0 0 calc(33.333% - 0.8rem);max-width:calc(33.333% - 0.8rem);}}
+@media(max-width:991.98px){.dashboard-cards>.col{flex:0 0 calc(50% - 0.8rem);max-width:calc(50% - 0.8rem);}}
+@media(max-width:575.98px){.dashboard-cards>.col{flex:0 0 100%;max-width:100%;}}

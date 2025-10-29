@@ -144,17 +144,19 @@
                     <label class="form-label">Endereço do Empreendimento *</label>
                     <input type="text" class="form-control" value="Estrada Rural KM 5">
                   </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Endereço Secundário</label>
-                    <input type="text" class="form-control">
+                  <div class="col-md-6 col-lg-3">
+                    <label class="form-label">Link Google Maps</label>
+                    <input type="url" class="form-control" placeholder="https://maps.google.com/...">
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select">
-                      <option>PR</option>
-                    </select>
+                  <div class="col-md-3 col-lg-3">
+                    <label class="form-label">Latitude</label>
+                    <input type="text" class="form-control" placeholder="-25.4284">
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-3 col-lg-3">
+                    <label class="form-label">Longitude</label>
+                    <input type="text" class="form-control" placeholder="-49.2733">
+                  </div>
+                  <div class="col-md-3 col-lg-3">
                     <label class="form-label">Cidade</label>
                     <select class="form-select">
                       <option>Curitiba</option>
@@ -188,6 +190,9 @@
                 </select>
                 <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Adicionar</button>
               </div>
+              <div class="mt-2 text-end">
+                    <a href="categoria_cadastro.html" class="small text-primary text-decoration-underline">Adicionar nova Categoria</a>
+                  </div>
             </div>
 
              <div class="row g-3 mt-3" id="categorias-container"></div>
@@ -255,16 +260,12 @@
                     <label class="form-check-label" for="todos">Todos os dias</label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="radio" name="tipo_funcionamento" id="fins">
-                    <label class="form-check-label" for="fins">Somente fins de semana</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="tipo_funcionamento" id="feriados">
-                    <label class="form-check-label" for="feriados">Somente feriados</label>
+                    <input class="form-check-input" type="radio" name="tipo_funcionamento" id="finais">
+                    <label class="form-check-label" for="finais">Finais de semana</label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="tipo_funcionamento" id="agendamento">
-                    <label class="form-check-label" for="agendamento">Somente com agendamento</label>
+                    <label class="form-check-label" for="agendamento">Com agendamento</label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="tipo_funcionamento" id="personalizado">
@@ -437,15 +438,14 @@ $(function () {
 
   $('input[name="tipo_funcionamento"]').on('change', function () {
     const tipo = $(this).attr('id');
-    const exibeAgenda = (tipo === 'todos' || tipo === 'fins');
-    const mostraTexto = (tipo === 'personalizado' || tipo === 'feriados' || tipo === 'agendamento');
+    const mostraTexto = (tipo === 'personalizado' || tipo === 'agendamento');
 
 
     $('#horarioTexto').toggleClass('d-none', !mostraTexto);
 
     $('.day-block').each(function () {
       const dia = $(this).data('dia');
-      if (tipo === 'fins') {
+      if (tipo === 'finais') {
         const isWeekend = (dia === 'Sábado' || dia === 'Domingo');
         aplicarEstadoBloco($(this), isWeekend);
       } else {
