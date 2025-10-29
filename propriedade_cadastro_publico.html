@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastro de Propriedade - Caminho da Roça</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .preview-img {
+      width: 100%;
+      height: auto;
+      max-height: 165px;
+      object-fit: contain;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .gallery-preview img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin: 0.5rem;
+      border-radius: 8px;
+    }
+    .schedule-section {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      background: #f8f9fa;
+    }
+    .day-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .day-block {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .day-block.disabled {
+      background-color: #e9ecef;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="d-flex flex-column flex-md-row vh-100">
+    <div class="bg-image d-none d-md-block col-md-5"></div>
+
+    <div class="col-md-7 col-12 d-flex flex-column bg-white">
+      <div class="container-fluid py-4 overflow-auto">
+        <div class="mx-auto" style="max-width: 900px;">
+          <div class="text-center mb-4">
+            <img src="assets/LogoCaminhodaRoca.png" alt="Caminhos da Roça" class="img-fluid" style="max-height: 140px;">
+            <h2 class="fw-bold text-dark mt-3">Cadastro de Propriedade</h2>
+            <p class="text-muted mb-0">Preencha os campos abaixo para cadastrar sua propriedade no Caminho da Roça.</p>
+          </div>
+
+          <div class="content-box">
+            <form>
+              <div class="row g-4">
+                <div class="col-md-3">
+                  <label class="form-label">Logo da Propriedade *</label>
+                  <input type="file" class="form-control">
+                  <img src="assets/teste1.png" class="preview-img" alt="Preview Logo">
+                </div>
+                <div class="col-md-9">
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Nome da Propriedade *</label>
+                      <input type="text" class="form-control" value="Sítio Esperança">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">WhatsApp *</label>
+                      <input type="number" class="form-control" value="41999999999">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Status *</label>
+                      <select class="form-select">
+                        <option>Ativo</option>
+                        <option>Inativo</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Instagram *</label>
+                      <input type="text" class="form-control" value="@sitioesperanca">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Endereço do Empreendimento *</label>
+                      <input type="text" class="form-control" value="Estrada Rural KM 5">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Endereço Secundário</label>
+                      <input type="text" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Estado</label>
+                      <select class="form-select">
+                        <option>PR</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Cidade</label>
+                      <select class="form-select">
+                        <option>Curitiba</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <div class="row g-3 mt-4">
+                <div class="col-md-6">
+                  <label class="form-label">Nome do Responsável *</label>
+                  <input type="text" class="form-control" placeholder="Quem responde pela propriedade">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">E-mail do Responsável *</label>
+                  <input type="email" class="form-control" placeholder="responsavel@propriedade.com">
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <div class="row g-3 mt-4">
+                <div class="col-md-12">
+                  <label class="form-label">Selecione uma Categoria</label>
+                  <div class="input-group">
+                    <select class="form-select" id="categoria-select">
+                      <option value="1">Hospedagem</option>
+                      <option value="2">Alimentação</option>
+                    </select>
+                    <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Adicionar</button>
+                  </div>
+                </div>
+
+                <div class="row g-3 mt-3" id="categorias-container"></div>
+              </div>
+
+              <hr class="my-4">
+
+              <div class="row g-3 mt-4">
+                  <div class="col-md-12">
+                      <label class="form-label">Descreva brevemente o tipo de serviço oferecido na propriedade *</label>
+                      <textarea class="form-control" rows="4"></textarea>
+                    </div>
+              </div>
+              <div class="row g-3 mt-4">
+                <div class="col-md-6">
+                  <label class="form-label">Você possui certificação orgânica, agroecológica ou outra que deseje informar?</label>
+                  <select class="form-select">
+                    <option>Sim</option>
+                    <option>Não</option>
+                  </select>
+                </div>
+             
+                <div class="col-md-6">
+                  <label class="form-label">Vende produtos artesanais? *</label>
+                  <select class="form-select" id="vende-produtos-artesanais">
+                    <option value="Sim">Sim</option>
+                    <option value="Não">Não</option>
+                  </select>
+                </div>
+                <div class="form-group mt-3" id="produtos-artesanais" style="display: none;">
+                  <label class="form-label"><strong>Selecione os produtos abaixo:</strong></label>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="queijos"><label class="form-check-label" for="queijos">Queijos</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="geleias"><label class="form-check-label" for="geleias">Geleias</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="doces-barra"><label class="form-check-label" for="doces-barra">Doces em barra</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="doces-cristalizados"><label class="form-check-label" for="doces-cristalizados">Doces cristalizados</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="compotas"><label class="form-check-label" for="compotas">Compotas</label></div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="conservas"><label class="form-check-label" for="conservas">Conservas</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="molhos"><label class="form-check-label" for="molhos">Molhos</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="antepastos"><label class="form-check-label" for="antepastos">Antepastos</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="desidratados"><label class="form-check-label" for="desidratados">Produtos desidratados</label></div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="paes-integrais"><label class="form-check-label" for="paes-integrais">Pães integrais</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="paes-fermentacao"><label class="form-check-label" for="paes-fermentacao">Pães de fermentação natural</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="paes-bolos"><label class="form-check-label" for="paes-bolos">Pães e bolos caseiros</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="cachaca"><label class="form-check-label" for="cachaca">Cachaça e derivados</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="licores"><label class="form-check-label" for="licores">Licores</label></div>
+                      <div class="form-check"><input type="checkbox" class="form-check-input" id="vinhos"><label class="form-check-label" for="vinhos">Vinhos</label></div>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+              <hr class="my-4">
+
+              <div class="schedule-section">
+                  <h5 class="mb-3">Dias e Horários de Funcionamento</h5>
+                  <div class="mb-3 d-flex flex-wrap gap-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo_funcionamento" id="todos" checked>
+                      <label class="form-check-label" for="todos">Todos os dias</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo_funcionamento" id="fins">
+                      <label class="form-check-label" for="fins">Somente fins de semana</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo_funcionamento" id="feriados">
+                      <label class="form-check-label" for="feriados">Somente feriados</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo_funcionamento" id="agendamento">
+                      <label class="form-check-label" for="agendamento">Somente com agendamento</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo_funcionamento" id="personalizado">
+                      <label class="form-check-label" for="personalizado">Personalizado</label>
+                    </div>
+                  </div>
+      
+                  <div id="horarioTexto" class="d-none mb-3">
+                    <label class="form-label">Informe sobre os dias de funcionamento:</label>
+                    <textarea class="form-control" rows="3"></textarea>
+                  </div>
+      
+                  <div id="agendaSemanal" class="day-grid"></div>
+              </div>
+
+              <div class="row g-3 mt-4">
+                <div class="col-md-6">
+                  <label class="form-label">Aceita animais de estimação? *</label>
+                  <select class="form-select">
+                    <option>Sim</option>
+                    <option>Não</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Possui acessibilidade? *</label>
+                  <select class="form-select">
+                    <option>Sim</option>
+                    <option>Não</option>
+                  </select>
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <div class="mb-4">
+                <label class="form-label">Fotos dos seus produtos ou do estabelecimento *</label>
+                <input type="file" class="form-control" multiple>
+                <div class="gallery-preview d-flex flex-wrap">
+                  
+                  
+                </div>
+              </div>
+             
+              <div class="d-flex justify-content-end gap-2">
+                <a href="index.html" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success">Enviar Cadastro</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    function adicionarCategoria() {
+      const select = document.getElementById('categoria-select');
+      const categoria = select.options[select.selectedIndex].text;
+      const categoriasContainer = document.getElementById('categorias-container');
+
+      const col = document.createElement('div');
+      col.classList.add('col-md-6');
+
+      const block = document.createElement('div');
+      block.classList.add('categoria-block', 'border', 'p-3', 'h-100');
+
+      block.innerHTML = `
+          <div class="d-flex justify-content-between">
+          <strong>${categoria}</strong>
+          <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.col-md-6').remove()">Remover</button>
+          </div>
+          <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" value="1" id="sub1-${categoria}">
+          <label class="form-check-label" for="sub1-${categoria}">Subcategoria 1</label>
+          </div>
+          <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="2" id="sub2-${categoria}">
+          <label class="form-check-label" for="sub2-${categoria}">Subcategoria 2</label>
+          </div>
+      `;
+
+      col.appendChild(block);
+      categoriasContainer.appendChild(col);
+    }
+
+    $(document).ready(function () {
+      function toggleProdutosArtesanais() {
+        if ($('#vende-produtos-artesanais').val() === 'Sim') {
+          $('#produtos-artesanais').slideDown();
+        } else {
+          $('#produtos-artesanais').slideUp();
+          $('#produtos-artesanais input[type=checkbox]').prop('checked', false);
+        }
+      }
+
+      $('#vende-produtos-artesanais').on('change', toggleProdutosArtesanais);
+      toggleProdutosArtesanais();
+    });
+
+    const dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
+    function gerarAgendaSemanal() {
+      const container = $('#agendaSemanal');
+      container.empty();
+
+      dias.forEach((dia) => {
+        const bloco = `<div class="day-block" data-dia="${dia}" data-ativo="true">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>${dia}</strong>
+            <div>
+              <input type="checkbox" class="form-check-input me-1 ativar-dia" id="check_${dia}" checked>
+              <label for="check_${dia}" class="form-check-label">Ativo</label>
+            </div>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Abertura</label>
+              <input type="time" class="form-control horario-abertura">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Fechamento</label>
+              <input type="time" class="form-control horario-fechamento">
+            </div>
+          </div>
+          <div class="form-check mt-2">
+            <input type="checkbox" class="form-check-input fechar-almoco" id="almoco_${dia}">
+            <label class="form-check-label" for="almoco_${dia}">Fecha no almoço</label>
+          </div>
+        </div>`;
+        container.append(bloco);
+      });
+    }
+
+    function aplicarEstadoBloco(bloco, ativo) {
+      bloco.toggleClass('disabled', !ativo);
+      bloco.attr('data-ativo', ativo);
+      bloco.find('input').not('.ativar-dia').prop('disabled', !ativo).val('');
+      bloco.find('.fechar-almoco').prop('checked', false);
+      bloco.find('.ativar-dia').prop('checked', ativo);
+    }
+
+    $(function () {
+      gerarAgendaSemanal();
+
+      $(document).on('click', '.day-block', function (e) {
+        if ($(e.target).is('input') || $(e.target).is('label')) return;
+        const bloco = $(this);
+        const ativo = bloco.attr('data-ativo') === 'true';
+        aplicarEstadoBloco(bloco, !ativo);
+      });
+
+      $(document).on('change', '.ativar-dia', function () {
+        const bloco = $(this).closest('.day-block');
+        const isChecked = $(this).is(':checked');
+        aplicarEstadoBloco(bloco, isChecked);
+      });
+
+      $('input[name="tipo_funcionamento"]').on('change', function () {
+        const tipo = $(this).attr('id');
+        const mostraTexto = (tipo === 'personalizado' || tipo === 'feriados' || tipo === 'agendamento');
+
+        $('#horarioTexto').toggleClass('d-none', !mostraTexto);
+
+        $('.day-block').each(function () {
+          const dia = $(this).data('dia');
+          if (tipo === 'fins') {
+            const isWeekend = (dia === 'Sábado' || dia === 'Domingo');
+            aplicarEstadoBloco($(this), isWeekend);
+          } else {
+            aplicarEstadoBloco($(this), true);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

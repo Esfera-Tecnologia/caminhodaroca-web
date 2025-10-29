@@ -69,15 +69,15 @@
           <h2 class="fw-bold mb-4">Cadastro de Usuário</h2>
           <form>
             <div class="row mb-4">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label for="email" class="form-label">E-mail *</label>
                 <input type="email" class="form-control" id="email" required>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label for="nome" class="form-label">Nome *</label>
                 <input type="text" class="form-control" id="nome" required>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label for="status" class="form-label">Status *</label>
                 <select class="form-select" id="status" required>
                   <option value="">Selecione</option>
@@ -85,13 +85,24 @@
                   <option value="inativo">Inativo</option>
                 </select>
               </div>
-              <div class="col-md-3">
+             
+            </div>
+            <div class="row mb-4">
+               <div class="col-md-6">
                 <label for="perfil" class="form-label">Perfil de Acesso *</label>
                 <select class="form-select" id="perfil" required>
                   <option value="">Selecione</option>
                   <option value="admin">Administrador</option>
                   <option value="editor">Editor</option>
                   <option value="visualizador">Visualizador</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="aprovaPropriedade" class="form-label">Responsável por Aprovar Propriedade *</label>
+                <select class="form-select" id="aprovaPropriedade" required>
+                  <option value="">Selecione</option>
+                  <option value="sim">Sim</option>
+                  <option value="nao">Não</option>
                 </select>
               </div>
             </div>
