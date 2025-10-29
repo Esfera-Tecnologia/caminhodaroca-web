@@ -8,6 +8,7 @@ use App\Models\Menu;
 use App\Models\Product;
 use App\Models\PropertyImage;
 use App\Models\Subcategory;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -48,10 +49,10 @@ class PropertyController extends Controller
 
     public function store(Request $request)
     {
-        
+
         $permissao = $this->getPermissao('properties');
         abort_unless($permissao?->can_create, 403);
-        
+
         $data = $this->validateData($request);
 
         // Upload do logo
@@ -59,7 +60,7 @@ class PropertyController extends Controller
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
 
-    
+
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
         $property = Property::create($data);
@@ -79,7 +80,7 @@ class PropertyController extends Controller
         $this->syncCategoriasSubcategorias($property, $request);
         // Relacionamento produto
        $property->products()->sync($request->input('product_ids', []));
-       
+
 
         return redirect()->route('properties.index')->with('success', 'Propriedade cadastrada com sucesso!');
     }
@@ -88,7 +89,7 @@ class PropertyController extends Controller
     {
         $permissao = $this->getPermissao('properties');
         abort_unless($permissao?->can_edit, 403);
-       
+
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
         $property->load('categorias', 'subcategorias', 'products');
         $products = Product::where('status', 'ativo')->get();
@@ -97,7 +98,7 @@ class PropertyController extends Controller
         $galeria = collect($property->galeria_paths)->map(fn($path) => asset('storage/' . $path));
 
 
- 
+
         return view('properties.edit', compact('property', 'categories', 'products','galeria'));
     }
 
@@ -113,12 +114,12 @@ class PropertyController extends Controller
             }
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
-      
+
 
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
 
-        
+
         $property->update($data);
 
          // atualiza galeria
@@ -230,7 +231,7 @@ class PropertyController extends Controller
                 }
             }
         }
-        
+
 
         // Remove antigos e insere novos
         DB::table('category_property_subcategories')->where('property_id', $property->id)->delete();
@@ -238,6 +239,20 @@ class PropertyController extends Controller
         if (!empty($registros)) {
             DB::table('category_property_subcategories')->insert($registros);
         }
+    }
+
+    public function generatePdf(Property $property)
+    {
+//        return view('pdf.property', compact('property'));
+        $categorias = $property->categorias()->where('status', 'ativo')->get();
+        $categoria_principal = $property->categorias()->where('status', 'ativo')->first();
+        $subcategorias_principais = $property->subcategorias()
+            ->where('subcategories.category_id', $categoria_principal->id)
+            ->pluck('nome')
+            ->toArray();
+        $pdf = Pdf::loadView('pdf.property', compact('property', 'categorias', 'categoria_principal', 'subcategorias_principais'));
+
+        return $pdf->stream("property_{$property->id}.pdf");
     }
 
 }

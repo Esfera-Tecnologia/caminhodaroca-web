@@ -38,7 +38,7 @@ Route::get('/definir-senha', [SetPasswordController::class, 'showSetPasswordForm
     ->name('password.set')
     ->middleware('signed');
 
-Route::post('/definir-senha', [SetPasswordController::class, 'storePassword'])->name('password.set.store'); 
+Route::post('/definir-senha', [SetPasswordController::class, 'storePassword'])->name('password.set.store');
 
 Route::get('/definir-senha/{token}', [SenhaController::class, 'formNovaSenha'])->name('password.set.token');
 Route::post('/definir-senha/{token}', [SenhaController::class, 'storeNovaSenha'])->name('definir-senha.store');
@@ -70,6 +70,7 @@ Route::post('/imagens/remover', [PropertyImageController::class, 'remover'])->na
 
 
 Route::resource('properties', PropertyController::class)->middleware('auth');
+Route::get('properties/pdf/{property}', [PropertyController::class, 'generatePdf'])->name('properties.pdf');
 
 
 Route::middleware('auth')->group(function () {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\WorkingTypeProperty;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -53,6 +54,7 @@ class Property extends Model
         'aceita_animais' => 'boolean',
         'possui_acessibilidade' => 'boolean',
         'rating' => 'decimal:1',
+        'tipo_funcionamento' => WorkingTypeProperty::class
     ];
 
     // Accessors para compatibilidade
@@ -64,6 +66,20 @@ class Property extends Model
             $phone = '55' . $phone;
         }
         return $phone;
+    }
+
+    // Accessors para compatibilidade
+    public function getWhatsappMaskAttribute()
+    {
+        $phone = preg_replace('/\D/', '', $this->whatsapp);
+
+        if (strlen($phone) === 11) {
+            return preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $phone);
+        } elseif (strlen($phone) === 10) {
+            return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $phone);
+        }
+
+        return $this->whatsapp;
     }
 
     public function getCityAttribute()

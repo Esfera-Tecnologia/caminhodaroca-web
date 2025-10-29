@@ -2,8 +2,13 @@
   <h5 class="mb-3">Dias e Horários de Funcionamento</h5>
   <div class="mb-3 d-flex flex-wrap gap-3">
     @php
-      $tipos = ['todos' => 'Todos os Dias', 'fins' => 'Finais de Semana',  'agendamento' => 'Com Agendamento', 'personalizado' => 'Personalizado'];
-      $tipoSelecionado = old('tipo_funcionamento', $property->tipo_funcionamento ?? 'todos');
+      $tipos = [
+          'todos' => 'Todos os Dias',
+          'fins' => 'Finais de Semana',
+          'agendamento' => 'Com Agendamento',
+          'personalizado' => 'Personalizado'
+      ];
+      $tipoSelecionado = old('tipo_funcionamento', $property->tipo_funcionamento->value ?? 'todos');
     @endphp
     @foreach($tipos as $valor => $label)
       <div class="form-check">
