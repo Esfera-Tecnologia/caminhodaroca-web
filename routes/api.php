@@ -43,6 +43,7 @@ Route::get('/subcategories', [CategoryController::class, 'subcategories']);
 // Rotas de propriedades (públicas)
 Route::get('/properties', [PropertyController::class, 'index']);
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
+Route::get('/properties/autocomplete', [PropertyController::class, 'autocomplete']);
 
 // Rotas protegidas (requerem autenticação)
 Route::middleware('auth:sanctum')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PropertyController extends Controller
@@ -359,5 +360,25 @@ class PropertyController extends Controller
                 ];
             }
         }
+    }
+
+
+    public function autocomplete(Request $request)
+    {
+        $keyword = $request->query('keyword');
+
+        $results = Property::query()
+            ->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                ->orWhere('descricao_servico', 'like', "%{$keyword}%");
+            })
+            ->get(['id', 'name'])
+            ->map(function ($item) {
+                return [
+                    'label' => $item->name,
+                    'value' => $item->id,
+                ];
+            });
+        return response()->json($results);
     }
 }
