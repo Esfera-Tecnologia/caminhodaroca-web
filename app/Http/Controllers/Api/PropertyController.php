@@ -367,7 +367,7 @@ class PropertyController extends Controller
     {
         $keyword = $request->query('keyword');
 
-        if(! $keyword) {
+        if(! $keyword || strlen($keyword) < 3) {
             return response()->json([]);
         }
         $results = Property::query()
