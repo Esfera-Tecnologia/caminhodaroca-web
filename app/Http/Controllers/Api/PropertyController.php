@@ -367,6 +367,9 @@ class PropertyController extends Controller
     {
         $keyword = $request->query('keyword');
 
+        if(! $keyword) {
+            return response()->json([]);
+        }
         $results = Property::query()
             ->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
