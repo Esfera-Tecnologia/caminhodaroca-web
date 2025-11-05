@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Property;
 use App\Models\Category;
 use App\Models\Menu;
+use App\Models\PreapprovedProperty;
+use App\Models\PreapprovedPropertyImage;
 use App\Models\Product;
+use App\Models\Property;
 use App\Models\PropertyImage;
-use App\Models\Subcategory;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 class PropertyController extends Controller
 {
-     private function getPermissao(string $slug)
+    private function getPermissao(string $slug)
     {
         $menuId = Menu::where('slug', $slug)->value('id');
 
@@ -30,7 +31,7 @@ class PropertyController extends Controller
     public function index()
     {
 
-         $permissao = $this->getPermissao('properties');
+        $permissao = $this->getPermissao('properties');
         abort_unless($permissao?->can_view, 403);
 
         $properties = Property::latest()->get();
@@ -44,12 +45,11 @@ class PropertyController extends Controller
 
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
         $products = Product::where('status', 'ativo')->get();
-        return view('properties.create', compact('categories','products'));
+        return view('properties.create', compact('categories', 'products'));
     }
 
     public function store(Request $request)
     {
-
         $permissao = $this->getPermissao('properties');
         abort_unless($permissao?->can_create, 403);
 
@@ -79,7 +79,7 @@ class PropertyController extends Controller
         // Relacionamento categoria/subcategoria
         $this->syncCategoriasSubcategorias($property, $request);
         // Relacionamento produto
-       $property->products()->sync($request->input('product_ids', []));
+        $property->products()->sync($request->input('product_ids', []));
 
 
         return redirect()->route('properties.index')->with('success', 'Propriedade cadastrada com sucesso!');
@@ -98,8 +98,7 @@ class PropertyController extends Controller
         $galeria = collect($property->galeria_paths)->map(fn($path) => asset('storage/' . $path));
 
 
-
-        return view('properties.edit', compact('property', 'categories', 'products','galeria'));
+        return view('properties.edit', compact('property', 'categories', 'products', 'galeria'));
     }
 
     public function update(Request $request, Property $property)
@@ -122,8 +121,8 @@ class PropertyController extends Controller
 
         $property->update($data);
 
-         // atualiza galeria
-       if ($request->hasFile('images')) {
+        // atualiza galeria
+        if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('properties', 'public');
 
@@ -178,10 +177,11 @@ class PropertyController extends Controller
         return $request->validate([
             'name' => ['required', 'string'],
             'whatsapp' => ['required'],
-            'status' => ['required', Rule::in(['ativo', 'inativo'])],
             'instagram' => ['nullable'],
             'endereco_principal' => ['required'],
             'endereco_secundario' => ['nullable'],
+            'nome_responsavel' => ['required'],
+            'email_responsavel' => ['required', 'email'],
             'cidade' => ['required'],
             'descricao_servico' => ['required', 'max:1000'],
             'certificacao' => ['nullable', Rule::in([0, 1, 2])],
@@ -207,7 +207,7 @@ class PropertyController extends Controller
     }
 
 
-   protected function syncCategoriasSubcategorias(Property $property, Request $request)
+    protected function syncCategoriasSubcategorias(Property $property, Request $request)
     {
         $registros = [];
 
@@ -241,6 +241,41 @@ class PropertyController extends Controller
         }
     }
 
+
+    protected function syncPreapprovedCategoriasSubcategorias(PreapprovedProperty $property, Request $request)
+    {
+        $registros = [];
+
+        if ($request->has('categoria_ids')) {
+            foreach ($request->categoria_ids as $categoriaId => $subcategorias) {
+                if (count($subcategorias) === 1 && $subcategorias[0] === '') {
+                    // caso especial: uma entrada vazia => subcategoria null
+                    $registros[] = [
+                        'preapproved_property_id' => $property->id,
+                        'category_id' => $categoriaId,
+                        'subcategory_id' => null,
+                    ];
+                } else {
+                    foreach ($subcategorias as $subcategoriaId) {
+                        $registros[] = [
+                            'preapproved_property_id' => $property->id,
+                            'category_id' => $categoriaId,
+                            'subcategory_id' => $subcategoriaId ?: null,
+                        ];
+                    }
+                }
+            }
+        }
+
+
+        // Remove antigos e insere novos
+        DB::table('category_preapproved_property_subcategories')->where('preapproved_property_id', $property->id)->delete();
+
+        if (!empty($registros)) {
+            DB::table('category_preapproved_property_subcategories')->insert($registros);
+        }
+    }
+
     public function generatePdf(Property $property)
     {
 //        return view('pdf.property', compact('property'));
@@ -253,6 +288,48 @@ class PropertyController extends Controller
         $pdf = Pdf::loadView('pdf.property', compact('property', 'categorias', 'categoria_principal', 'subcategorias_principais'));
 
         return $pdf->stream("property_{$property->id}.pdf");
+    }
+
+
+    public function create_public()
+    {
+        $categories = Category::with('subcategories')->where('status', 'ativo')->get();
+        $products = Product::where('status', 'ativo')->get();
+        return view('properties.public_create', compact('categories', 'products'));
+    }
+
+    public function store_public(Request $request)
+    {
+        $data = $this->validateData($request);
+
+        // Upload do logo
+        if ($request->hasFile('logo')) {
+            $data['logo_path'] = $request->file('logo')->store('logos', 'public');
+        }
+
+
+        $data['instagram'] = '@' . ltrim($data['instagram'], '@');
+        $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
+        $property = PreapprovedProperty::query()->create($data);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('properties', 'public');
+
+                PreapprovedPropertyImage::query()->create([
+                    'preapproved_property_id' => $property->id,
+                    'path' => $path,
+                ]);
+            }
+        }
+
+        // Relacionamento categoria/subcategoria
+        $this->syncPreapprovedCategoriasSubcategorias($property, $request);
+        // Relacionamento produto
+        $property->products()->sync($request->input('product_ids', []));
+
+
+        return redirect()->route('properties.public.create')->with('success', 'Propriedade cadastrada com sucesso!');
     }
 
 }

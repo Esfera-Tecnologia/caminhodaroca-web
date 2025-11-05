@@ -29,6 +29,15 @@ class AccessProfileSeeder extends Seeder
             ]
         );
 
+        // Perfil 2: Usuário Comum
+        $responsibleProfile = AccessProfile::firstOrCreate(
+            ['nome' => 'Responsável'],
+            [
+                'descricao' => 'Responsável das propriedades',
+                'status' => 'ativo',
+            ]
+        );
+
         // Permissões para Admin (todos os menus)
         foreach (Menu::all() as $menu) {
             AccessProfileMenuPermission::updateOrCreate(
@@ -48,5 +57,22 @@ class AccessProfileSeeder extends Seeder
         // Permissões para Usuário (apenas visualização limitada)
         // Usuários comuns não têm permissões específicas de menu
         // Suas permissões são controladas via middleware e policies
+
+        // Permissões para Responsável (visualização e edição de propriedades)
+        $propertyMenu = Menu::where('slug', 'property')->first();
+        if ($propertyMenu) {
+            AccessProfileMenuPermission::updateOrCreate(
+                [
+                    'access_profile_id' => $responsibleProfile->id,
+                    'menu_id' => $propertyMenu->id
+                ],
+                [
+                    'can_view' => true,
+                    'can_create' => true,
+                    'can_edit' => true,
+                    'can_delete' => false,
+                ]
+            );
+        }
     }
 }

@@ -70,7 +70,7 @@ Route::post('/imagens/remover', [PropertyImageController::class, 'remover'])->na
 
 
 Route::resource('properties', PropertyController::class)->middleware('auth');
-Route::get('properties/pdf/{property}', [PropertyController::class, 'generatePdf'])->name('properties.pdf');
+Route::get('properties/pdf/{property}', [PropertyController::class, 'generatePdf'])->middleware('auth')->name('properties.pdf');
 
 
 Route::middleware('auth')->group(function () {
@@ -78,5 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('cadastro-propriedade-publica', [PropertyController::class, 'create_public'])->name('properties.public.create');
+Route::post('cadastro-propriedade-publica', [PropertyController::class, 'store_public'])->name('properties.public.store');
 
 require __DIR__.'/auth.php';
