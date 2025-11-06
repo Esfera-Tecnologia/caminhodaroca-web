@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\PropertyRatingController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,9 @@ Route::get('/subcategories', [CategoryController::class, 'subcategories']);
 Route::get('/properties', [PropertyController::class, 'index']);
 Route::get('/properties/autocomplete', [PropertyController::class, 'autocomplete']);
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
+
+// Rotas de parceiros (públicas)
+Route::get('/partners', [PartnerController::class, 'index']);
 
 // Rotas protegidas (requerem autenticação)
 Route::middleware('auth:sanctum')->group(function () {
