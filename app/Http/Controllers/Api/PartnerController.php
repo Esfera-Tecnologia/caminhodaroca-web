@@ -37,6 +37,13 @@ class PartnerController extends Controller
             'routes' => fake()->sentence(6),
             'circuits' => fake()->sentence(6),
             'attractions' => fake()->sentence(6),
+            'events' => collect(range(1, rand(1, 5)))->map(function ($i) {
+                return [
+                    'id' => $i,
+                    'name' => fake()->catchPhrase(),
+                    'description' => fake()->sentence(10),
+                ];
+            })->toArray(),
         ];
 
         return response()->json($partner);
