@@ -48,6 +48,7 @@ Route::get('/properties/{id}', [PropertyController::class, 'show']);
 
 // Rotas de parceiros (públicas)
 Route::get('/partners', [PartnerController::class, 'index']);
+Route::get('/partners/{id}', [PartnerController::class, 'show']);
 
 // Rotas protegidas (requerem autenticação)
 Route::middleware('auth:sanctum')->group(function () {

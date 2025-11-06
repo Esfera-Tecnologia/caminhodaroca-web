@@ -21,4 +21,24 @@ class PartnerController extends Controller
         });
         return response()->json($partners);
     }
+
+    public function show($id)
+    {
+        $partner = [
+            'id' => (int) $id,
+            'name' => fake()->company(),
+            'logo' => "https://picsum.photos/seed/partner{$id}/200/300",
+            'city' => fake()->city(),
+            'uf' => fake()->stateAbbr(),
+            'category' => fake()->randomElement(['Fazenda', 'Sítio', 'Pousada', 'Cabana']),
+            'subcategory' => fake()->randomElement(['Ecológica', 'Histórica', 'Gastronômica', 'Aventura']),
+            'description' => fake()->paragraph(3),
+            'email' => fake()->companyEmail(),
+            'routes' => fake()->sentence(6),
+            'circuits' => fake()->sentence(6),
+            'attractions' => fake()->sentence(6),
+        ];
+
+        return response()->json($partner);
+    }
 }
