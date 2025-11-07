@@ -24,6 +24,12 @@ class PartnerController extends Controller
 
     public function show($id)
     {
+        $instagramUsername = fake()->optional(0.6)->userName();
+        $instagram = $instagramUsername ? "https://www.instagram.com/{$instagramUsername}/" : null;
+
+        $domain = fake()->optional(0.7)->domainName();
+        $website = $domain ? "https://{$domain}/" : null;
+
         $partner = [
             'id' => (int) $id,
             'name' => fake()->company(),
@@ -37,6 +43,8 @@ class PartnerController extends Controller
             'routes' => fake()->sentence(6),
             'circuits' => fake()->sentence(6),
             'attractions' => fake()->sentence(6),
+            'instagram' => $instagram,
+            'website' => $website,
             'events' => collect(range(1, rand(1, 5)))->map(function ($i) {
                 return [
                     'id' => $i,
