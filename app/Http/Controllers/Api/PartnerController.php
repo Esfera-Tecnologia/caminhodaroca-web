@@ -42,6 +42,7 @@ class PartnerController extends Controller
                     'id' => $i,
                     'name' => fake()->catchPhrase(),
                     'description' => fake()->sentence(10),
+                    'externalLink' => 'https://www.google.com.br/'
                 ];
             })->toArray(),
         ];
