@@ -41,8 +41,8 @@
   <div class="col">
     <label for="can_approve_property" class="form-label">Aprova cadastros? *</label>
     <select name="can_approve_property" id="can_approve_property" class="form-select" required>
-      <option value="1" {{ $user->can_approve_property ? 'selected' : '' }}>Sim</option>
-      <option value="0" {{ !$user->can_approve_property ? 'selected' : '' }}>Não</option>
+      <option value="1" {{ $user?->can_approve_property ? 'selected' : '' }}>Sim</option>
+      <option value="0" {{ !$user?->can_approve_property ? 'selected' : '' }}>Não</option>
     </select>
   </div>
 </div>
