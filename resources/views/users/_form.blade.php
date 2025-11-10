@@ -17,7 +17,7 @@
 </div>
 
 <div class="row mb-4">
-  <div class="col-md-6">
+  <div class="col">
     <label for="access_profile_id" class="form-label">Perfil de Acesso *</label>
     <select name="access_profile_id" id="access_profile_id" class="form-select" required>
       <option value="">Selecione...</option>
@@ -31,11 +31,18 @@
       <div class="text-danger mt-1">{{ $message }}</div>
     @enderror
   </div>
-  <div class="col-md-6">
+  <div class="col">
     <label for="status" class="form-label">Status *</label>
     <select name="status" id="status" class="form-select" required>
       <option value="ativo" {{ $status == 'ativo' ? 'selected' : '' }}>Ativo</option>
       <option value="inativo" {{ $status == 'inativo' ? 'selected' : '' }}>Inativo</option>
+    </select>
+  </div>
+  <div class="col">
+    <label for="can_approve_property" class="form-label">Aprova cadastros? *</label>
+    <select name="can_approve_property" id="can_approve_property" class="form-select" required>
+      <option value="1" {{ $user->can_approve_property ? 'selected' : '' }}>Sim</option>
+      <option value="0" {{ !$user->can_approve_property ? 'selected' : '' }}>Não</option>
     </select>
   </div>
 </div>

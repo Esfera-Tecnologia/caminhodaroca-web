@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\StatusPreapprovedProperty;
 use App\Enums\WorkingTypeProperty;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PreapprovedProperty extends Model
 {
     protected $fillable = [
+        'property_id',
         'name',
         'whatsapp',
         'instagram',
@@ -17,6 +20,7 @@ class PreapprovedProperty extends Model
         'latitude',
         'longitude',
         'cidade',
+        'status',
         'nome_responsavel',
         'email_responsavel',
         'descricao_servico',
@@ -52,7 +56,8 @@ class PreapprovedProperty extends Model
         'aceita_animais' => 'boolean',
         'possui_acessibilidade' => 'boolean',
         'rating' => 'decimal:1',
-        'tipo_funcionamento' => WorkingTypeProperty::class
+        'tipo_funcionamento' => WorkingTypeProperty::class,
+        'status' => StatusPreapprovedProperty::class
     ];
 
     // Accessors para compatibilidade
@@ -138,5 +143,10 @@ class PreapprovedProperty extends Model
     public function images()
     {
         return $this->hasMany(PreapprovedPropertyImage::class);
+    }
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class);
     }
 }

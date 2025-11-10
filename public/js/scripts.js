@@ -14,7 +14,7 @@ $(document).ready(function () {
     }
   });
 
-   // aciona modal de exclusão 
+   // aciona modal de exclusão
 
     $('.btn-delete').on('click', function () {
       const route = $(this).data('route');
@@ -24,7 +24,7 @@ $(document).ready(function () {
 
   // Alertas temporários
     setTimeout(function () {
-        $('.alert').fadeOut(500, function () {
+        $('.alert:not(.not-fade)').fadeOut(500, function () {
             $(this).remove();
         });
     }, 3500);
@@ -97,7 +97,7 @@ function showBootstrapAlert(message, type = 'danger') {
     `;
     alertBox.classList.remove('d-none');
 }
-// IMAGENS 
+// IMAGENS
 
 $(document).ready(function () {
     $.ajaxSetup({

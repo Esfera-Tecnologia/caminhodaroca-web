@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'access_profile_id',
+        'can_approve_property',
         'status',
         'state',
         'age_range',
@@ -54,6 +55,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'age_range' => AgeRange::class,
             'travel_with' => 'json',
+            'can_approve_property' => 'boolean',
         ];
     }
 
@@ -75,5 +77,10 @@ class User extends Authenticatable
     public function favoriteProperties()
     {
         return $this->belongsToMany(Property::class, 'user_favorite_properties');
+    }
+
+    public function isResponsible(): bool
+    {
+        return $this->accessProfile && $this->accessProfile->nome === 'Responsável';
     }
 }

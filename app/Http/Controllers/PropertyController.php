@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatusPreapprovedProperty;
+use App\Enums\StatusProperty;
+use App\Models\AccessProfile;
 use App\Models\Category;
 use App\Models\Menu;
 use App\Models\PreapprovedProperty;
@@ -9,11 +12,14 @@ use App\Models\PreapprovedPropertyImage;
 use App\Models\Product;
 use App\Models\Property;
 use App\Models\PropertyImage;
+use App\Models\User;
+use App\Notifications\WelcomeNewUserNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PropertyController extends Controller
@@ -30,11 +36,12 @@ class PropertyController extends Controller
 
     public function index()
     {
-
         $permissao = $this->getPermissao('properties');
         abort_unless($permissao?->can_view, 403);
 
-        $properties = Property::latest()->get();
+        $properties = Property::query()->when(Auth::user()->isResponsible(), function ($q) {
+            $q->where('email_responsavel', Auth::user()->email);
+        })->latest()->get();
         return view('properties.index', compact('properties'));
     }
 
@@ -53,6 +60,13 @@ class PropertyController extends Controller
         $permissao = $this->getPermissao('properties');
         abort_unless($permissao?->can_create, 403);
 
+        $this->storeProperty($request);
+
+        return redirect()->route('properties.index')->with('success', 'Propriedade cadastrada com sucesso!');
+    }
+
+    public function storeProperty(Request $request)
+    {
         $data = $this->validateData($request);
 
         // Upload do logo
@@ -63,6 +77,7 @@ class PropertyController extends Controller
 
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
+        $data['status'] = 'inativo';
         $property = Property::create($data);
 
         if ($request->hasFile('images')) {
@@ -82,7 +97,7 @@ class PropertyController extends Controller
         $property->products()->sync($request->input('product_ids', []));
 
 
-        return redirect()->route('properties.index')->with('success', 'Propriedade cadastrada com sucesso!');
+        return $property;
     }
 
     public function edit(Property $property)
@@ -119,24 +134,46 @@ class PropertyController extends Controller
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
 
 
-        $property->update($data);
+        if (!Auth::user()->isResponsible()) {
+            $property->update($data);
+            $this->syncCategoriasSubcategorias($property, $request);
+            $property->products()->sync($request->input('product_ids', []));
+        }
+
+        $this->syncPreapprovedCategoriasSubcategorias($property->preapproved_property()->first(), $request);
+        $dataProperty = $data;
+        if (!Auth::user()->isResponsible()) {
+            $dataProperty['status'] = StatusPreapprovedProperty::APPROVED;
+        } else {
+            $dataProperty['status'] = StatusPreapprovedProperty::PENDING;
+        }
+        $property->preapproved_property()->update($dataProperty);
+        $property->preapproved_property()->first()->images()->delete();
+        $property->preapproved_property()->first()->images()->createMany($property->images->toArray());
+        $property->preapproved_property()->first()->products()->sync($request->input('product_ids', []));
 
         // atualiza galeria
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('properties', 'public');
 
-                PropertyImage::create([
-                    'property_id' => $property->id,
+                if (!Auth::user()->isResponsible()) {
+                    PropertyImage::create([
+                        'property_id' => $property->id,
+                        'path' => $path,
+                    ]);
+                }
+
+                PreapprovedPropertyImage::create([
+                    'preapproved_property_id' => $property->preapproved_property()->first()->id,
                     'path' => $path,
                 ]);
             }
         }
 
-        $this->syncCategoriasSubcategorias($property, $request);
-        $property->products()->sync($request->input('product_ids', []));
+        $updateMessage = Auth::user()->isResponsible() ? 'Atualização enviado para validação!' : 'Propriedade atualizada com sucesso!';
 
-        return redirect()->route('properties.index')->with('success', 'Propriedade atualizada com sucesso!');
+        return redirect()->route('properties.index')->with('success', $updateMessage);
     }
 
     public function deleteImage($id)
@@ -180,8 +217,8 @@ class PropertyController extends Controller
             'instagram' => ['nullable'],
             'endereco_principal' => ['required'],
             'endereco_secundario' => ['nullable'],
-            'nome_responsavel' => ['nullable'],
-            'email_responsavel' => ['nullable', 'email'],
+            'nome_responsavel' => ['required'],
+            'email_responsavel' => ['required', 'email'],
             'cidade' => ['required'],
             'descricao_servico' => ['required', 'max:1000'],
             'certificacao' => ['nullable', Rule::in([0, 1, 2])],
@@ -197,9 +234,9 @@ class PropertyController extends Controller
             'aceita_animais' => ['boolean'],
             'possui_acessibilidade' => ['boolean'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
-            'galeria.*' => ['nullable', 'image'],
-            'product_ids' => 'array',
-            'product_ids.*' => 'exists:products,id',
+//            'galeria.*' => ['nullable', 'image'],
+//            'product_ids' => 'array',
+//            'product_ids.*' => 'exists:products,id',
             'google_maps_url' => ['required', 'url', 'max:2048'],
             'latitude' => ['required', 'regex:/^-?\d{1,2}\.\d+$/', 'max:15'],
             'longitude' => ['required', 'regex:/^-?\d{1,3}\.\d+$/', 'max:15'],
@@ -310,26 +347,103 @@ class PropertyController extends Controller
 
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
-        $property = PreapprovedProperty::query()->create($data);
+        $request->status = StatusProperty::INATIVO;
+        $property = $this->storeProperty($request);
+        $data['status'] = StatusPreapprovedProperty::PENDING;
+        $data['property_id'] = $property->id;
+        $preapproved_property = PreapprovedProperty::query()->create($data);
+
+        if (!User::query()->where('email', $request->input('email_responsavel'))->exists()) {
+            $user = User::query()->create([
+                'name' => $request->input('nome_responsavel'),
+                'email' => $request->input('email_responsavel'),
+                'password' => bcrypt(Str::random(12)),
+                'access_profile_id' => AccessProfile::where('nome', 'Responsável')->first()->id
+            ]);
+            $user->notify(new WelcomeNewUserNotification($user));
+        }
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('properties', 'public');
 
                 PreapprovedPropertyImage::query()->create([
-                    'preapproved_property_id' => $property->id,
+                    'preapproved_property_id' => $preapproved_property->id,
                     'path' => $path,
                 ]);
             }
         }
 
         // Relacionamento categoria/subcategoria
-        $this->syncPreapprovedCategoriasSubcategorias($property, $request);
+        $this->syncPreapprovedCategoriasSubcategorias($preapproved_property, $request);
         // Relacionamento produto
+        $preapproved_property->products()->sync($request->input('product_ids', []));
+
+
+        return redirect()->route('properties.public.create')->with('success', 'Cadastro enviado para validação!');
+    }
+
+    public function edit_public(PreapprovedProperty $property)
+    {
+        $permissao = $this->getPermissao('properties');
+        abort_unless($permissao?->can_edit, 403);
+
+        $categories = Category::with('subcategories')->where('status', 'ativo')->get();
+        $property->load('categorias', 'subcategorias', 'products');
+        $products = Product::where('status', 'ativo')->get();
+        $selectedProducts = $property->products()->pluck('product_id')->toArray();
+
+        $galeria = collect($property->galeria_paths)->map(fn($path) => asset('storage/' . $path));
+
+
+        return view('properties.edit', compact('property', 'categories', 'products', 'galeria'));
+    }
+
+    public function update_public(Request $request, PreapprovedProperty $property)
+    {
+        $data = $this->validateData($request, $property->id);
+
+        // Atualiza a logo
+        if ($request->hasFile('logo')) {
+            if ($property->logo_path) {
+                Storage::disk('public')->delete($property->logo_path);
+            }
+            $data['logo_path'] = $request->file('logo')->store('logos', 'public');
+        }
+
+
+        $data['instagram'] = '@' . ltrim($data['instagram'], '@');
+        $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
+
+        // atualiza galeria
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('properties', 'public');
+
+                PreapprovedPropertyImage::create([
+                    'preapproved_property_id' => $property->id,
+                    'path' => $path,
+                ]);
+            }
+        }
+
+        $this->syncPreapprovedCategoriasSubcategorias($property, $request);
         $property->products()->sync($request->input('product_ids', []));
 
+        if ($request->has('approve_updates') && $request->input('approve_updates')) {
+            $data['status'] = StatusPreapprovedProperty::APPROVED;
+            $dataProperty = $data;
+            $dataProperty['status'] = StatusProperty::ATIVO;
+            $property->property()->update($dataProperty);
+            $property->property()->first()->images()->delete();
+            $property->property()->first()->images()->createMany($property->images->toArray());
+            $this->syncCategoriasSubcategorias($property->property, $request);
+            $property->property()->first()->products()->sync($request->input('product_ids', []));
+        }
 
-        return redirect()->route('properties.public.create')->with('success', 'Propriedade cadastrada com sucesso!');
+        $property->update($data);
+
+        return redirect()->route('properties.index')->with('success', 'Atualização enviado para validação!');
     }
 
 }

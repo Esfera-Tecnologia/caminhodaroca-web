@@ -12,7 +12,7 @@
                     ->permissions
                     ->firstWhere('menu_id', $menus->firstWhere('slug', 'properties')?->id);
             @endphp
-            @if ($permissoes?->can_create)
+            @if ($permissoes?->can_create && !auth()->user()->isResponsible())
                 <a href="{{ route('properties.create') }}" class="btn btn-menu">
                     <i class="fas fa-plus me-1"></i> Adicionar Nova
                 </a>
@@ -39,6 +39,8 @@
                 </thead>
                 <tbody>
                 @foreach($properties as $property)
+                    @php($preapproved = $property->preapproved_property()->first())
+                    @php($is_pending = $preapproved?->status == \App\Enums\StatusPreapprovedProperty::PENDING)
                     <tr>
                         <td>
                             @if($property->logo_path)
@@ -48,16 +50,27 @@
                         <td>{{ $property->name }}</td>
                         <td>{{ $property->cidade }}</td>
                         <td>
-              <span class="badge bg-{{ $property->status === 'ativo' ? 'success' : 'danger' }}">
-                {{ ucfirst($property->status) }}
-              </span>
+                            @if($is_pending)
+                                <span
+                                    class="badge bg-{{ $preapproved->status->badge() }}">{{ $preapproved->status->label() }}</span>
+                            @else
+                                <span
+                                    class="badge bg-{{ $property->status->badge() }}">{{ $property->status->label() }}</span>
+                            @endif
                         </td>
                         <td>
                             <a class="btn text-danger btn-export fs-5" target="_blank"
                                href="{{ route('properties.pdf', $property) }}"><i class="fas fa-file-pdf"></i></a>
                             @if ($permissoes?->can_edit)
-                                <a href="{{ route('properties.edit', $property) }}" class="btn btn-sm btn-warning"><i
-                                        class="fas fa-edit"></i></a>
+                                @if($is_pending)
+                                    <a href="{{ route('properties.preapproved.edit', $preapproved->id) }}"
+                                       class="btn btn-sm btn-warning"><i
+                                            class="fas fa-edit"></i></a>
+                                @else
+                                    <a href="{{ route('properties.edit', $property) }}"
+                                       class="btn btn-sm btn-warning"><i
+                                            class="fas fa-edit"></i></a>
+                                @endif
                             @endif
                             @if ($permissoes?->can_delete)
                                 <button type="button"

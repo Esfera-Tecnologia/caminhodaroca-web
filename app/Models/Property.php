@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\StatusProperty;
 use App\Enums\WorkingTypeProperty;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
@@ -21,6 +23,8 @@ class Property extends Model
         'latitude',
         'longitude',
         'cidade',
+        'nome_responsavel',
+        'email_responsavel',
         'descricao_servico',
         'certificacao',
         'vende_produtos_artesanais',
@@ -54,6 +58,7 @@ class Property extends Model
         'aceita_animais' => 'boolean',
         'possui_acessibilidade' => 'boolean',
         'rating' => 'decimal:1',
+        'status' => StatusProperty::class,
         'tipo_funcionamento' => WorkingTypeProperty::class
     ];
 
@@ -153,6 +158,11 @@ class Property extends Model
     public function ratings()
     {
         return $this->hasMany(PropertyRating::class);
+    }
+
+    public function preapproved_property(): HasMany
+    {
+        return $this->hasMany(PreapprovedProperty::class, 'property_id');
     }
 
     /**

@@ -12,7 +12,7 @@ use App\Notifications\WelcomeNewUserNotification;
 
 class UserController extends Controller
 {
-   
+
    private function getPermissao(string $slug)
     {
         $menuId = Menu::where('slug', $slug)->value('id');
@@ -22,13 +22,13 @@ class UserController extends Controller
             ->permissions
             ->firstWhere('menu_id', $menuId);
     }
-   
+
     public function index()
     {
         $permissao = $this->getPermissao('users');
 
         abort_unless($permissao?->can_view, 403);
-        
+
         $users = User::query()
             ->where('registration_source', 'web')
             ->with('accessProfile')
@@ -40,9 +40,9 @@ class UserController extends Controller
     public function create()
     {
         $permissao = $this->getPermissao('users');
-        
+
         abort_unless($permissao?->can_create, 403);
-        
+
         $accessProfiles = AccessProfile::where('status', 'ativo')->orderBy('nome')->get();
 
         $user = new User();
@@ -57,6 +57,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'access_profile_id' => 'required|exists:access_profiles,id',
             'status' => 'required|in:ativo,inativo',
+            'can_approve_property' => 'required|in:1,0',
         ]);
 
         $user = new User($request->except('password'));
@@ -71,7 +72,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-       
+
        $permissao = $this->getPermissao('users');
         abort_unless($permissao?->can_edit, 403);
 
@@ -87,6 +88,7 @@ class UserController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'access_profile_id' => 'required|exists:access_profiles,id',
             'status' => 'required|in:ativo,inativo',
+            'can_approve_property' => 'required|in:1,0',
         ]);
 
         $user->fill($request->except('password'));
@@ -104,7 +106,7 @@ class UserController extends Controller
     {
         $permissao = $this->getPermissao('users');
         abort_unless($permissao?->can_delete, 403);
-       
+
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso.');

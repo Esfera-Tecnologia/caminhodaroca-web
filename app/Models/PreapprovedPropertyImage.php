@@ -16,7 +16,7 @@ class PreapprovedPropertyImage extends Model
 
     public function property()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(PreapprovedProperty::class);
     }
 
     public function getImageAttribute()
