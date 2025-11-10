@@ -170,6 +170,18 @@ class PropertyController extends Controller
             'accessibility' => $property->accessibility ?? 'Informações de acessibilidade não disponíveis',
             'petPolicy' => $property->pet_policy ?? 'Política para animais não informada',
             'gallery' => $this->getGallery($property),
+            //TO-DO: Substituir por dados verdadeiros de parceiros relacionados
+            'relatedPartners' => collect(range(1, 3))->map(function ($i) {
+                return [
+                    'id' => $i,
+                    'name' => fake()->company(),
+                    'logo' => "https://picsum.photos/seed/partner{$i}/200/300",
+                    'category' => fake()->randomElement(['Turismo Rural', 'Produção Artesanal', 'Hospedagem Rural']),
+                    'subcategory' => fake()->randomElement(['Cabana', 'Queijos Artesanais', 'Passeios Ecológicos']),
+                    'city' => fake()->city(),
+                    'state' => fake()->stateAbbr(),
+                ];
+            })->toArray(),
         ]);
     }
 
