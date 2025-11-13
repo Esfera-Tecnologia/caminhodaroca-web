@@ -2,15 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\PartnerStatus;
+use App\Enums\PreapprovedPartnerStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterPartnerRequest;
 use App\Http\Requests\RegisterPersonalDataRequest;
 use App\Http\Requests\RegisterCategoriesRequest;
 use App\Http\Requests\RegisterFinishRequest;
+use App\Models\AccessProfile;
+use App\Models\Partner;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\WelcomeNewUserNotification;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -83,5 +91,53 @@ class RegisterController extends Controller
             'subcategories' => $data['subcategories'] ?? [],
             'token' => $token,
         ], 201);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function partner(RegisterPartnerRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->validated();
+            $data['logo'] = $request->file('logo')->store('partners', 'public');
+            $data['category_id'] = $data['category'];
+            $data['subcategory_id'] = $data['subcategory'];
+            $profile = AccessProfile::query()->firstOrCreate(['nome' => 'Parceiro'], [
+                'descricao' => 'Responsável das propriedades'
+            ])->id;
+            $user = User::query()->firstOrCreate([
+                'email' => $request->input('email'),
+            ], [
+                'name' => $request->input('name'),
+                'password' => bcrypt(Str::random(12)),
+                'access_profile_id' => $profile
+            ]);
+            $user->update(['access_profile_id' => $profile]);
+            if($user->wasRecentlyCreated){
+                $user->notify(new WelcomeNewUserNotification($user));
+            }
+            $data['status'] = PartnerStatus::INATIVO;
+            $partner = $user->partner()->create($data);
+            $data['status'] = PreapprovedPartnerStatus::PENDING;
+            $data['user_id'] = $user->id;
+            $preapproved_partner = $partner->preapproved_partner()->create($data);
+            foreach ($data['events'] as $eventData) {
+                $event = $partner->events()->create($eventData);
+                $preapproved_event = $preapproved_partner->events()->create($eventData);
+                foreach ($eventData['images'] as $image) {
+                    $imageData['image'] = $image->store('partners/events', 'public');
+                    $event->images()->create($imageData);
+                    $preapproved_event->images()->create($imageData);
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => "O parceiro foi cadastrado com sucesso!"]);
+        }catch (\Exception $e){
+            DB::rollBack();
+            Log::error($e->getMessage(),  $e->getTrace());
+            return response()->json(['message' => "Não foi possível cadastrar o parceiro!"], 500);
+        }
     }
 }

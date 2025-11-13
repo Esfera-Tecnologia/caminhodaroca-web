@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Subcategory::class, 'user_subcategories');
     }
 
+    public function partner()
+    {
+        return $this->hasMany(Partner::class);
+    }
+
     public function favoriteProperties()
     {
         return $this->belongsToMany(Property::class, 'user_favorite_properties');

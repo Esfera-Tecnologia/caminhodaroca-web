@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RelatedPartnerResource;
 use App\Models\Property;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class PropertyController extends Controller
             }
             // Filtrar e converter para inteiros
             $categories = array_filter(array_map('intval', $categories));
-            
+
             if (!empty($categories)) {
                 $query->whereHas('categorias', function($q) use ($categories) {
                     $q->whereIn('categories.id', $categories);
@@ -71,7 +72,7 @@ class PropertyController extends Controller
             }
             // Filtrar e converter para inteiros
             $subcategories = array_filter(array_map('intval', $subcategories));
-            
+
             if (!empty($subcategories)) {
                 $query->whereHas('subcategories', function($q) use ($subcategories) {
                     $q->whereIn('subcategories.id', $subcategories);
@@ -87,13 +88,13 @@ class PropertyController extends Controller
         // Filtro por favoritos (requer autenticação)
         if (request()->query('isFavorite') === 'true' || request()->query('isFavorite') === true) {
             $user = request()->user() ?? Auth::guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'message' => 'Usuário não autenticado'
                 ], 401);
             }
-            
+
             $query->whereHas('favoritedByUsers', function($q) use ($user) {
                 $q->where('user_id', $user->id);
             });
@@ -171,24 +172,14 @@ class PropertyController extends Controller
             'petPolicy' => $property->pet_policy ?? 'Política para animais não informada',
             'gallery' => $this->getGallery($property),
             //TO-DO: Substituir por dados verdadeiros de parceiros relacionados
-            'relatedPartners' => collect(range(1, 3))->map(function ($i) {
-                return [
-                    'id' => $i,
-                    'name' => fake()->company(),
-                    'logo' => "https://picsum.photos/seed/partner{$i}/200/300",
-                    'category' => fake()->randomElement(['Turismo Rural', 'Produção Artesanal', 'Hospedagem Rural']),
-                    'subcategory' => fake()->randomElement(['Cabana', 'Queijos Artesanais', 'Passeios Ecológicos']),
-                    'city' => fake()->city(),
-                    'state' => fake()->stateAbbr(),
-                ];
-            })->toArray(),
+            'relatedPartners' => RelatedPartnerResource::collection($property->relatedPartners()),
         ]);
     }
 
     public function toggleFavorite(int $id): JsonResponse
     {
         $user = request()->user();
-        
+
         if (!$user) {
             return response()->json([
                 'message' => 'Usuário não autenticado'
@@ -227,11 +218,11 @@ class PropertyController extends Controller
     private function formatAddress(Property $property): string
     {
         $enderecoPrincipal = $property->endereco_principal ?? '';
-        
+
         if (empty($enderecoPrincipal)) {
             return 'Endereço não informado';
         }
-        
+
         return $enderecoPrincipal;
     }
 
@@ -240,7 +231,7 @@ class PropertyController extends Controller
      */
     private function getCommaSeparatedNames($collection, string $default = 'Não informado'): string
     {
-        return $collection->isNotEmpty() 
+        return $collection->isNotEmpty()
             ? $collection->pluck('name')->unique()->implode(', ')
             : $default;
     }
@@ -250,7 +241,7 @@ class PropertyController extends Controller
      */
     private function getProductNames($products): string
     {
-        return $products->isNotEmpty() 
+        return $products->isNotEmpty()
             ? $products->pluck('nome')->unique()->implode(', ')
             : 'Produtos não informados';
     }
@@ -261,7 +252,7 @@ class PropertyController extends Controller
     private function getGallery(Property $property): array
     {
         $gallery = $property->images->pluck('image')->toArray();
-        
+
         if (empty($gallery)) {
             return [
                 'https://picsum.photos/200/300',
@@ -284,13 +275,13 @@ class PropertyController extends Controller
         switch ($tipoFuncionamento) {
             case 'agendamento':
                 return $this->formatAgendamentoHours($property, $openingHours);
-            
+
             case 'personalizado':
                 return $this->formatPersonalizadoHours($property, $openingHours);
-            
+
             case 'fins':
                 return $this->formatFinsHours($property, $openingHours);
-            
+
             case 'todos':
             default:
                 return $this->formatTodosHours($property, $openingHours);
@@ -344,8 +335,8 @@ class PropertyController extends Controller
             return;
         }
 
-        $agenda = is_string($property->agenda_personalizada) 
-            ? json_decode($property->agenda_personalizada, true) 
+        $agenda = is_string($property->agenda_personalizada)
+            ? json_decode($property->agenda_personalizada, true)
             : $property->agenda_personalizada;
 
         if (!is_array($agenda)) {
@@ -354,7 +345,7 @@ class PropertyController extends Controller
 
         foreach ($agenda as $diaPt => $dados) {
             $diaEn = self::DAY_MAPPING[$diaPt] ?? null;
-            
+
             if (!$diaEn || !isset($dados['ativo'])) {
                 continue;
             }

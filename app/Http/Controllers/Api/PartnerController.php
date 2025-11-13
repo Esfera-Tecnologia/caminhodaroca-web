@@ -3,57 +3,33 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PartnerResource;
+use App\Models\Partner;
+use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $partners =  collect(range(1, 10))->map(function ($i) {
-            return [
-                'id' => $i,
-                'logo' => "https://picsum.photos/200/300",
-                'name' => fake()->company(),
-                'city' => fake()->city(),
-                'state' => fake()->state(),
-                'editable' => fake()->boolean(),
-                'pendingApproval' => fake()->boolean(),
-            ];
-        });
-        return response()->json($partners);
+        try {
+            $partners = PartnerResource::collection(Partner::query()
+                ->city($request->city??[])
+                ->category($request->categories??[])
+                ->subcategory($request->subcategories??[])
+                ->keyword($request->keyword??null)
+                ->get());
+            return response()->json($partners);
+        }catch (\Exception $exception){
+            dd($exception);
+            return response()->json(['status'=>false,'message'=>'Não foi possível buscar as informações'], 500);
+        }
     }
 
-    public function show($id)
+    public function show(Partner $id)
     {
-        $instagramUsername = fake()->optional(0.6)->userName();
-        $instagram = $instagramUsername ? "https://www.instagram.com/{$instagramUsername}/" : null;
+        $id->individual = true;
 
-        $domain = fake()->optional(0.7)->domainName();
-        $website = $domain ? "https://{$domain}/" : null;
-
-        $partner = [
-            'id' => (int) $id,
-            'name' => fake()->company(),
-            'logo' => "https://picsum.photos/seed/partner{$id}/200/300",
-            'city' => fake()->city(),
-            'uf' => fake()->stateAbbr(),
-            'category' => fake()->randomElement(['Fazenda', 'Sítio', 'Pousada', 'Cabana']),
-            'subcategory' => fake()->randomElement(['Ecológica', 'Histórica', 'Gastronômica', 'Aventura']),
-            'description' => fake()->paragraph(3),
-            'email' => fake()->companyEmail(),
-            'routes' => fake()->sentence(6),
-            'circuits' => fake()->sentence(6),
-            'attractions' => fake()->sentence(6),
-            'instagram' => $instagram,
-            'website' => $website,
-            'events' => collect(range(1, rand(1, 5)))->map(function ($i) {
-                return [
-                    'id' => $i,
-                    'name' => fake()->catchPhrase(),
-                    'description' => fake()->sentence(10),
-                    'externalLink' => 'https://www.google.com.br/'
-                ];
-            })->toArray(),
-        ];
+        $partner = PartnerResource::make($id);
 
         return response()->json($partner);
     }

@@ -31,6 +31,7 @@ Route::prefix('register')->group(function () {
     Route::post('/personal-data', [RegisterController::class, 'personalData']);
     Route::post('/categories', [RegisterController::class, 'categories']);
     Route::post('/finish', [RegisterController::class, 'finish']);
+    Route::post('/partner', [RegisterController::class, 'partner']);
 });
 
 // Rotas de localização (públicas)
@@ -54,11 +55,11 @@ Route::get('/partners/{id}', [PartnerController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     // Autenticação
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
     // Propriedades
     Route::post('/properties/{id}/favorite', [PropertyController::class, 'toggleFavorite']);
     Route::post('/properties/{id}/rating', [PropertyRatingController::class, 'rateProperty'])->name('api.properties.rating');
-    
+
     // Perfil do usuário
     Route::prefix('profile')->group(function () {
         Route::put('/personal-data', [ProfileController::class, 'updatePersonalData']);

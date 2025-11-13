@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PartnerStatus;
 use App\Enums\StatusProperty;
 use App\Enums\WorkingTypeProperty;
 use Illuminate\Database\Eloquent\Model;
@@ -163,6 +164,16 @@ class Property extends Model
     public function preapproved_property(): HasMany
     {
         return $this->hasMany(PreapprovedProperty::class, 'property_id');
+    }
+
+    public function relatedPartners()
+    {
+        return Partner::query()
+            ->whereIn('category_id', $this->categorias()->pluck('category_id'))
+            ->whereIn('subcategory_id', $this->subcategorias()->pluck('subcategory_id'))
+            ->where('city', $this->cidade)
+            ->where('status', PartnerStatus::ATIVO)
+            ->get();
     }
 
     /**
