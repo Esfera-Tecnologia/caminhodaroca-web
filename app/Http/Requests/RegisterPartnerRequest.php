@@ -53,20 +53,14 @@ class RegisterPartnerRequest extends FormRequest
                 'string',
                 'url'
             ],
-            'city' => [
+            'cities' => [
                 'required',
-                'string',
-                'in:'.implode(',', array_column(RioDeJaneiroCitiesEnum::cases(), 'value'))
+                'array',
             ],
-            'category' => [
-                'nullable',
-                'integer',
-                Rule::exists('categories', 'id')->where('status', 'ativo')
-            ],
-            'subcategory' => [
-                'nullable',
-                'integer',
-                Rule::exists('subcategories', 'id')->where('status', 'ativo')
+            'cities.*' => [
+                'required',
+                'int',
+                'exists:cities,id',
             ],
             'routes' => [
                 'required',

@@ -171,7 +171,6 @@ class PropertyController extends Controller
             'accessibility' => $property->accessibility ?? 'Informações de acessibilidade não disponíveis',
             'petPolicy' => $property->pet_policy ?? 'Política para animais não informada',
             'gallery' => $this->getGallery($property),
-            //TO-DO: Substituir por dados verdadeiros de parceiros relacionados
             'relatedPartners' => RelatedPartnerResource::collection($property->relatedPartners()),
         ]);
     }

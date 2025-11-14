@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Enums\PartnerStatus;
 use App\Enums\StatusProperty;
 use App\Enums\WorkingTypeProperty;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LaravelIdea\Helper\App\Models\_IH_Partner_C;
 
 class Property extends Model
 {
@@ -168,10 +170,11 @@ class Property extends Model
 
     public function relatedPartners()
     {
+        $city = City::query()->where('name', $this->cidade)->first()->id;
         return Partner::query()
-            ->whereIn('category_id', $this->categorias()->pluck('category_id'))
-            ->whereIn('subcategory_id', $this->subcategorias()->pluck('subcategory_id'))
-            ->where('city', $this->cidade)
+            ->whereHas('cities', function ($query) use ($city) {
+                $query->where('cities.id', $city);
+            })
             ->where('status', PartnerStatus::ATIVO)
             ->get();
     }

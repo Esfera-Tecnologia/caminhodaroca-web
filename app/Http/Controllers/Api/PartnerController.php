@@ -18,9 +18,7 @@ class PartnerController extends Controller
     {
         try {
             $partners = PartnerResource::collection(Partner::query()
-                ->city($request->city ?? [])
-                ->category($request->categories ?? [])
-                ->subcategory($request->subcategories ?? [])
+                ->cities($request->city ?? [])
                 ->keyword($request->keyword ?? null)
                 ->get());
             return response()->json($partners);
@@ -51,6 +49,7 @@ class PartnerController extends Controller
             }
             $preapproved_partner = $id->preapproved_partner()->first();
             $preapproved_partner->update($data);
+            $preapproved_partner->cities()->sync($data['cities']);
             if (isset($data['events'])) {
                 foreach ($data['events'] as $eventData) {
                     if (isset($eventData['id'])) {
@@ -65,6 +64,7 @@ class PartnerController extends Controller
             return response()->json(['message' => "O parceiro foi atualizado com sucesso!"]);
         } catch (\Exception $e) {
             DB::rollBack();
+            dd($e);
             Log::error($e->getMessage(), $e->getTrace());
             return response()->json(['message' => "Não foi possível atualizar o parceiro!"], 500);
         }

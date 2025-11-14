@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PreapprovedPartnerStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PreapprovedPartner extends Model
@@ -21,9 +22,6 @@ class PreapprovedPartner extends Model
         'logo',
         'instagram',
         'site',
-        'city',
-        'category_id',
-        'subcategory_id',
         'routes',
         'circuits',
         'attractions',
@@ -34,18 +32,13 @@ class PreapprovedPartner extends Model
         'status' => PreapprovedPartnerStatus::class,
     ];
 
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function subcategory(): BelongsTo
-    {
-        return $this->belongsTo(Subcategory::class);
-    }
-
     public function events(): HasMany
     {
         return $this->hasMany(PreapprovedPartnerEvent::class);
+    }
+
+    public function cities(): BelongsToMany
+    {
+        return $this->belongsToMany(City::class, 'preapproved_partner_city');
     }
 }

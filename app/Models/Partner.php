@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PartnerStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Partner extends Model
@@ -20,9 +21,6 @@ class Partner extends Model
         'logo',
         'instagram',
         'site',
-        'city',
-        'category_id',
-        'subcategory_id',
         'routes',
         'circuits',
         'attractions',
@@ -32,16 +30,6 @@ class Partner extends Model
     protected $casts = [
         'status' => PartnerStatus::class,
     ];
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function subcategory(): BelongsTo
-    {
-        return $this->belongsTo(Subcategory::class);
-    }
 
     public function events(): HasMany
     {
@@ -58,32 +46,31 @@ class Partner extends Model
         return url('storage/'.$this->attributes['logo']);
     }
 
-    public function scopeCity($query, $city_id = [])
+    public function cities(): BelongsToMany
+    {
+        return $this->belongsToMany(City::class, 'partner_city');
+    }
+
+    public function scopeCities($query, $city_id = [])
     {
         if($city_id === [])
             return $query;
-        return  $query->whereIn('city', City::query()->whereIn('id', $city_id)->pluck('name')->toArray());
+        return  $query->join('partner_city', 'id', '=', 'partner_id')->whereIn('city_id', $city_id);
     }
 
-    public function scopeCategory($query, $category_id = [])
+    public function scopeKeyword($query, $keyword)
     {
-        if($category_id === [])
-            return $query;
-        return  $query->whereIn('category_id', $category_id);
+        if ($keyword) {
+            $query->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+                $query->orWhereHas('cities', function ($query) use ($keyword) {
+                    $query->where('name', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        return $query;
     }
 
-    public function scopeSubcategory($query, $subcategory_id = [])
-    {
-        if($subcategory_id === [])
-            return $query;
-        return  $query->whereIn('subcategory_id', $subcategory_id);
-    }
-
-    public function scopeKeyword($query, $keyword = null)
-    {
-        if($keyword === null)
-            return $query;
-        return  $query->where('name', 'like', '%'.$keyword.'%')->orWhere('city', 'like', '%'.$keyword.'%');
-    }
 
 }

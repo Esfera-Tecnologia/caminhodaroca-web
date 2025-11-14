@@ -102,8 +102,6 @@ class RegisterController extends Controller
         try {
             $data = $request->validated();
             $data['logo'] = $request->file('logo')->store('partners', 'public');
-            $data['category_id'] = $data['category'];
-            $data['subcategory_id'] = $data['subcategory'];
             $profile = AccessProfile::query()->firstOrCreate(['nome' => 'Parceiro'], [
                 'descricao' => 'Responsável das propriedades'
             ])->id;
@@ -123,6 +121,8 @@ class RegisterController extends Controller
             $data['status'] = PreapprovedPartnerStatus::PENDING;
             $data['user_id'] = $user->id;
             $preapproved_partner = $partner->preapproved_partner()->create($data);
+            $partner->cities()->sync($data['cities']);
+            $preapproved_partner->cities()->sync($data['cities']);
             foreach ($data['events'] as $eventData) {
                 $event = $partner->events()->create($eventData);
                 $eventData['event_id'] = $event->id;
