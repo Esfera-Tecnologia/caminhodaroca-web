@@ -25,4 +25,12 @@ enum PreapprovedPartnerStatus: int
             self::PENDING => 'Aguardando Aprovação',
         };
     }
+
+    public function badge(): string
+    {
+        return match($this) {
+            self::APPROVED => 'success',
+            self::PENDING => 'warning text-black',
+        };
+    }
 }

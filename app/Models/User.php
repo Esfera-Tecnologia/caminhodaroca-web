@@ -88,4 +88,9 @@ class User extends Authenticatable
     {
         return $this->accessProfile && $this->accessProfile->nome === 'Responsável';
     }
+
+    public function isPartner(): bool
+    {
+        return $this->accessProfile && $this->accessProfile->nome === 'Parceiro';
+    }
 }

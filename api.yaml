@@ -601,7 +601,8 @@ paths:
                     description: Website do parceiro (opcional)
                   events:
                     type: array
-                    description: Lista de eventos associados ao parceiro
+                    nullable: true
+                    description: Lista de eventos associados ao parceiro (opcional)
                     items:
                       type: object
                       properties:
@@ -640,12 +641,142 @@ paths:
                         name: "Trilha Ecológica Noturna"
                         description: "Passeio guiado pela mata com observação de fauna e flora noturna."
                         externalLink: "https://www.google.com.br/"
+                example2:
+                  value:
+                    id: 2
+                    name: "Sítio Horizonte Azul"
+                    logo: "https://picsum.photos/seed/partner2/200/300"
+                    city: "Paraty"
+                    uf: "RJ"
+                    category: "Sítio"
+                    subcategory: "Histórica"
+                    description: "O Sítio Horizonte Azul é um refúgio histórico com produção artesanal e belas paisagens."
+                    email: "contato@horizonteazul.com"
+                    routes: "Rota Colonial"
+                    circuits: "Circuito Histórico do Litoral"
+                    attractions: "Centro Histórico de Paraty, Praia do Sono"
+                    instagram: null
+                    website: null
+                    events: null
         '404':
           description: Parceiro não encontrado
           content:
             application/json:
               example:
                 message: "Parceiro não encontrado"
+  /api/partners/{id}:
+    put:
+      summary: Atualiza os dados de um parceiro
+      description: Atualiza as informações de um parceiro existente com base no ID fornecido.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do parceiro a ser atualizado
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nome do parceiro
+                email:
+                  type: string
+                  format: email
+                  description: E-mail do parceiro
+                description:
+                  type: string
+                  description: Descrição sobre o parceiro
+                logo:
+                  type: string
+                  format: binary
+                  nullable: true
+                  description: Novo arquivo de imagem (opcional para atualização)
+                instagram:
+                  type: string
+                  format: uri
+                  nullable: true
+                  description: URL opcional do Instagram
+                site:
+                  type: string
+                  format: uri
+                  nullable: true
+                  description: URL opcional do site do parceiro
+                city:
+                  type: string
+                  description: Cidade onde o parceiro atua
+                category:
+                  type: number
+                  nullable: true
+                  description: ID da categoria principal (opcional)
+                subcategory:
+                  type: number
+                  nullable: true
+                  description: ID da subcategoria (opcional)
+                routes:
+                  type: string
+                  description: Descrição das rotas relacionadas
+                circuits:
+                  type: string
+                  description: Descrição dos circuitos relacionados
+                attractions:
+                  type: string
+                  description: Descrição das atrações relacionadas
+                events:
+                  type: array
+                  nullable: true
+                  description: Lista de eventos atualizados do parceiro
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        nullable: true
+                        description: ID do evento (obrigatório para atualização; omitido para novos)
+                      description:
+                        type: string
+                        description: Descrição do evento
+                      image:
+                        type: string
+                        format: binary
+                        nullable: true
+                        description: Nova imagem do evento (opcional)
+                      externalLink:
+                        type: string
+                        format: uri
+                        nullable: true
+                        description: Link externo relacionado ao evento
+                    required:
+                      - description
+              required:
+                - name
+                - email
+                - description
+                - city
+                - routes
+                - circuits
+                - attractions
+      responses:
+        '200':
+          description: Dados do parceiro atualizados com sucesso
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              example:
+                message: "Os dados informados são inválidos"
+                errors:
+                  email: ["O e-mail informado já está em uso"]
+                  logo: ["Selecione um arquivo válido"]
+        '404':
+          description: Parceiro não encontrado
+        '500':
+          description: Erro interno do servidor
   /api/register/categories:
     post:
       summary: Cadastro - Etapa 2 (Categoria/Subcategorias)

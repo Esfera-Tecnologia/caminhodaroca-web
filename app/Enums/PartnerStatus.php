@@ -25,4 +25,12 @@ enum PartnerStatus: int
             self::INATIVO => 'Inativo',
         };
     }
+
+    public function badge(): string
+    {
+        return match($this) {
+            self::ATIVO => 'success',
+            self::INATIVO => 'danger',
+        };
+    }
 }

@@ -89,7 +89,7 @@ class RegisterPartnerRequest extends FormRequest
                 'string',
             ],
             'events.*.description' => [
-                'required',
+                'nullable',
                 'string',
             ],
             'events.*.images' => [

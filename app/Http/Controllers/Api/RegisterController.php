@@ -125,6 +125,7 @@ class RegisterController extends Controller
             $preapproved_partner = $partner->preapproved_partner()->create($data);
             foreach ($data['events'] as $eventData) {
                 $event = $partner->events()->create($eventData);
+                $eventData['event_id'] = $event->id;
                 $preapproved_event = $preapproved_partner->events()->create($eventData);
                 foreach ($eventData['images'] as $image) {
                     $imageData['image'] = $image->store('partners/events', 'public');

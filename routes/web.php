@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccessProfileController;
 use App\Http\Controllers\UserController;
@@ -74,6 +75,8 @@ Route::get('properties/pdf/{property}', [PropertyController::class, 'generatePdf
 Route::get('properties/pre-aprovada/{property}/edit', [PropertyController::class, 'edit_public'])->middleware('auth')->name('properties.preapproved.edit');
 Route::put('properties/pre-aprovada/{property}/update', [PropertyController::class, 'update_public'])->middleware('auth')->name('properties.preapproved.update');
 
+Route::resource('partners', PartnerController::class)->middleware('auth');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -81,7 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('cadastro-propriedade-publica', [PropertyController::class, 'create_public'])->name('properties.public.create');
+Route::get(' ', [PropertyController::class, 'create_public'])->name('properties.public.create');
 Route::post('cadastro-propriedade-publica', [PropertyController::class, 'store_public'])->name('properties.public.store');
 
 require __DIR__.'/auth.php';

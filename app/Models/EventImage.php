@@ -17,4 +17,9 @@ class EventImage extends Model
     {
         return $this->belongsTo(PartnerEvent::class);
     }
+
+    public function getImageUrlAttribute()
+    {
+        return url('storage/'.$this->image);
+    }
 }

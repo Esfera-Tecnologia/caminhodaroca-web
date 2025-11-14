@@ -19,6 +19,7 @@ class EventResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'externalLink' => $this->url,
+            'images' => $this->resource->images()->get()->pluck('image_url')->toArray(),
         ];
     }
 }
