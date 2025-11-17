@@ -3,7 +3,7 @@ name: Deploy Caminho da Roça (Self-Hosted)
 on:
   push:
     branches:
-      - main   # dispara quando fizer push na branch main
+      - prod   # dispara quando fizer push na branch main
 
 jobs:
   deploy:
