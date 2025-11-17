@@ -18,7 +18,7 @@ class PartnerController extends Controller
     {
         try {
             $partners = PartnerResource::collection(Partner::query()
-                ->cities($request->city ?? [])
+                ->cities($request->cities ?? [])
                 ->keyword($request->keyword ?? null)
                 ->get());
             return response()->json($partners);

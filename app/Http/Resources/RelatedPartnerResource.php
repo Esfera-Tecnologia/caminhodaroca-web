@@ -18,7 +18,7 @@ class RelatedPartnerResource extends JsonResource
             "id" => $this->id,
             "name" => $this->name,
             "logo" => $this->logo_url,
-            "cites" => $this->resource->cities->pluck("name")->toArray(),
+            "cities" => $this->resource->cities->pluck("name")->toArray(),
             "state" => 'RJ'
         ];
     }
