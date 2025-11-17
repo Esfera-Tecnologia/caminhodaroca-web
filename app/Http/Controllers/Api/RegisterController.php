@@ -123,7 +123,7 @@ class RegisterController extends Controller
             $preapproved_partner = $partner->preapproved_partner()->create($data);
             $partner->cities()->sync($data['cities']);
             $preapproved_partner->cities()->sync($data['cities']);
-            foreach ($data['events'] as $eventData) {
+            foreach ($data['events'] ?? [] as $eventData) {
                 $event = $partner->events()->create($eventData);
                 $eventData['event_id'] = $event->id;
                 $preapproved_event = $preapproved_partner->events()->create($eventData);
