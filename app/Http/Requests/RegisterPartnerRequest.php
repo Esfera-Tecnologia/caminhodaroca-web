@@ -137,4 +137,9 @@ class RegisterPartnerRequest extends FormRequest
             ],
         ];
     }
+
+    public function afterValidation($validator)
+    {
+        Log::info($validator->errors());
+    }
 }
