@@ -12,6 +12,7 @@ class Menu extends Model
     protected $fillable = [
         'nome',
         'slug',
+        'icone',
     ];
 
     /**
@@ -19,6 +20,6 @@ class Menu extends Model
      */
     public function permissions()
     {
-        return $this->hasMany(ProfileMenuPermission::class);
+        return $this->hasMany(AccessProfileMenuPermission::class);
     }
 }
