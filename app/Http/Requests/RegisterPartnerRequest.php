@@ -7,6 +7,42 @@ use Illuminate\Support\Facades\Log;
 
 class RegisterPartnerRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'instagram' => $this->prefixUrl($this->instagram),
+            'site'      => $this->prefixUrl($this->site),
+            'events'    => $this->prepareEvents($this->events),
+        ]);
+    }
+
+    private function prefixUrl(?string $value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        // Se já começa com http:// ou https://, retorna como está
+        if (preg_match('/^https?:\/\//i', $value)) {
+            return $value;
+        }
+
+        return 'https://' . $value;
+    }
+
+    private function prepareEvents(?array $events): ?array
+    {
+        if (empty($events)) {
+            return $events;
+        }
+
+        foreach ($events as $i => $event) {
+            $events[$i]['url'] = $this->prefixUrl($event['url'] ?? null);
+        }
+
+        return $events;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
