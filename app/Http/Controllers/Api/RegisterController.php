@@ -138,7 +138,7 @@ class RegisterController extends Controller
         }catch (\Exception $e){
             DB::rollBack();
             Log::error($e->getMessage(),  $e->getTrace());
-            return response()->json(['message' => "Não foi possível cadastrar o parceiro!"], 500);
+            return response()->json(['message' => "Não foi possível cadastrar o parceiro: " . $e->getMessage()], 500);
         }
     }
 }
