@@ -22,11 +22,11 @@ return new class extends Migration
             ]);
 
             AccessProfile::query()->where('nome', 'Administrador de Sistema')->first()->permissions()
-                ->firstOrCreate([
+                ->updateOrCreate([
                     'menu_id' => $menu->id,
                 ], [
                     'can_create' => true,
-                    'can_read' => true,
+                    'can_view' => true,
                     'can_update' => true,
                     'can_delete' => true,
                 ]);
@@ -37,7 +37,7 @@ return new class extends Migration
                 'descricao' => 'Responsável das propriedades',
             ])->permissions()
                 ->firstOrCreate([
-                    'menu_id' => Menu::query()->firstOrCreate([
+                    'menu_id' => Menu::query()->updateOrCreate([
                         'slug' => 'properties'
                     ], [
                         'nome' => 'Propriedade',
@@ -45,21 +45,7 @@ return new class extends Migration
                     ])->id
                 ], [
                     'can_create' => true,
-                    'can_read' => true,
-                    'can_update' => true,
-                    'can_delete' => true,
-                ]);
-
-            AccessProfile::query()->firstOrCreate([
-                'nome' => 'Parceiro'
-            ], [
-                'descricao' => 'Parceiro',
-            ])->permissions()
-                ->firstOrCreate([
-                    'menu_id' => $menu->id,
-                ], [
-                    'can_create' => true,
-                    'can_read' => true,
+                    'can_view' => true,
                     'can_update' => true,
                     'can_delete' => true,
                 ]);
