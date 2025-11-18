@@ -113,10 +113,6 @@ class RegisterPartnerRequest extends FormRequest
                 'nullable',
                 'array',
             ],
-            'events.*.name' => [
-                'required',
-                'string',
-            ],
             'events.*.description' => [
                 'nullable',
                 'string',
