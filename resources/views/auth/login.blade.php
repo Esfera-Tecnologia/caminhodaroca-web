@@ -36,7 +36,7 @@
                     @enderror
                 </div>
 
-    
+
                 <div class="mb-3 position-relative">
                     <label for="password" class="form-label">Senha</label>
                     <div class="input-group">
@@ -59,6 +59,11 @@
 
                 <button type="submit" class="btn btn-success w-100">Acessar</button>
             </form>
+            <div class="mt-5 text-center">
+
+                <span class="text-muted small d-block mb-2">Quero fazer parte do Caminho da Roça</span>
+                <a href="{{ route('properties.public.create') }}" class="btn btn-outline-success w-100">Cadastrar minha propriedade</a>
+            </div>
 
         </div>
         <div class="version-info text-center mt-5">
@@ -80,5 +85,5 @@
         icon.toggleClass('bi-eye bi-eye-slash'); // alterna ícone
     });
 });
-</script> 
+</script>
 @endpush
