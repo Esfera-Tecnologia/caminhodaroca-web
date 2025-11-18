@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\RioDeJaneiroCitiesEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class RegisterPartnerRequest extends FormRequest
 {
@@ -101,5 +102,16 @@ class RegisterPartnerRequest extends FormRequest
                 'url'
             ],
         ];
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($validator->fails()) {
+                Log::error('Validation failed in RegisterPartnerRequest', [
+                    'errors' => $validator->errors()->toArray(),
+                    'input' => $this->all(), // opcional, mas útil para debug
+                ]);
+            }
+        });
     }
 }
