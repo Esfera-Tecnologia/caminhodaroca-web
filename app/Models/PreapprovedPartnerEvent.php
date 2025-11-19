@@ -12,6 +12,7 @@ class PreapprovedPartnerEvent extends Model
     protected $fillable = [
         'preapproved_partner_id',
         'event_id',
+        'name',
         'description',
         'url',
     ];
