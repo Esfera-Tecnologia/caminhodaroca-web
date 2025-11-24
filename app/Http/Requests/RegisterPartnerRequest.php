@@ -37,7 +37,7 @@ class RegisterPartnerRequest extends FormRequest
         }
 
         foreach ($events as $i => $event) {
-            $events[$i]['url'] = $this->prefixUrl($event['url'] ?? null);
+            $events[$i]['url'] = $this->prefixUrl($event['externalLink'] ?? null);
         }
 
         return $events;
