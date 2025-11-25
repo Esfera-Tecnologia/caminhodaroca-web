@@ -179,7 +179,7 @@
     <table class="section">
         <tr>
             <td style="width: 29%;"><img style="width: 100%; margin-bottom: auto; margin-top: auto"
-                                         src="storage/{{ $property->logo_path }}" alt="Logo {{ $property->name }}"></td>
+                                         src="{{ url('storage/'.$property->logo_path) }}" alt="Logo {{ $property->name }}"></td>
             <td style="padding-left: 15px">
                 <h2>{{ $property->name }}</h2>
                 <span class="badge">Status: {{ $property->status ? 'Ativo' : 'Inativo' }}</span><br>
@@ -288,7 +288,7 @@
     <div class="section">
         <div class="gallery" style="padding-top: 15px">
             @foreach($property->images as $imagePath)
-                <img src="storage/{{ $imagePath->path }}" alt="Imagem da propriedade">
+                <img src="{{ url('storage/'.$imagePath->path) }}" alt="Imagem da propriedade">
             @endforeach
         </div>
         <span style="font-size: 12px; color: #a9a9a9">Imagens ilustrativas fornecidas pela propriedade.</span>

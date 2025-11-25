@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyImageController;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Auth\SenhaController;
@@ -86,5 +87,14 @@ Route::middleware('auth')->group(function () {
 
 Route::get('cadastro-propriedade-publica', [PropertyController::class, 'create_public'])->name('properties.public.create');
 Route::post('cadastro-propriedade-publica', [PropertyController::class, 'store_public'])->name('properties.public.store');
+Route::get('testeeeeeee/{property}', function (\App\Models\Property $property){
+    $categorias = $property->categorias()->where('status', 'ativo')->get();
+    $categoria_principal = $property->categorias()->where('status', 'ativo')->first();
+    $subcategorias_principais = $property->subcategorias()
+        ->where('subcategories.category_id', $categoria_principal->id)
+        ->pluck('nome')
+        ->toArray();
+    return view('pdf.property', compact('property', 'categorias', 'categoria_principal', 'subcategorias_principais'));
+})->name('properties.public.store');
 
 require __DIR__.'/auth.php';

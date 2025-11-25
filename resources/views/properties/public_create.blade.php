@@ -199,7 +199,7 @@
                     </div>
 
                     <div class="text-end mb-5 pb-5">
-                        <a href="{{ route('properties.public.create') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <a href="{{ route('login') }}" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-success">Enviar Cadastro</button>
                     </div>
 
