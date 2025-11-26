@@ -16,6 +16,8 @@ class PartnerController extends Controller
 {
     public function index(Request $request)
     {
+        $user = request()->user();
+
         try {
             $partners = PartnerResource::collection(Partner::query()
                 ->cities($request->cities ?? [])

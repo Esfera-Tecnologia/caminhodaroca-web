@@ -16,6 +16,11 @@ class PartnerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $user = request()->user();
+
+        $userPartners = $user?->partner->pluck('id')->toArray()??[];
+
         if(isset($this->individual) && $this->individual)
             return [
                 'id' => $this->id,
@@ -38,7 +43,7 @@ class PartnerResource extends JsonResource
             'name' => $this->name,
             'cities' => $this->resource->cities?->pluck('name', 'id'),
             'state' => 'Rio de Janeiro',
-            'editable' => true,
+            'editable' => in_array($this->id, $userPartners),
             'pendingApproval' => $this->resource->preapproved_partner()->first()->status == PreapprovedPartnerStatus::PENDING,
         ];
     }

@@ -48,10 +48,8 @@ Route::get('/properties/autocomplete', [PropertyController::class, 'autocomplete
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
 
 // Rotas de parceiros (públicas)
-Route::get('/partners', [PartnerController::class, 'index']);
 Route::get('/partners/{id}', [PartnerController::class, 'show']);
-Route::put('/partners/{id}', [PartnerController::class, 'update']);
-Route::put('/teste_put/{id}', [PartnerController::class, 'update']);
+Route::get('/partners', [PartnerController::class, 'index'])->middleware('optional_sanctum');
 
 // Rotas protegidas (requerem autenticação)
 Route::middleware('auth:sanctum')->group(function () {
@@ -69,6 +67,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/photo', [ProfileController::class, 'updatePhoto']);
         Route::post('/delete', [ProfileController::class, 'deleteAccount']);
     });
+
+    // Rotas de parceiros
+    Route::put('/partners/{id}', [PartnerController::class, 'update']);
 
     // Rotas administrativas (requer privilégios de admin)
     Route::prefix('admin')->middleware('admin')->group(function () {
