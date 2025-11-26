@@ -76,6 +76,9 @@ Route::get('properties/pre-aprovada/{property}/edit', [PropertyController::class
 Route::put('properties/pre-aprovada/{property}/update', [PropertyController::class, 'update_public'])->middleware('auth')->name('properties.preapproved.update');
 
 Route::resource('partners', PartnerController::class)->middleware('auth');
+Route::get('partners/pre-aprovada/{partner}/edit', [PartnerController::class, 'edit_public'])->middleware('auth')->name('partners.preapproved.edit');
+Route::put('partners/pre-aprovada/{partner}/update', [PartnerController::class, 'update_public'])->middleware('auth')->name('partners.preapproved.update');
+
 
 
 Route::middleware('auth')->group(function () {

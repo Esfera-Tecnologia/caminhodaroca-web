@@ -38,6 +38,9 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
             'int',
             'exists:events,id',
         ];
+        $rule['approve_updates'] = [
+            'nullable',
+        ];
         $rule[''] = [];
         return $rule;
     }

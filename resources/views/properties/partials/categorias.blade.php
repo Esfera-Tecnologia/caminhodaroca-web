@@ -1,23 +1,25 @@
 <div class="row g-3">
 
-<div class="col-md-12">
-    <label class="form-label">Selecione uma Categoria * </label>
-    <div class="input-group">
-      <select class="form-select" id="category_id">
-        <option value="">Selecione uma Categoria</option>
-        @foreach($categories as $categoria)
-              <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
-          @endforeach
-      </select>
-        <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Adicionar</button>
+    <div class="col-md-12">
+        <label class="form-label">Selecione uma Categoria * </label>
+        <div class="input-group">
+            <select class="form-select" id="category_id">
+                <option value="">Selecione uma Categoria</option>
+                @foreach($categories as $categoria)
+                    <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
+                @endforeach
+            </select>
+            <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Adicionar</button>
+        </div>
+        @if(!isset($hide_add_button) || !$hide_add_button)
+            <div class="d-flex justify-content-end mt-1 addcategoria">
+                <a href="#" class="d-block mt-2 text-secondary small" data-bs-toggle="modal"
+                   data-bs-target="#modalNovaCategoria">
+                    <i class="fas fa-plus me-1"></i> Adicionar Nova Categoria
+                </a>
+            </div>
+        @endif
     </div>
-    <div class="d-flex justify-content-end mt-1 addcategoria">
-        <a href="#" class="d-block mt-2 text-secondary small" data-bs-toggle="modal"
-           data-bs-target="#modalNovaCategoria">
-            <i class="fas fa-plus me-1"></i> Adicionar Nova Categoria
-        </a>
-    </div>
-</div>
 
 
     <div id="categorias-container">
@@ -85,19 +87,21 @@
                                     @endif
                                 </div>
 
-                                <div class="d-flex justify-content-end mt-2">
-                                    <a href="#" class="text-secondary small"
-                                       onclick="abrirModalSubcategoria({{ $categoria->id }}); return false;">
-                                        <i class="fas fa-plus me-1"></i> Adicionar Subcategoria
-                                    </a>
-                                </div>
+                                @if(!isset($hide_add_button) || !$hide_add_button)
+                                    <div class="d-flex justify-content-end mt-2">
+                                        <a href="#" class="text-secondary small"
+                                           onclick="abrirModalSubcategoria({{ $categoria->id }}); return false;">
+                                            <i class="fas fa-plus me-1"></i> Adicionar Subcategoria
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endfor
                 </div>
             @endfor
         @endif
-  </div>
+    </div>
 
 </div>
 

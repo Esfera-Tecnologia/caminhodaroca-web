@@ -1,14 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Propriedade')
+@section('title', 'Editar Parceiro')
 
 @section('content')
     <div class="content-box mx-auto" style="max-width: 1400px;">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="fw-bold mb-0">Editar Propriedade</h2>
-            <a class="btn text-danger btn-export fs-5" target="_blank"
-               href="{{ route('properties.pdf', $property instanceof \App\Models\PreapprovedProperty?$property->property:$property) }}"><i
-                        class="fas fa-file-pdf"></i></a>
+            <h2 class="fw-bold mb-0">Editar Parceiro</h2>
         </div>
 
         @if ($errors->any())
@@ -23,43 +20,33 @@
         @endif
 
         <form
-                action="{{ $property instanceof \App\Models\Property?route('properties.update', $property):route('properties.preapproved.update', $property) }}"
-                id="form-propriedade" novalidate method="POST"
+                action="{{ $partner instanceof \App\Models\Partner?route('partners.update', $partner):route('partners.preapproved.update', $partner) }}"
+                id="form-parceiro" novalidate method="POST"
                 enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            @if($property instanceof \App\Models\PreapprovedProperty && auth()->user()->can_approve_property)
+            @if($partner instanceof \App\Models\PreapprovedPartner && auth()->user()->can_approve_property)
                 <div class="alert alert-warning not-fade d-flex justify-content-between align-itens-center"
                      role="alert">
-                    <span class="my-auto"><strong>Atualização pendente:</strong> Esta propriedade possui alterações aguardando aprovação administrativa.</span>
-                    <button type="submit" class="btn btn-success aprove_property">Aprovar Atualizações</button>
+                    <span class="my-auto"><strong>Atualização pendente:</strong> Este parceiro possui alterações aguardando aprovação administrativa.</span>
+                    <button class="btn btn-success aprove_partner">Aprovar Atualizações</button>
                 </div>
             @endif
-            @include('properties._form', ['property' => $property])
+            @include('partners._form', ['partner' => $partner])
             <div class="text-end mt-4">
-                <a href="{{ route('properties.index') }}" class="btn btn-outline-secondary">Voltar</a>
+                <a href="{{ route('partners.index') }}" class="btn btn-outline-secondary">Voltar</a>
                 <button type="submit" class="btn btn-success">Salvar</button>
             </div>
         </form>
     </div>
 @endsection
 
-@include('components.modal-subcategoria')
-
 @push('scripts')
     <script>
-        window.subcategoriasPorCategoria = @json(
-            $categories->mapWithKeys(fn($cat) => [
-              $cat->id => $cat->subcategories->map(fn($s) => [
-                'id' => $s->id,
-                'nome' => $s->nome
-              ])
-            ])
-          );
-        $('.aprove_property').click(function (e) {
+        $('.aprove_partner').click(function (e) {
             e.preventDefault();
-            $('#form-propriedade').append('<input type="hidden" name="approve_updates" value="1">');
-            $('#form-propriedade').submit();
+            $('#form-parceiro').append('<input type="hidden" name="approve_updates" value="1">');
+            $('#form-parceiro').submit();
 
         });
     </script>

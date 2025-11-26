@@ -148,7 +148,7 @@
     <!-- Upload moderno -->
 
     <div class="mb-4">
-        <label class="form-label" id="photos">Fotos dos seus produtos ou do estabelecimento</label>
+        <label class="form-label" id="photos">Fotos dos seus produtos ou do estabelecimento *</label>
         <a href="javascript:void(0)" type="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-title="Atenção" data-bs-content="Fotos que contenham crianças e/ou pessoas não serão aceitas. As imagens devem transmitir a essência da propriedade rural ou do negócio, destacando suas atividades, paisagens, produtos ou estrutura."><i class="fa-solid fa-circle-info"></i></a>
         <div id="uploadBox" class="upload-box">
             <p class="upload-message m-0">
@@ -695,8 +695,8 @@
                 }
 
                 // Preenche os campos (ou limpa se não encontrou)
-                $('#latitude').val(lat);
-                $('#longitude').val(lng);
+                $('#latitude').val(lat).change();
+                $('#longitude').val(lng).change();
             });
         });
 

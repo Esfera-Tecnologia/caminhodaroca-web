@@ -41,4 +41,9 @@ class PreapprovedPartner extends Model
     {
         return $this->belongsToMany(City::class, 'preapproved_partner_city');
     }
+
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class, 'partner_id', 'id');
+    }
 }

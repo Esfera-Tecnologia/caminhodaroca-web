@@ -150,7 +150,7 @@
 
                     <hr class="my-4">
 
-                    @include('properties.partials.categorias', ['property' => null, 'categories' => $categories])
+                    @include('properties.partials.categorias', ['property' => null, 'hide_add_button' => true, 'categories' => $categories])
 
                     <hr class="my-4">
 
@@ -181,9 +181,12 @@
 
                     <!-- Upload moderno -->
 
-                    <div class="mb-5">
-                        <label class="form-label">Fotos dos seus produtos ou do estabelecimento</label>
-
+                    <div class="mt-4 mb-5">
+                        <label class="form-label">Fotos dos seus produtos ou do estabelecimento *</label>
+                        <a href="javascript:void(0)" type="button" data-bs-toggle="popover" data-bs-trigger="focus"
+                           data-bs-title="Atenção"
+                           data-bs-content="Fotos que contenham crianças e/ou pessoas não serão aceitas. As imagens devem transmitir a essência da propriedade rural ou do negócio, destacando suas atividades, paisagens, produtos ou estrutura."><i
+                                class="fa-solid fa-circle-info"></i></a>
                         <div id="uploadBox" class="upload-box">
                             <p class="upload-message m-0">
                                 Arraste e solte as imagens ou <a href="#" id="linkUpload">clique aqui para
@@ -214,6 +217,15 @@
 
     @push('scripts')
         <script>
+
+            window.subcategoriasPorCategoria = @json(
+                $categories->mapWithKeys(fn($cat) => [
+                  $cat->id => $cat->subcategories->map(fn($s) => [
+                    'id' => $s->id,
+                    'nome' => $s->nome // <- agora está correto
+                  ])
+                ])
+              );
 
             function previewLogo(input) {
                 if (input.files && input.files[0]) {
@@ -287,15 +299,6 @@
 
                 // Adiciona a div de conteúdo ao bloco principal
                 $block.append($contentDiv);
-
-                // Adiciona o link para criar nova subcategoria (separado do conteúdo principal)
-                $block.append(`
-        <div class="d-flex justify-content-end mt-2">
-          <a href="#" class="text-secondary small" onclick="abrirModalSubcategoria(${categoriaId}); return false;">
-            <i class="fas fa-plus me-1"></i> Adicionar Subcategoria
-          </a>
-        </div>
-      `);
 
                 $col.append($block);
 
@@ -733,6 +736,8 @@
                     // Preenche os campos (ou limpa se não encontrou)
                     $('#latitude').val(lat);
                     $('#longitude').val(lng);
+                    $('#latitude').closest('div').find('.just-validate-error-label').remove();
+                    $('#longitude').closest('div').find('.just-validate-error-label').remove();
                 });
             });
 
