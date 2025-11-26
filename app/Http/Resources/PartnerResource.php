@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enums\PreapprovedPartnerStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class PartnerResource extends JsonResource
 {
@@ -20,7 +21,7 @@ class PartnerResource extends JsonResource
                 'id' => $this->id,
                 'logo' => $this->logo_url,
                 'name' => $this->name,
-                'cities' => $this->resource->cities->pluck('name')->toArray(),
+                'cities' => $this->resource->cities->pluck('name', 'id'),
                 'uf' => 'RJ',
                 'description' => $this->description,
                 'email' => $this->email,
@@ -35,7 +36,7 @@ class PartnerResource extends JsonResource
             'id' => $this->id,
             'logo' => $this->logo_url,
             'name' => $this->name,
-            'cities' => $this->resource->cities?->pluck('name')?->toArray(),
+            'cities' => $this->resource->cities?->pluck('name', 'id'),
             'state' => 'Rio de Janeiro',
             'editable' => true,
             'pendingApproval' => $this->resource->preapproved_partner()->first()->status == PreapprovedPartnerStatus::PENDING,

@@ -127,7 +127,7 @@ class RegisterController extends Controller
                 $event = $partner->events()->create($eventData);
                 $eventData['event_id'] = $event->id;
                 $preapproved_event = $preapproved_partner->events()->create($eventData);
-                foreach ($eventData['images'] as $image) {
+                foreach ($eventData['images'] ?? [] as $image) {
                     $imageData['image'] = $image->store('partners/events', 'public');
                     $event->images()->create($imageData);
                     $preapproved_event->images()->create($imageData);
@@ -138,7 +138,7 @@ class RegisterController extends Controller
         }catch (\Exception $e){
             DB::rollBack();
             Log::error($e->getMessage(),  $e->getTrace());
-            return response()->json(['message' => "Não foi possível cadastrar o parceiro!"], 500);
+            return response()->json(['message' => "Não foi possível cadastrar o parceiro: " . $e->getMessage()], 500);
         }
     }
 }

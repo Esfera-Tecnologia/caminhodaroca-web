@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyImageController;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Auth\SenhaController;
@@ -87,7 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get(' ', [PropertyController::class, 'create_public'])->name('properties.public.create');
+Route::get('cadastro-propriedade-publica', [PropertyController::class, 'create_public'])->name('properties.public.create');
 Route::post('cadastro-propriedade-publica', [PropertyController::class, 'store_public'])->name('properties.public.store');
 
 require __DIR__.'/auth.php';
