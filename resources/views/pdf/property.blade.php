@@ -289,7 +289,12 @@
     <div class="section">
         <div class="gallery" style="padding-top: 15px">
             @foreach($property->images as $imagePath)
-                <img src="storage/{{ $imagePath->path }}" alt="Imagem da propriedade">
+                @php
+                    $path = realpath(base_path('public/storage/'.$imagePath->path));
+                    $imageData = base64_encode(file_get_contents($path));
+                    $mime = mime_content_type($path);
+                @endphp
+                <img src="data:{{ $mime }};base64,{{ $imageData }}" alt="Imagem da propriedade">
             @endforeach
         </div>
         <span style="font-size: 12px; color: #a9a9a9">Imagens ilustrativas fornecidas pela propriedade.</span>
