@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Propriedades')
+@section('title', 'Parceiros')
 
 @section('content')
     <div class="content-box">
@@ -23,7 +23,7 @@
         @endphp
 
         <div class="table-responsive">
-            <table id="tabelaPropriedades" class="table table-bordered table-hover datatable">
+            <table id="tabelaParceiros" class="table table-bordered table-hover datatable">
                 <thead class="table-light">
                 <tr>
                     <th>Logo</th>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\InstagramRule;
+use App\Rules\URLRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 
@@ -10,7 +12,6 @@ class RegisterPartnerRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'instagram' => $this->prefixUrl($this->instagram),
             'site'      => $this->prefixUrl($this->site),
             'events'    => $this->prepareEvents($this->events),
         ]);
@@ -81,7 +82,7 @@ class RegisterPartnerRequest extends FormRequest
             'instagram' => [
                 'nullable',
                 'string',
-                'url'
+                new InstagramRule()
             ],
             'site' => [
                 'nullable',
