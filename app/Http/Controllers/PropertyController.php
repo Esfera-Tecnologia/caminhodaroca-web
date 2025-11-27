@@ -322,6 +322,7 @@ class PropertyController extends Controller
             ->where('subcategories.category_id', $categoria_principal->id)
             ->pluck('nome')
             ->toArray();
+
         $pdf = Pdf::loadView('pdf.property', compact('property', 'categorias', 'categoria_principal', 'subcategorias_principais'));
 
         $pdf->setOption('isRemoteEnabled', true);
