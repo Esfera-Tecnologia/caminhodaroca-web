@@ -176,7 +176,7 @@
     <table class="section">
         <tr>
             <td style="width: 29%;"><img style="width: 100%; margin-bottom: auto; margin-top: auto"
-                                         src="storage/{{ $property->logo_path }}" alt="Logo {{ $property->name }}"></td>
+                                         src="{{ public_path('storage/'.$property->logo_path) }}" alt="Logo {{ $property->name }}"></td>
             <td style="padding-left: 15px">
                 <h2>{{ $property->name }}</h2>
                 <span class="badge">Status: {{ $property->status ? 'Ativo' : 'Inativo' }}</span><br>
