@@ -18,10 +18,9 @@
         /* Header fixo em todas as páginas - CORRIGIDO */
         .header-fixed {
             position: fixed;
-            background-color: #306D60; /* Verde escuro */
-            top: 0;
             left: 0;
             right: 0;
+            background-color: #306D60; /* Verde escuro */
             color: white;
             display: flex;
             align-items: center;
@@ -64,11 +63,6 @@
             padding: 0;
         }
 
-        @page {
-            header: header;
-            margin-top: 60px; /* espaço antes do conteúdo */
-        }
-
         /* Reset adicional para garantir que não haja margens */
         * {
             box-sizing: border-box;
@@ -82,12 +76,12 @@
 
         .content {
             padding: 50px;
-            /*padding-top: 120px;*/
+            padding-top: 120px;
         }
 
         .section {
             margin-bottom: 25px;
-            page-break-inside: avoid;
+            page-break-inside: auto;
             background-color: #f5fbf9;
             padding: 15px
         }
@@ -176,16 +170,16 @@
 </head>
 <body style="margin: 0">
 <!-- Header fixo em todas as páginas -->
-<htmlpageheader name="header" class="header-fixed">
-    <img src="{{public_path('assets/Logobrancahorizontal.png')}}" alt="Logo" class="header-logo" style="max-height: 160px;">
-</htmlpageheader>
+<div class="header-fixed">
+    <img src="assets/Logobrancahorizontal.png" alt="Logo" class="header-logo" style="max-height: 160px;">
+</div>
 
 <!-- Conteúdo principal -->
 <div class="content">
     <table class="section">
         <tr>
             <td style="width: 29%;"><img style="width: 100%; margin-bottom: auto; margin-top: auto"
-                                         src="{{ public_path('storage/'.$property->logo_path) }}" alt="Logo {{ $property->name }}"></td>
+                                         src="storage/{{ $property->logo_path }}" alt="Logo {{ $property->name }}"></td>
             <td style="padding-left: 15px">
                 <h2>{{ $property->name }}</h2>
                 <span class="badge">Status: {{ $property->status ? 'Ativo' : 'Inativo' }}</span><br>
@@ -294,7 +288,7 @@
     <div class="section">
         <div class="gallery" style="padding-top: 15px">
             @foreach($property->images as $imagePath)
-                <img src="{{ public_path('storage/'.$imagePath->path) }}" alt="Imagem da propriedade">
+                <img src="storage/{{ $imagePath->path }}" alt="Imagem da propriedade">
             @endforeach
         </div>
         <span style="font-size: 12px; color: #a9a9a9">Imagens ilustrativas fornecidas pela propriedade.</span>
