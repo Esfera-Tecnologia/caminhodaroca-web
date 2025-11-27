@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $property->name }} - Ficha da Propriedade</title>
     <style>
+        @php $padding = 120 @endphp
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
@@ -20,9 +21,9 @@
             position: fixed;
             left: 0;
             right: 0;
+            top: -{{$padding}}px;
             background-color: #306D60; /* Verde escuro */
             color: white;
-            display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 1000;
@@ -59,8 +60,7 @@
 
         /* Garantir que o header apareça em todas as páginas do PDF */
         @page {
-            margin: 0;
-            padding: 0;
+            margin: {{$padding}}px 0;
         }
 
         /* Reset adicional para garantir que não haja margens */
@@ -68,20 +68,17 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            margin: 0;
+        body {
             padding: 0;
-            width: 100%;
         }
 
         .content {
             padding: 50px;
-            padding-top: 120px;
         }
 
         .section {
             margin-bottom: 25px;
-            page-break-inside: auto;
+            page-break-inside: avoid;
             background-color: #f5fbf9;
             padding: 15px
         }
@@ -199,11 +196,13 @@
 
     <div class="section">
         <div class="section-title">Categorias cadastradas</div>
-        @foreach($categorias as $categoria)
-            <span>- {{ $categoria->name }}: {{ implode(', ', $property->subcategorias->where('category_id', $categoria->id)->pluck('name')->toArray()) }}</span>
+        @foreach($categorias->pluck('name', 'id') as $key=>$categoria)
+            <span>- {{ $categoria }}: {{ implode(', ', $property->subcategorias->where('category_id', $key)->pluck('name')->toArray()) }}</span>
             <br>
         @endforeach
         <div class="section-title">Descrição dos Serviços</div>
+        <p>{{ $property->descricao_servico }}</p>
+        <p>{{ $property->descricao_servico }}</p>
         <p>{{ $property->descricao_servico }}</p>
     </div>
 
@@ -217,11 +216,8 @@
 
     </div>
 
-    <!-- Quebra de página -->
-    <div class="page-break"></div>
-
     <!-- Funcionamento -->
-    <div class="section" style="margin-top: 120px">
+    <div class="section">
         <div class="section-title">Horário de Funcionamento</div>
         <div><strong>Tipo de funcionamento:</strong> {{ $property->tipo_funcionamento->label() ?? 'Não informado' }}
         </div>
