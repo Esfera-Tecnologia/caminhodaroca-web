@@ -327,6 +327,17 @@ class PropertyController extends Controller
         return $pdf->stream("property_{$property->id}.pdf");
     }
 
+    public function testePdf(Property $property)
+    {
+        $categorias = $property->categorias()->where('status', 'ativo')->get();
+        $categoria_principal = $property->categorias()->where('status', 'ativo')->first();
+        $subcategorias_principais = $property->subcategorias()
+            ->where('subcategories.category_id', $categoria_principal->id)
+            ->pluck('nome')
+            ->toArray();
+        return view('pdf.property', compact('property', 'categorias', 'categoria_principal', 'subcategorias_principais'));
+    }
+
 
     public function create_public()
     {
