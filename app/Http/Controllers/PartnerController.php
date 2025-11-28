@@ -145,12 +145,10 @@ class PartnerController extends Controller
                         $event->images()->create(['image' => $eventData['images']]);
                     }
                 }
+                $partner->events()->whereNotIn('id', array_map(function ($row){
+                    return $row['id'];
+                }, $data['events']))->delete();
             }
-
-            $partner->events()->whereNotIn('id', array_map(function ($row){
-                return $row['id'];
-            }, $data['events']))->delete();
-
             if (isset($data['new_event_name'])) {
                 foreach ($data['new_event_name'] as $key => $eventName) {
                     if (isset($data['new_event_imagem'][$key])) {
@@ -165,8 +163,6 @@ class PartnerController extends Controller
                     $partner->events()->create($eventData);
                 }
             }
-
-
             if ($request->has('approve_updates') && $request->input('approve_updates')) {
                 $data['status'] = PreapprovedPartnerStatus::APPROVED;
                 $dataPartner = $data;
