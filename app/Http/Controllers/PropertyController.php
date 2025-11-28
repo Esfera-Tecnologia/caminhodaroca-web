@@ -238,6 +238,7 @@ class PropertyController extends Controller
             'agenda_personalizada.*.ativo' => ['nullable', 'boolean'],
             'aceita_animais' => ['boolean'],
             'possui_acessibilidade' => ['boolean'],
+            'status' => ['required', 'string', 'in:ativo,inativo'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
 //            'galeria.*' => ['nullable', 'image'],
 //            'product_ids' => 'array',

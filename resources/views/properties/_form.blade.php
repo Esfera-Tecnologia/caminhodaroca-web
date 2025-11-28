@@ -42,8 +42,8 @@
             <div class="col-md-4">
                 <label class="form-label">Status *</label>
                 <select name="status" id="status" class="form-select" required>
-                    <option value="ativo" @selected(old('status', $property->status ?? '') === 'ativo')>Ativo</option>
-                    <option value="inativo" @selected(old('status', $property->status ?? '') === 'inativo')>Inativo
+                    <option value="ativo" @selected(old('status', $property->status->value ?? '') === 'ativo')>Ativo</option>
+                    <option value="inativo" @selected(old('status', $property->status->value ?? '') === 'inativo')>Inativo
                     </option>
                 </select>
             </div>
