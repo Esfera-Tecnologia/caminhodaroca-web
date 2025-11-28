@@ -27,7 +27,7 @@ return new class extends Migration
                 ], [
                     'can_create' => true,
                     'can_view' => true,
-                    'can_update' => true,
+                    'can_edit' => true,
                     'can_delete' => true,
                 ]);
 
@@ -46,7 +46,7 @@ return new class extends Migration
                 ], [
                     'can_create' => true,
                     'can_view' => true,
-                    'can_update' => true,
+                    'can_edit' => true,
                     'can_delete' => true,
                 ]);
             DB::commit();
