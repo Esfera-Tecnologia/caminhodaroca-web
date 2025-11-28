@@ -53,9 +53,12 @@
                value="{{ old('site', $partner->site ?? '') }}">
     </div>
     <div class="col-md-6">
-        <label class="form-label">Municípios *</label>
+        <label class="form-label">
+            Municípios *
+            <a href="#" id="cities-toggler" style="font-size: 0.8rem">Selecionar todos</a>
+        </label>
         <select class="form-select select2" name="cities[]" id="cities" multiple required>
-            <option value="">Selecione</option>
+            <option value="disabled" disabled>Selecione</option>
             @foreach(\App\Models\City::query()->pluck('name', 'id') as $key=>$cidade)
                 <option value="{{ $key }}"
                     {{ (collect(old('cities', $partner->cities->pluck('id')->toArray() ?? []))->contains($key)) ? 'selected':'' }}>
@@ -198,15 +201,40 @@
             updateIndices();
             toggleRemoveButtons();
         });
-
-
         function removeEvent(button){
             const item = button.closest('.eventos-container');
             item.remove();
         }
-
-
-
-
+        $(function () {
+            function getAllOptionValues() {
+                return $('#cities').find('option:not(:disabled)').map(function () {
+                    return this.value;
+                }).get().filter(v => v !== '' && v != null);
+            }
+            function getCurrentValues() {
+                return $('#cities').val() || [];
+            }
+            function isAllSelected() {
+                const all = getAllOptionValues();
+                const cur = getCurrentValues();
+                return all.length > 0 && cur.length === all.length;
+            }
+            function updateButtonText() {
+                $("#cities-toggler").text(isAllSelected() ? 'Remover todos' : 'Selecionar todos');
+            }
+            updateButtonText();
+            $('#cities').on('change', function () {
+                updateButtonText();
+            });
+            $("#cities-toggler").on('click', function () {
+                const allValues = getAllOptionValues();
+                if (isAllSelected()) {
+                    $('#cities').val(null).trigger('change');
+                } else {
+                    $('#cities').val(allValues).trigger('change');
+                }
+                updateButtonText();
+            });
+        });
     </script>
 @endpush

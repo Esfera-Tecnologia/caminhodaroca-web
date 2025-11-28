@@ -12,6 +12,15 @@
     background-color: transparent !important;
 }
 
+.select2-container .select2-selection--multiple .select2-selection__rendered {
+    display: block;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
 /* Deixar as tags mais harmoniosas */
 .select2-selection__choice {
     background-color: #e5f4ec !important; /* verde claro */
