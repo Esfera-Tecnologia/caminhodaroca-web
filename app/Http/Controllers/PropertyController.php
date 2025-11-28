@@ -140,17 +140,20 @@ class PropertyController extends Controller
             $property->products()->sync($request->input('product_ids', []));
         }
 
-        $this->syncPreapprovedCategoriasSubcategorias($property->preapproved_property()->first(), $request);
-        $dataProperty = $data;
-        if (!Auth::user()->isResponsible()) {
-            $dataProperty['status'] = StatusPreapprovedProperty::APPROVED;
-        } else {
-            $dataProperty['status'] = StatusPreapprovedProperty::PENDING;
+        $preapproved = $property->preapproved_property()->first();
+        if($preapproved) {
+            $this->syncPreapprovedCategoriasSubcategorias($preapproved, $request);
+            $dataProperty = $data;
+            if (!Auth::user()->isResponsible()) {
+                $dataProperty['status'] = StatusPreapprovedProperty::APPROVED;
+            } else {
+                $dataProperty['status'] = StatusPreapprovedProperty::PENDING;
+            }
+            $property->preapproved_property()->update($dataProperty);
+            $preapproved->images()->delete();
+            $preapproved->images()->createMany($property->images->toArray());
+            $preapproved->products()->sync($request->input('product_ids', []));
         }
-        $property->preapproved_property()->update($dataProperty);
-        $property->preapproved_property()->first()->images()->delete();
-        $property->preapproved_property()->first()->images()->createMany($property->images->toArray());
-        $property->preapproved_property()->first()->products()->sync($request->input('product_ids', []));
 
         // atualiza galeria
         if ($request->hasFile('images')) {
@@ -164,10 +167,12 @@ class PropertyController extends Controller
                     ]);
                 }
 
-                PreapprovedPropertyImage::create([
-                    'preapproved_property_id' => $property->preapproved_property()->first()->id,
-                    'path' => $path,
-                ]);
+                if ($preapproved) {
+                    PreapprovedPropertyImage::create([
+                        'preapproved_property_id' => $preapproved->id,
+                        'path' => $path,
+                    ]);
+                }
             }
         }
 
