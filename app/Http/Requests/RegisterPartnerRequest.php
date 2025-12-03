@@ -38,7 +38,15 @@ class RegisterPartnerRequest extends FormRequest
         }
 
         foreach ($events as $i => $event) {
-            $events[$i]['url'] = $this->prefixUrl($event['externalLink'] ?? null);
+            // Normalize the field that the UI uses: externalLink
+            $normalized = $this->prefixUrl($event['externalLink'] ?? null);
+
+            // Ensure validation uses externalLink (user-visible field)
+            $events[$i]['externalLink'] = $normalized;
+
+            // Keep 'url' for backward compatibility if other code expects it.
+            // Remove this line if you don't need the 'url' key anywhere else.
+            $events[$i]['url'] = $normalized;
         }
 
         return $events;
@@ -131,7 +139,7 @@ class RegisterPartnerRequest extends FormRequest
                 'file',
                 'max:2048',
             ],
-            'events.*.url' => [
+            'events.*.externalLink' => [
                 'nullable',
                 'string',
                 'url'
