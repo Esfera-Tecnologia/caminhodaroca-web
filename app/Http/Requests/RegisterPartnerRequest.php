@@ -146,4 +146,29 @@ class RegisterPartnerRequest extends FormRequest
             ],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nome',
+            'email' => 'e-mail',
+            'description' => 'descrição',
+            'logo' => 'logo',
+            'instagram' => 'instagram',
+            'site' => 'site',
+            'cities' => 'cidades',
+            'cities.*' => 'cidade',
+            'routes' => 'rotas',
+            'circuits' => 'circuitos',
+            'attractions' => 'atrações',
+
+            'events' => 'eventos',
+            'events.*.name' => 'nome do evento',
+            'events.*.description' => 'descrição do evento',
+            'events.*.images' => 'imagens do evento',
+            'events.*.images.*' => 'imagem do evento',
+            'events.*.url' => 'link externo do evento',
+            'events.*.externalLink' => 'link externo do evento',
+        ];
+    }
 }
