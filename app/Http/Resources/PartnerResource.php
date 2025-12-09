@@ -5,7 +5,6 @@ namespace App\Http\Resources;
 use App\Enums\PreapprovedPartnerStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class PartnerResource extends JsonResource
 {
@@ -16,12 +15,11 @@ class PartnerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         $user = request()->user();
-
         $userPartners = $user?->partner->pluck('id')->toArray()??[];
-
-        if(isset($this->individual) && $this->individual)
+        $canEdit = in_array($this->id, $userPartners);
+        
+        if(isset($this->individual) && $this->individual) {
             return [
                 'id' => $this->id,
                 'logo' => $this->logo_url,
@@ -37,13 +35,14 @@ class PartnerResource extends JsonResource
                 'website' => $this->site,
                 'events' => EventResource::collection($this->resource->events),
             ];
+        }
         return [
             'id' => $this->id,
             'logo' => $this->logo_url,
             'name' => $this->name,
             'cities' => $this->resource->cities?->pluck('name', 'id'),
             'state' => 'Rio de Janeiro',
-            'editable' => in_array($this->id, $userPartners),
+            'editable' => $canEdit,
             'pendingApproval' => $this->resource->preapproved_partner()->first()->status == PreapprovedPartnerStatus::PENDING,
         ];
     }

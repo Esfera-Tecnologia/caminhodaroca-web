@@ -17,4 +17,9 @@ class PreapprovedEventImage extends Model
     {
         return $this->belongsTo(PreapprovedPartnerEvent::class);
     }
+    
+    public function getImageUrlAttribute()
+    {
+        return url('storage/'.$this->image);
+    }
 }

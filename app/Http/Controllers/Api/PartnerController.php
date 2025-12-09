@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\PreapprovedPartnerStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePartnerRequest;
 use App\Http\Resources\PartnerResource;
+use App\Http\Resources\PreapprovedPartnerResource;
 use App\Models\Partner;
 use App\Models\PartnerEvent;
 use Illuminate\Http\Request;
@@ -32,9 +34,16 @@ class PartnerController extends Controller
     public function show(Partner $id)
     {
         $id->individual = true;
+        $user = request()->user();
+        $userPartners = $user?->partner->pluck('id')->toArray()??[];
+        $pendingData = $id->preapproved_partner()->first();
+        $canEdit = in_array($id->id, $userPartners);
 
-        $partner = PartnerResource::make($id);
-
+        if ($canEdit && $pendingData && $pendingData->status == PreapprovedPartnerStatus::PENDING) {
+            $partner = PreapprovedPartnerResource::make($pendingData);
+        } else {
+            $partner = PartnerResource::make($id);
+        }
         return response()->json($partner);
     }
 
