@@ -46,4 +46,9 @@ class PreapprovedPartner extends Model
     {
         return $this->belongsTo(Partner::class, 'partner_id', 'id');
     }
+
+    public function getLogoUrlAttribute(): string
+    {
+        return url('storage/'.$this->attributes['logo']);
+    }
 }
