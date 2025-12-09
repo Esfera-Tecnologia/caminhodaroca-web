@@ -27,6 +27,7 @@ class PartnerController extends Controller
                 ->get());
             return response()->json($partners);
         } catch (\Exception $exception) {
+            Log::info($exception);
             return response()->json(['status' => false, 'message' => 'Não foi possível buscar as informações'], 500);
         }
     }

@@ -48,7 +48,7 @@ Route::get('/properties/autocomplete', [PropertyController::class, 'autocomplete
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
 
 // Rotas de parceiros (públicas)
-Route::get('/partners/{id}', [PartnerController::class, 'show']);
+Route::get('/partners/{id}', [PartnerController::class, 'show'])->middleware('optional_sanctum');
 Route::get('/partners', [PartnerController::class, 'index'])->middleware('optional_sanctum');
 
 // Rotas protegidas (requerem autenticação)

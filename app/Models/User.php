@@ -76,7 +76,7 @@ class User extends Authenticatable
 
     public function partner()
     {
-        return $this->hasMany(Partner::class);
+        return $this->hasMany(Partner::class, 'user_id');
     }
 
     public function favoriteProperties()
