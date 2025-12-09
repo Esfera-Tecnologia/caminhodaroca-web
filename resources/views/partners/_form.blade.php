@@ -1,36 +1,54 @@
 <div class="row g-4">
-    <div class="col-md-6">
-        <label class="form-label">Nome do Parceiro *</label>
-        <input type="text" class="form-control" required name="name" value="{{ old('name', $partner->name ?? '') }}">
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">E-mail do Parceiro *</label>
-        <input type="email" class="form-control" required name="email"
-               value="{{ old('email', $partner->email ?? '') }}">
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Logotipo *</label>
-        <input type="file" class="form-control" accept="image/*" required
-               name="logo"
-               data-original-value="{{ old('logo', $partner->logo ?? '') }}">
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Status *</label>
-        <select class="form-select" required name="status">
-            <option value="">Selecione</option>
-            @php
-                if($partner instanceof \App\Models\Partner)
-                    $status_enum = \App\Enums\PartnerStatus::cases();
-                else
-                    $status_enum = \App\Enums\PreapprovedPartnerStatus::cases();
-            @endphp
-            @foreach($status_enum as $status)
-                <option value="{{ $status->value }}"
-                    {{ (old('status', $partner->status->value ?? '') == $status->value) ? 'selected' : '' }}>
-                    {{ $status->label() }}
-                </option>
-            @endforeach
-        </select>
+    <div class="col-12">
+        <div class="row">
+            <div class="col-md-3">
+                <label class="form-label">Logotipo *</label>
+                <input
+                  accept=".jpg,.jpeg,.png,.gif"
+                  onchange="previewLogo(this)"
+                  class="form-control"
+                  type="file"
+                  name="logo"
+                  id="logo"
+                  required />
+                <img id="preview-logo"
+                    src="{{ isset($partner->logo) ? asset('storage/' . $partner->logo) : asset('assets/teste3.png') }}"
+                    class="preview-img mt-2"
+                    alt="Preview Logo" />
+                <div id="logo-error" class="text-danger mt-1"></div>
+            </div>
+            <div class="col">
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nome do Parceiro *</label>
+                        <input type="text" class="form-control" required name="name" value="{{ old('name', $partner->name ?? '') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status *</label>
+                        <select class="form-select" required name="status">
+                            <option value="">Selecione</option>
+                            @php
+                                if($partner instanceof \App\Models\Partner)
+                                    $status_enum = \App\Enums\PartnerStatus::cases();
+                                else
+                                    $status_enum = \App\Enums\PreapprovedPartnerStatus::cases();
+                            @endphp
+                            @foreach($status_enum as $status)
+                                <option value="{{ $status->value }}"
+                                    {{ (old('status', $partner->status->value ?? '') == $status->value) ? 'selected' : '' }}>
+                                    {{ $status->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">E-mail do Parceiro *</label>
+                        <input type="email" class="form-control" required name="email"
+                            value="{{ old('email', $partner->email ?? '') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-12">
         <label class="form-label">Descrição *</label>
@@ -137,7 +155,13 @@
 
 @push('scripts')
     <script>
-
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => $('#preview-logo').attr('src', e.target.result);
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
         document.addEventListener('DOMContentLoaded', function () {
             const eventosContainer = document.getElementById('eventos-container');
             const addEventoBtn = document.getElementById('add-evento');
