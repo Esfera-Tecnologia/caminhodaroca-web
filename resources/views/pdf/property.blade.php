@@ -141,8 +141,13 @@
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
-            background-color: #306D60;
             color: white;
+        }
+        .bg-success {
+            background-color: #306D60;
+        }
+        .bg-danger {
+            background-color: #dc3545;
         }
 
 
@@ -176,20 +181,22 @@
     <table class="section">
         <tr>
             @php
-                $path = realpath(base_path('public/storage/'.$property->logo_path));
-                $imageData = base64_encode(file_get_contents($path));
-                $mime = mime_content_type($path);
+                    $path = realpath(base_path('public/storage/'.$property->logo_path));
+                    $imageData = base64_encode(file_get_contents($path));
+                    $mime = mime_content_type($path);
             @endphp
             <td style="width: 29%;"><img style="width: 100%; margin-bottom: auto; margin-top: auto"
                                          src="data:{{ $mime }};base64,{{ $imageData }}" alt="Logo {{ $property->name }}"></td>
             <td style="padding-left: 15px">
                 <h2>{{ $property->name }}</h2>
-                <span class="badge">Status: {{ $property->status ? 'Ativo' : 'Inativo' }}</span><br>
+                <span class="badge {{$property->status == App\Enums\StatusProperty::ATIVO ? 'bg-success' : 'bg-danger'}}">
+                    Status: {{ $property->status->label() }}
+                </span><br>
                 <span>Categoria Principal: {{ $categoria_principal->name }}</span><br>
                 <span>Subcategorias: {{ implode(', ', $subcategorias_principais) }}</span><br>
                 <span>Whatsapp: {{ $property->whatsapp_mask }}</span> |
                 <span>Instagram: {{ $property->instagram }}</span><br>
-                <span>E-mail: {{ $property->instagram }}</span><br>
+                <span>E-mail: {{ $property->email_responsavel }}</span><br>
                 <span>Endereço principal: {{ $property->endereco_principal }}</span><br>
                 @if(!empty($property->endereco_secundario))
                     <span>Endereço secundário: {{ $property->endereco_secundario }}</span><br>
@@ -205,10 +212,11 @@
             <span>- {{ $categoria }}: {{ implode(', ', $property->subcategorias->where('category_id', $key)->pluck('name')->toArray()) }}</span>
             <br>
         @endforeach
+    </div>
+
+    <div class="section">
         <div class="section-title">Descrição dos Serviços</div>
-        <p>{{ $property->descricao_servico }}</p>
-        <p>{{ $property->descricao_servico }}</p>
-        <p>{{ $property->descricao_servico }}</p>
+        <p>{!! nl2br(e($property->descricao_servico)) !!}</p>
     </div>
 
     <div class="section">
@@ -237,49 +245,52 @@
                 <div style="margin-top: 15px;"><strong>Observações:</strong> {{ $property->observacoes_funcionamento }}
                 </div>
             @endif
-
-            <table class="non-table">
-                <thead>
-                <tr>
-                    <th>Dia</th>
-                    <th>Abertura</th>
-                    <th>Fechamento</th>
-                    <th>Fecha almoço</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($diasOrdenados as $dia)
-                    @if(isset($agenda[$dia]) && $agenda[$dia]['ativo'])
-                        @php
-                            $diaInfo = $agenda[$dia];
-                            $fechaAlmoco = $diaInfo['fecha_almoco'] ?? '0';
-                            // Horários padrão baseados no exemplo original
-                            $horarios = [
-                                'segunda' => ['abertura' => '09:00', 'fechamento' => '18:00'],
-                                'terça' => ['abertura' => '09:00', 'fechamento' => '18:00'],
-                                'quarta' => ['abertura' => '09:00', 'fechamento' => '18:00'],
-                                'quinta' => ['abertura' => '09:00', 'fechamento' => '20:00'],
-                                'sexta' => ['abertura' => '09:00', 'fechamento' => '22:00'],
-                                'sábado' => ['abertura' => '08:00', 'fechamento' => '22:00'],
-                                'domingo' => ['abertura' => '08:00', 'fechamento' => '18:00']
-                            ];
-                        @endphp
-                        <tr>
-                            <td style="text-transform: capitalize;">{{ $diaInfo['dia'] ?? $dia }}</td>
-                            <td>
-                                {{ $horarios[$dia]['abertura'] ?? '--:--' }}
-                            </td>
-                            <td>
-                                {{ $horarios[$dia]['fechamento'] ?? '--:--' }}
-                            </td>
-                            <td>
-                                {{ $fechaAlmoco == '1' ? 'Sim' : 'Não' }}
-                            </td>
-                        </tr>
-                    @endif
-                @endforeach
-                </tbody>
-            </table>
+            @if(count(array_filter($agenda, function($dia){
+                return $dia['ativo'] == 1;
+            })) > 0 && ! in_array($property->tipo_funcionamento, [App\Enums\WorkingTypeProperty::AGENDAMENTO, App\Enums\WorkingTypeProperty::PERSONALIZADO]))
+                <table class="non-table">
+                    <thead>
+                    <tr>
+                        <th>Dia</th>
+                        <th>Abertura</th>
+                        <th>Fechamento</th>
+                        <th>Fecha almoço</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($diasOrdenados as $dia)
+                        @if(isset($agenda[$dia]) && $agenda[$dia]['ativo'])
+                            @php
+                                $diaInfo = $agenda[$dia];
+                                $fechaAlmoco = $diaInfo['fecha_almoco'] ?? '0';
+                                // Horários padrão baseados no exemplo original
+                                $horarios = [
+                                    'segunda' => ['abertura' => '09:00', 'fechamento' => '18:00'],
+                                    'terça' => ['abertura' => '09:00', 'fechamento' => '18:00'],
+                                    'quarta' => ['abertura' => '09:00', 'fechamento' => '18:00'],
+                                    'quinta' => ['abertura' => '09:00', 'fechamento' => '20:00'],
+                                    'sexta' => ['abertura' => '09:00', 'fechamento' => '22:00'],
+                                    'sábado' => ['abertura' => '08:00', 'fechamento' => '22:00'],
+                                    'domingo' => ['abertura' => '08:00', 'fechamento' => '18:00']
+                                ];
+                            @endphp
+                            <tr>
+                                <td style="text-transform: capitalize;">{{ $diaInfo['dia'] ?? $dia }}</td>
+                                <td>
+                                    {{ $horarios[$dia]['abertura'] ?? '--:--' }}
+                                </td>
+                                <td>
+                                    {{ $horarios[$dia]['fechamento'] ?? '--:--' }}
+                                </td>
+                                <td>
+                                    {{ $fechaAlmoco == '1' ? 'Sim' : 'Não' }}
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
+                    </tbody>
+                </table>
+            @endif
         @endif
         <span>Aceita animais de estimação: {{ $property->aceita_animais ? 'Sim' : 'Não' }}</span><br>
         <span>Possui acessibilidade: {{ $property->possui_acessibilidade ? 'Sim' : 'Não' }}</span><br>
