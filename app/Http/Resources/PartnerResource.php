@@ -43,7 +43,7 @@ class PartnerResource extends JsonResource
             'cities' => $this->resource->cities?->pluck('name', 'id'),
             'state' => 'Rio de Janeiro',
             'editable' => $canEdit,
-            'pendingApproval' => $this->resource->preapproved_partner()->first()->status == PreapprovedPartnerStatus::PENDING,
+            'pendingApproval' => $this->resource->preapproved_partner()->first()?->status == PreapprovedPartnerStatus::PENDING,
         ];
     }
 }
