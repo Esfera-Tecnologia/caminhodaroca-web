@@ -53,11 +53,18 @@ class Partner extends Model
         return $this->belongsToMany(City::class, 'partner_city');
     }
 
+    public function citiesRelationship(): HasMany
+    {
+        return $this->hasMany(PartnerCity::class);
+    }
+
     public function scopeCities($query, $city_id = [])
     {
         if($city_id === [])
             return $query;
-        return  $query->join('partner_city', 'id', '=', 'partner_id')->whereIn('city_id', $city_id);
+        return  $query->whereHas("citiesRelationship", function($query) use($city_id) {
+            return $query->whereIn('city_id', $city_id);
+        });
     }
 
     public function scopeKeyword($query, $keyword)
