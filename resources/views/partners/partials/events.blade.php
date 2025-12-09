@@ -10,29 +10,44 @@
                 </button>
             </div>
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Nome do Evento *</label>
-                    @if(isset($event) && $event->id)
-                        <input type="hidden" name="events[{{ $event->id }}][id]" id="id_{{ $event->id }}" class="form-control"
-                               value="{{ old('id', $event->id ?? '') }}" required>
-                    @endif
-                    <input type="text" name="events[{{ $event->id }}][name]" id="name_{{ $event->id }}" class="form-control"
-                           value="{{ old('name', $event?->name ?? '') }}" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Link do Evento</label>
-                    <input type="url" class="form-control" name="events[{{ $event->id }}][url]" id="url_{{ $event->id }}"
-                           placeholder="https://"
-                           value="{{ old('url', $event?->url ?? '') }}" required>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Descrição do Evento</label>
-                    <textarea class="form-control" id="description_{{ $event?->id??':id' }}"
-                              name="events[{{ $event->id }}][description]">{!! $event?->description !!}</textarea>
-                </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label class="form-label">Imagem do Evento</label>
-                    <input type="file" class="form-control" name="events[{{ $event->id }}][images]" accept="image/*" required>
+                    <input
+                        accept=".jpg,.jpeg,.png,.gif"
+                        onchange="previewLogo(this)"
+                        class="form-control"
+                        type="file"
+                        name="events[{{ $event->id }}][images]" />
+                    <img src="{{ 
+                        isset($event->images->first()?->image_url) 
+                            ? $event->images->first()?->image_url
+                            : asset('assets/teste3.png') 
+                        }}"
+                        class="preview-img mt-2" />
+                </div>
+                <div class="col">
+                    <div class="row gy-2">
+                        <div class="col">
+                            <label class="form-label">Nome do Evento *</label>
+                            @if(isset($event) && $event->id)
+                                <input type="hidden" name="events[{{ $event->id }}][id]" id="id_{{ $event->id }}" class="form-control"
+                                    value="{{ old('id', $event->id ?? '') }}" required>
+                            @endif
+                            <input type="text" name="events[{{ $event->id }}][name]" id="name_{{ $event->id }}" class="form-control"
+                                value="{{ old('name', $event?->name ?? '') }}" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Link do Evento</label>
+                            <input type="url" class="form-control" name="events[{{ $event->id }}][url]" id="url_{{ $event->id }}"
+                                placeholder="https://"
+                                value="{{ old('url', $event?->url ?? '') }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Descrição do Evento</label>
+                            <textarea class="form-control" id="description_{{ $event?->id??':id' }}"
+                                    name="events[{{ $event->id }}][description]">{!! $event?->description !!}</textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

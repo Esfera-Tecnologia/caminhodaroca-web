@@ -129,22 +129,36 @@
                 </button>
             </div>
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Nome do Evento *</label>
-                    <input type="text" class="form-control" name="new_event_name[]" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Link do Evento</label>
-                    <input type="url" class="form-control" name="new_event_link[]" placeholder="https://" required>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Descrição do Evento</label>
-                    <textarea class="form-control" rows="2" name="new_event_description[]"
-                              placeholder="Compartilhe os principais detalhes"></textarea>
-                </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label class="form-label">Imagem do Evento</label>
-                    <input type="file" class="form-control" name="new_event_imagem[]" accept="image/*" required>
+                    <input
+                        accept=".jpg,.jpeg,.png,.gif"
+                        onchange="previewLogo(this)"
+                        class="form-control"
+                        type="file"
+                        name="new_event_imagem[]" />
+                    <img src="{{ 
+                        isset($partner->logo) 
+                            ? asset('storage/' . $partner->logo)
+                            : asset('assets/teste3.png') 
+                        }}"
+                        class="preview-img mt-2" />
+                    </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Nome do Evento *</label>
+                            <input type="text" class="form-control" name="new_event_name[]" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Link do Evento</label>
+                            <input type="url" class="form-control" name="new_event_link[]" placeholder="https://" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Descrição do Evento</label>
+                            <textarea class="form-control" rows="2" name="new_event_description[]" placeholder="Compartilhe os principais detalhes"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -158,7 +172,7 @@
         function previewLogo(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = e => $('#preview-logo').attr('src', e.target.result);
+                reader.onload = e => $(input).next('img').attr('src', e.target.result);
                 reader.readAsDataURL(input.files[0]);
             }
         }
