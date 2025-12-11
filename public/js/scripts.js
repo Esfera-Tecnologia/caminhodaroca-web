@@ -142,19 +142,37 @@ document.addEventListener('DOMContentLoaded', function () {
             ) {
                 return;
             }
-
             const rules = [
                 { rule: 'required', errorMessage: 'Este campo é obrigatório.' }
             ];
-
             if (field.type === 'email') {
                 rules.push({ rule: 'email', errorMessage: 'Informe um e-mail válido.' });
             }
-
             if (field.type === 'number') {
                 rules.push({ rule: 'number', errorMessage: 'Informe um número válido.' });
             }
+            if (field.name === 'latitude' || field.name === 'longitude') {
+              rules.push(
+                { 
+                    validator: (value) => {
+                        const num = parseFloat(value);
+                        
+                        if (field.name === 'latitude') {
+                            return num >= -90 && num <= 90;
+                        }
 
+                        if (field.name === 'longitude') {
+                            return num >= -180 && num <= 180;
+                        }
+
+                        return false;
+                    },
+                    errorMessage: field.name === 'latitude'
+                        ? 'A latitude deve estar entre -90 e 90.'
+                        : 'A longitude deve estar entre -180 e 180.'
+                }
+              );
+            }
             validator.addField(`#${field.id}`, rules);
         });
 
@@ -201,7 +219,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ]);
         }
 
-
         // Callback final de submit
         validator.onSuccess((event) => {
           const form = event.target;
@@ -233,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Captura os campos que estão falhando
         validator.onFail((fields) => {
-            console.warn('Campos inválidos:', fields);
+          validateFormPropriedade();
         });
 
          // Garante que Select2 revalide ao alterar
@@ -246,7 +263,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-function validateFormPropriedade(form) {
+function validateFormPropriedade() {
+  const form = $("#form-propriedade")[0];
+  if(!form) {
+    return;
+  }
   let isValid = true;
   const tipo = form.querySelector('input[name="tipo_funcionamento"]:checked')?.value || '';
 
@@ -257,6 +278,17 @@ function validateFormPropriedade(form) {
     $('#categorias-container').before(`
       <div id="erro-categorias" class="invalid-feedback d-block" style="margin-top: -25px;">
         Você deve adicionar pelo menos uma categoria antes de salvar.
+      </div>
+    `);
+    isValid = false;
+  }
+  // Validação: Pelo menos uma categoria adicionada
+  $('#erro-fotos').remove();
+  const temArquivos = $('#imageUploader', form)[0].files.length > 0;
+  if (!temArquivos) {
+    $('#uploadBox').after(`
+      <div id="erro-fotos" class="invalid-feedback d-block">
+        Você deve adicionar pelo menos uma foto antes de salvar.
       </div>
     `);
     isValid = false;
@@ -298,10 +330,7 @@ function validateFormPropriedade(form) {
         `);
         $('html, body').animate({ scrollTop: bloco.offset().top - 100 }, 300);
         isValid = false;
-        return false;
-      }
-
-      if (abertura >= fechamento) {
+      } else if (abertura >= fechamento) {
         bloco.append(`
           <div class="erro-horario invalid-feedback d-block mt-1">
             O horário de abertura deve ser anterior ao horário de fechamento.
@@ -309,7 +338,6 @@ function validateFormPropriedade(form) {
         `);
         $('html, body').animate({ scrollTop: bloco.offset().top - 100 }, 300);
         isValid = false;
-        return false;
       }
     }
   });
