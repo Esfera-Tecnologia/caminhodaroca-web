@@ -73,11 +73,8 @@ class PropertyController extends Controller
         if ($request->hasFile('logo')) {
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
-
-
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
-        $data['status'] = 'inativo';
         $property = Property::create($data);
 
         if ($request->hasFile('images')) {
