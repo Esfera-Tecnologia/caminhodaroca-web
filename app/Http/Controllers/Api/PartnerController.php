@@ -40,6 +40,7 @@ class PartnerController extends Controller
         $pendingData = $id->preapproved_partner()->first();
         $canEdit = in_array($id->id, $userPartners);
 
+        Log::info('Editando parceiro', compact('canEdit', 'pendingData'));
         if ($canEdit && $pendingData && $pendingData->status == PreapprovedPartnerStatus::PENDING) {
             $partner = PreapprovedPartnerResource::make($pendingData);
         } else {
