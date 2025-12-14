@@ -18,7 +18,7 @@ class PreapprovedEventResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'externalLink' => $this->url,
+            'externalLink' => $this->url ?: '',
             'images' => $this->resource->images()->get()->pluck('image_url')->toArray(),
         ];
     }
