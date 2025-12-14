@@ -61,7 +61,9 @@ class PartnerController extends Controller
                 $data['logo'] = $request->file('logo')->store('partners', 'public');
             }
             $preapproved_partner = $id->preapproved_partner()->first();
-            $preapproved_partner->update($data);
+            $preapproved_partner->update(array_merge($data, [
+                'status' => PreapprovedPartnerStatus::PENDING
+            ]));
             $preapproved_partner->cities()->sync($data['cities']);
             if (isset($data['events'])) {
                 foreach ($data['events'] as $eventData) {
