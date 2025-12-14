@@ -276,16 +276,17 @@ function validateFormPropriedade() {
   const temCategoria = $('#categorias-container .categoria-block').length > 0;
   if (!temCategoria) {
     $('#categorias-container').before(`
-      <div id="erro-categorias" class="invalid-feedback d-block" style="margin-top: -25px;">
+      <div id="erro-categorias" class="invalid-feedback d-block">
         Você deve adicionar pelo menos uma categoria antes de salvar.
       </div>
     `);
     isValid = false;
   }
-  // Validação: Pelo menos uma categoria adicionada
+  // Validação: Pelo menos uma foto adicionada
   $('#erro-fotos').remove();
   const temArquivos = $('#imageUploader', form)[0].files.length > 0;
-  if (!temArquivos) {
+  const temPreviews = $("#imagePreviewContainer .image-thumb").length > 0;
+  if (!temArquivos && !temPreviews) {
     $('#uploadBox').after(`
       <div id="erro-fotos" class="invalid-feedback d-block">
         Você deve adicionar pelo menos uma foto antes de salvar.

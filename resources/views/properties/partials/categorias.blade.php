@@ -9,16 +9,13 @@
                     <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
                 @endforeach
             </select>
-            <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Adicionar</button>
+            <button class="btn btn-outline-success" type="button" onclick="adicionarCategoria()">Selecionar</button>
+            @if(!isset($hide_add_button) || !$hide_add_button)
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNovaCategoria">
+                    Adicionar
+                </button>
+            @endif
         </div>
-        @if(!isset($hide_add_button) || !$hide_add_button)
-            <div class="d-flex justify-content-end mt-1 addcategoria">
-                <a href="#" class="d-block mt-2 text-secondary small" data-bs-toggle="modal"
-                   data-bs-target="#modalNovaCategoria">
-                    <i class="fas fa-plus me-1"></i> Adicionar Nova Categoria
-                </a>
-            </div>
-        @endif
     </div>
 
 
