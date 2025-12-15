@@ -139,6 +139,11 @@ class RegisterPartnerRequest extends FormRequest
                 'file',
                 'max:2048',
             ],
+            'events.*.url' => [
+                'nullable',
+                'string',
+                'url'
+            ],
             'events.*.externalLink' => [
                 'nullable',
                 'string',
