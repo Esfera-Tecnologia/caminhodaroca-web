@@ -55,9 +55,6 @@ class PartnerController extends Controller
         try {
             $data = $request->validated();
             if (isset($data['logo'])) {
-                if (Storage::disk('public')->exists($id->logo)) {
-                    Storage::disk('public')->delete($id->logo);
-                }
                 $data['logo'] = $request->file('logo')->store('partners', 'public');
             }
             $preapproved_partner = $id->preapproved_partner()->first();
@@ -65,21 +62,16 @@ class PartnerController extends Controller
                 'status' => PreapprovedPartnerStatus::PENDING
             ]));
             $preapproved_partner->cities()->sync($data['cities']);
+            $preapproved_partner->events()->delete();
             if (isset($data['events'])) {
                 foreach ($data['events'] as $eventData) {
-                    if (isset($eventData['id'])) {
-                        $event = PartnerEvent::find($eventData['id']);
-                        $event->preapproved_event()->first()->update($eventData);
-                    } else {
-                        $preapproved_partner->events()->create($eventData);
-                    }
+                    $preapproved_partner->events()->create($eventData);
                 }
             }
             DB::commit();
             return response()->json(['message' => "O parceiro foi atualizado com sucesso!"]);
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e);
             Log::error($e->getMessage(), $e->getTrace());
             return response()->json(['message' => "Não foi possível atualizar o parceiro!"], 500);
         }
