@@ -33,6 +33,7 @@ class PartnerResource extends JsonResource
                 'attractions' => $this->attractions,
                 'instagram' => $this->instagram,
                 'website' => $this->site,
+                'site' => $this->site,
                 'events' => EventResource::collection($this->resource->events),
             ];
         }

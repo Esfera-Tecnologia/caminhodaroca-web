@@ -27,6 +27,7 @@ class PreapprovedPartnerResource extends JsonResource
             'attractions' => $this->attractions,
             'instagram' => $this->instagram,
             'website' => $this->site,
+            'site' => $this->site,
             'events' => PreapprovedEventResource::collection($this->resource->events),
         ];
     }

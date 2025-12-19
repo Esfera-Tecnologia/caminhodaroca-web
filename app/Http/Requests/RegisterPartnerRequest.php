@@ -22,12 +22,9 @@ class RegisterPartnerRequest extends FormRequest
         if (empty($value)) {
             return $value;
         }
-
-        // Se já começa com http:// ou https://, retorna como está
         if (preg_match('/^https?:\/\//i', $value)) {
             return $value;
         }
-
         return 'https://' . $value;
     }
 
@@ -36,19 +33,13 @@ class RegisterPartnerRequest extends FormRequest
         if (empty($events)) {
             return $events;
         }
-
         foreach ($events as $i => $event) {
-            // Normalize the field that the UI uses: externalLink
             $normalized = $this->prefixUrl($event['externalLink'] ?? null);
 
-            // Ensure validation uses externalLink (user-visible field)
             $events[$i]['externalLink'] = $normalized;
 
-            // Keep 'url' for backward compatibility if other code expects it.
-            // Remove this line if you don't need the 'url' key anywhere else.
             $events[$i]['url'] = $normalized;
         }
-
         return $events;
     }
 
