@@ -40,7 +40,6 @@ class PartnerController extends Controller
         $pendingData = $id->preapproved_partner()->first();
         $canEdit = in_array($id->id, $userPartners);
 
-        Log::info('Editando parceiro', compact('canEdit', 'pendingData'));
         if ($canEdit && $pendingData && $pendingData->status == PreapprovedPartnerStatus::PENDING) {
             $partner = PreapprovedPartnerResource::make($pendingData);
         } else {
@@ -62,10 +61,40 @@ class PartnerController extends Controller
                 'status' => PreapprovedPartnerStatus::PENDING
             ]));
             $preapproved_partner->cities()->sync($data['cities']);
-            $preapproved_partner->events()->delete();
             if (isset($data['events'])) {
+                $eventsIds = collect($data['events'])->pluck('eventId');
+                $preapproved_partner->events()
+                    ->whereNull('event_id')
+                    ->delete();
+                $id->events()
+                   ->whereNotIn('id', $eventsIds)
+                   ->delete();
                 foreach ($data['events'] as $eventData) {
-                    $preapproved_partner->events()->create($eventData);
+                    $imageData = [];
+                    if(isset($eventData['images'])) {
+                        $imageData['image'] = $eventData['images'][0]->store('partners/events', 'public');
+                    }
+                    if (isset($eventData['eventId'])) {
+                        $event = PartnerEvent::find($eventData['eventId']);
+                        $preapproved = $event->preapproved_event()->first();
+                        $preapproved->update($eventData);
+                        if ($imageData) {
+                            $eventImage = $preapproved->images()->firstOrNew();
+                            $eventImage->image = $imageData['image'];
+                            $eventImage->save();
+                        }
+                    } else {
+                        $event = $id->events()->create(array_merge($eventData, [
+                            'status' => 'pending'
+                        ]));
+                        $preapproved = $preapproved_partner->events()->create(array_merge($eventData, [
+                            'event_id' => $event->id,
+                        ]));
+                        if ($imageData) {
+                            $event->images()->create($imageData);
+                            $preapproved->images()->create($imageData);
+                        }
+                    }
                 }
             }
             DB::commit();

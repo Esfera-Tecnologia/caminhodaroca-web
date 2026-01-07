@@ -17,6 +17,7 @@ class PartnerEvent extends Model
         'name',
         'description',
         'url',
+        'status'
     ];
 
     public function partner(): BelongsTo
@@ -34,4 +35,8 @@ class PartnerEvent extends Model
         return $this->hasMany(PreapprovedPartnerEvent::class, 'event_id');
     }
 
+    public function scopeApproved($query)
+    {
+        return $query->where('status', '!=', 'pending');
+    }
 }

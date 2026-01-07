@@ -34,7 +34,7 @@ class PartnerResource extends JsonResource
                 'instagram' => $this->instagram,
                 'website' => $this->site,
                 'site' => $this->site,
-                'events' => EventResource::collection($this->resource->events),
+                'events' => EventResource::collection($this->resource->events()->approved()->get()),
             ];
         }
         return [
