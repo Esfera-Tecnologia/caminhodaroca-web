@@ -27,10 +27,12 @@ class Partner extends Model
         'circuits',
         'attractions',
         'status',
+        'approved',
     ];
 
     protected $casts = [
         'status' => PartnerStatus::class,
+        'approved' => 'boolean'
     ];
 
     public function events(): HasMany
