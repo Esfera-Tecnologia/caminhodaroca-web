@@ -22,6 +22,7 @@ class PartnerController extends Controller
 
         try {
             $partners = PartnerResource::collection(Partner::query()
+                ->active()
                 ->cities($request->cities ?? [])
                 ->keyword($request->keyword ?? null)
                 ->get());

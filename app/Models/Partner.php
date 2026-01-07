@@ -67,6 +67,11 @@ class Partner extends Model
         });
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', PartnerStatus::ATIVO);
+    }
+
     public function scopeKeyword($query, $keyword)
     {
         if ($keyword) {
