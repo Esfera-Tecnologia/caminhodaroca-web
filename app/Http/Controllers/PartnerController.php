@@ -163,7 +163,7 @@ class PartnerController extends Controller
                     $partner->events()->create($eventData);
                 }
             }
-            if ($request->has('approve_updates') && $request->input('approve_updates')) {
+            if (($request->has('approve_updates') && $request->input('approve_updates')) || ($partner->status != $request->input('status'))) {
                 $data['status'] = PreapprovedPartnerStatus::APPROVED;
                 $dataPartner = $data;
                 $dataPartner['status'] = PartnerStatus::ATIVO;
