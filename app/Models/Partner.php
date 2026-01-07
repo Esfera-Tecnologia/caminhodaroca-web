@@ -74,6 +74,11 @@ class Partner extends Model
         return $query->where('status', PartnerStatus::ATIVO);
     }
 
+    public function scopeApproved($query)
+    {
+        return $query->where('approved', true);
+    }
+
     public function scopeKeyword($query, $keyword)
     {
         if ($keyword) {

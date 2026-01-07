@@ -167,6 +167,7 @@ class PartnerController extends Controller
                 $data['status'] = PreapprovedPartnerStatus::APPROVED;
                 $dataPartner = $data;
                 $dataPartner['status'] = PartnerStatus::ATIVO;
+                $dataPartner['approved'] = 1;
                 unset($dataPartner['_token']);
                 unset($dataPartner['_method']);
                 $this->syncPartnerEventsFromPreapproved($partner);
