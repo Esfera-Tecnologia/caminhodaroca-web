@@ -181,7 +181,6 @@ class PartnerController extends Controller
             return redirect()->route('partners.index')->with('success', 'Parceiro atualizado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e);
             Log::error($e->getMessage(), $e->getTrace());
             return redirect()->route('partners.index')->with('error', 'Falha ao atualizar o parceiro!');
         }
