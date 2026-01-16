@@ -39,9 +39,11 @@ class SenhaController extends Controller
       $user->password = Hash::make($request->password);
       $user->save();
 
-      auth()->login($user);
-
-      return redirect()->route('dashboard')->with('success', 'Senha definida com sucesso!');
+      if(! $user->isPartner()) {
+        auth()->login($user);
+        return redirect()->route('dashboard')->with('success', 'Senha definida com sucesso!');
+      }
+    return redirect()->route('login')->with('success', 'Senha definida com sucesso! Utilize o aplicativo móvel para ter acesso ao seu cadastro');
   }
 
      public function formNovaSenha(Request $request, $token)

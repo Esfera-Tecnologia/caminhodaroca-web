@@ -38,7 +38,7 @@ class LoginRequest extends FormRequest
         $user = Auth::user();
 
         // Verifica se usuário criado via API está tentando fazer login via web
-        if ($user->registration_source !== 'web') {
+        if ($user->registration_source !== 'web' || $user->isPartner()) {
             Auth::logout();
 
             throw ValidationException::withMessages([
