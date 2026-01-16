@@ -34,7 +34,7 @@ class PreapprovedPartner extends Model
 
     public function events(): HasMany
     {
-        return $this->hasMany(PreapprovedPartnerEvent::class);
+        return $this->hasMany(PreapprovedPartnerEvent::class, 'preapproved_partner_id');
     }
 
     public function cities(): BelongsToMany

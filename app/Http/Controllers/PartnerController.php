@@ -192,30 +192,43 @@ class PartnerController extends Controller
         // obtém o parceiro definitivo vinculado
         /** @var Partner $partner */
         $partner = $preapprovedPartner->partner()->first();
-
         if (!$partner) {
             return;
         }
 
         // 1) Excluir todos os eventos atuais do parceiro
-        $partner->events()->delete();
+        $partner->events()->whereNotIn('id', $preapprovedPartner->events->pluck('event_id'))->delete();
 
         // 2) Buscar os eventos do parceiro pré-aprovado
-        $preapprovedEvents = $preapprovedPartner->events()->get();
+        $preapprovedEvents = $preapprovedPartner->events;
 
         // 3) Criar novos eventos para o parceiro definitivo
         foreach ($preapprovedEvents as $preEvent) {
-            // ajuste os campos conforme os atributos existentes em PartnerEvent
-            $event = $partner->events()->create([
-                'name' => $preEvent->name,
-                'description' => $preEvent->description,
-                'url' => $preEvent->url,
-            ]);
-            if(isset($preEvent->images()->first()?->image))
-                $event->images()->create(['image' => $preEvent->images()->first()?->image??null]);
-
+            if($preEvent->event_id) {
+                $event = $partner->events()->find($preEvent->event_id);
+                $event->update([
+                    'name' => $preEvent->name,
+                    'description' => $preEvent->description,
+                    'url' => $preEvent->url,
+                    'status' => 'approved'
+                ]);
+                if(isset($preEvent->images()->first()?->image)) {
+                    $image = $event->images()->firstOrNew();
+                    $image->image = $preEvent->images()->first()->image;
+                    $image->save();
+                }
+            } else {
+                // ajuste os campos conforme os atributos existentes em PartnerEvent
+                $event = $partner->events()->updateOrCreate([
+                    'name' => $preEvent->name,
+                    'description' => $preEvent->description,
+                    'url' => $preEvent->url,
+                    'status' => 'approved'
+                ]);
+                if(isset($preEvent->images()->first()?->image)) {
+                    $event->images()->create(['image' => $preEvent->images()->first()?->image??null]);
+                }
+            }
         }
     }
-
-
 }

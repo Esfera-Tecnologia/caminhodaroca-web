@@ -36,7 +36,7 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
         $rule['events.*.eventId'] = [
             'nullable',
             'int',
-            'exists:events,eventId',
+            'exists:events,id',
         ];
         $rule['approve_updates'] = [
             'nullable',

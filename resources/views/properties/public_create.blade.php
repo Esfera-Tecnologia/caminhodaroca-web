@@ -94,7 +94,7 @@
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Link do Google Maps</label>
+                                    <label class="form-label">Link do Google Maps*</label>
                                     <input type="url" name="google_maps_url" id="google_maps_url" class="form-control"
                                            required
                                            value="{{ old('google_maps_url', '') }}"
@@ -102,13 +102,13 @@
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Latitude</label>
+                                    <label class="form-label">Latitude*</label>
                                     <input type="text" name="latitude" id="latitude" class="form-control"
                                            value="{{ old('latitude', '') }}" required placeholder="Latitude">
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Longitude</label>
+                                    <label class="form-label">Longitude*</label>
                                     <input type="text" name="longitude" id="longitude" class="form-control"
                                            value="{{ old('longitude', '') }}" required placeholder="Longitude">
                                 </div>
