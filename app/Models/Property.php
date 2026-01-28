@@ -50,6 +50,7 @@ class Property extends Model
         'products_description',
         'accessibility',
         'pet_policy',
+        'approved'
     ];
 
     protected $casts = [
@@ -62,7 +63,8 @@ class Property extends Model
         'possui_acessibilidade' => 'boolean',
         'rating' => 'decimal:1',
         'status' => StatusProperty::class,
-        'tipo_funcionamento' => WorkingTypeProperty::class
+        'tipo_funcionamento' => WorkingTypeProperty::class,
+        'approved' => 'boolean',
     ];
 
     // Accessors para compatibilidade
@@ -118,6 +120,16 @@ class Property extends Model
     public function getLogoAttribute()
     {
         return asset('/storage/' . $this->logo_path) ?: 'https://picsum.photos/200/300';
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', StatusProperty::ATIVO);
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('approved', 1);
     }
 
     // Relacionamentos
