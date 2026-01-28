@@ -447,7 +447,7 @@ class PropertyController extends Controller
         $this->syncPreapprovedCategoriasSubcategorias($property, $request);
         $property->products()->sync($request->input('product_ids', []));
 
-        if ($request->has('approve_updates') && $request->input('approve_updates')) {
+        if ($request->has('approve_updates') && $request->input('approve_updates')  || ($property->status != $request->input('status'))) {
             $data['status'] = StatusPreapprovedProperty::APPROVED;
             $dataProperty = $data;
             $dataProperty['status'] = StatusProperty::ATIVO;
