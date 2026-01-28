@@ -450,6 +450,7 @@ class PropertyController extends Controller
         if ($request->has('approve_updates') && $request->input('approve_updates')  || ($property->status != $request->input('status'))) {
             $data['status'] = StatusPreapprovedProperty::APPROVED;
             $dataProperty = $data;
+            $dataProperty['approved'] = 1;
             $dataProperty['status'] = StatusProperty::ATIVO;
             $property->property()->update($dataProperty);
             $property->property()->first()->images()->delete();

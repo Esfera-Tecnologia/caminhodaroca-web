@@ -40,8 +40,10 @@ class PropertyController extends Controller
 
     public function index(): JsonResponse
     {
-        $query = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
-                         ->where('status', 'ativo');
+        $query = Property::query()
+            ->with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
+            ->active()
+            ->approved();
 
         if ($keyword = request()->query('keyword')) {
             $query->where(function($q) use ($keyword) {
