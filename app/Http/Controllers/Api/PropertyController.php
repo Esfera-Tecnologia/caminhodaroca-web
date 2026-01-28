@@ -379,6 +379,8 @@ class PropertyController extends Controller
                 $q->where('name', 'like', "%{$keyword}%")
                 ->orWhere('descricao_servico', 'like', "%{$keyword}%");
             })
+            ->active()
+            ->approved()
             ->get(['id', 'name'])
             ->map(function ($item) {
                 return [
