@@ -75,6 +75,16 @@ class PropertyController extends Controller
         }
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
+
+        if (!User::query()->where('email', $request->input('email_responsavel'))->exists()) {
+            $user = User::query()->create([
+                'name' => $request->input('nome_responsavel'),
+                'email' => $request->input('email_responsavel'),
+                'password' => bcrypt(Str::random(12)),
+                'access_profile_id' => AccessProfile::where('nome', 'Responsável')->first()->id
+            ]);
+            $user->notify(new WelcomeNewUserNotification($user));
+        }
         $property = Property::create($data);
 
         if ($request->hasFile('images')) {
