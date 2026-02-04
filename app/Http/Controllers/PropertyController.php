@@ -37,7 +37,7 @@ class PropertyController extends Controller
     public function index()
     {
         $permissao = $this->getPermissao('properties');
-        abort_unless($permissao?->can_view, 403);
+        abort_unless($permissao?->can_view || auth()->user()->isResponsible(), 403);
 
         $properties = Property::query()->when(Auth::user()->isResponsible(), function ($q) {
             $q->where('email_responsavel', Auth::user()->email);
