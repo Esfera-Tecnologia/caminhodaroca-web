@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['access_profile_id']);
-            $table->dropColumn('access_profile_id');
+            $table->bigInteger('access_profile_id')->nullable()->change();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('access_profile_id')->constrained('access_profiles', 'id');
+            $table->bigInteger('access_profile_id')->nullable(false)->change();
         });
     }
 };

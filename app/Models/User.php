@@ -58,11 +58,6 @@ class User extends Authenticatable
         ];
     }
 
-    public function accessProfile()
-    {
-        return $this->belongsTo(AccessProfile::class);
-    }
-
     public function profiles()
     {
         return $this->BelongsToMany(AccessProfile::class, 

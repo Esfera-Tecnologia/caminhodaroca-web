@@ -23,6 +23,9 @@ return new class extends Migration
         User::all()->map(function($user){
             $user->profiles()->attach($user->access_profile_id);
         });
+        User::whereHas('profiles', function($query){
+            return $query->where('access_profiles.nome', 'Parceiro');
+        })->update(['registration_source' => 'api']);
     }
 
     /**
