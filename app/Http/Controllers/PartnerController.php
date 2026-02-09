@@ -4,10 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\PartnerStatus;
 use App\Enums\PreapprovedPartnerStatus;
-use App\Enums\StatusPreapprovedProperty;
-use App\Enums\StatusProperty;
-use App\Http\Requests\UpdatePartnerRequest;
-use App\Models\Menu;
 use App\Models\Partner;
 use App\Models\PartnerEvent;
 use App\Models\PreapprovedPartner;
@@ -20,19 +16,10 @@ use Illuminate\Support\Facades\Storage;
 
 class PartnerController extends Controller
 {
-    private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return Auth::user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
-    }
 
     public function index()
     {
-        $permissao = $this->getPermissao('partners');
+        $permissao = getPermissao('partners');
         abort_unless($permissao?->can_view, 403);
 
         $partners = Partner::query()->when(Auth::user()->isPartner(), function ($q) {
@@ -43,8 +30,7 @@ class PartnerController extends Controller
 
     public function edit(Partner $partner)
     {
-        $permissao = $this->getPermissao('partners');
-        abort_unless($permissao?->can_edit, 403);
+        $permissao = getPermissao('partners');
 
         return view('partners.edit', compact('partner'));
     }
@@ -117,7 +103,7 @@ class PartnerController extends Controller
 
     public function edit_public(PreapprovedPartner $partner)
     {
-        $permissao = $this->getPermissao('partners');
+        $permissao = getPermissao('partners');
         abort_unless($permissao?->can_edit, 403);
 
         return view('partners.edit', compact('partner'));

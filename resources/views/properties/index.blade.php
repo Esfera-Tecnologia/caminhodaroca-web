@@ -7,10 +7,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="fw-bold mb-0">Propriedades</h2>
             @php
-                $permissoes = auth()->user()
-                    ->accessProfile
-                    ->permissions
-                    ->firstWhere('menu_id', $menus->firstWhere('slug', 'properties')?->id);
+                $permissoes = getPermissao('properties');
             @endphp
             @if ($permissoes?->can_create && !auth()->user()->isResponsible())
                 <a href="{{ route('properties.create') }}" class="btn btn-menu">

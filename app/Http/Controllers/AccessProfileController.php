@@ -14,7 +14,7 @@ class AccessProfileController extends Controller
     public function index()
     {
        
-        $permissao = $this->getPermissao('access-profiles');
+        $permissao = getPermissao('access-profiles');
         abort_unless($permissao?->can_view, 403);
 
         $accessProfiles = AccessProfile::all();
@@ -23,7 +23,7 @@ class AccessProfileController extends Controller
 
     public function create()
     {
-        $permissao = $this->getPermissao('access-profiles');
+        $permissao = getPermissao('access-profiles');
         abort_unless($permissao?->can_create, 403);
 
         $menus = Menu::all();
@@ -61,7 +61,7 @@ class AccessProfileController extends Controller
     public function edit(AccessProfile $accessProfile)
     {
                
-        $permissao = $this->getPermissao('access-profiles');
+        $permissao = getPermissao('access-profiles');
          abort_unless($permissao?->can_edit, 403);
 
         $menus = Menu::all();
@@ -101,7 +101,7 @@ class AccessProfileController extends Controller
 
     public function destroy(AccessProfile $accessProfile)
     {
-        $permissao = $this->getPermissao('access-profiles');
+        $permissao = getPermissao('access-profiles');
         abort_unless($permissao?->can_delete, 403);
         
         // Verifica se existe algum usuário usando esse perfil
@@ -109,21 +109,9 @@ class AccessProfileController extends Controller
             return redirect()->route('access-profiles.index')
                 ->with('error', 'Este perfil está vinculado a um ou mais usuários e não pode ser excluído.');
         }
-
         $accessProfile->delete();
 
         return redirect()->route('access-profiles.index')
             ->with('success', 'Perfil excluído com sucesso.');
     }
-
-    private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return auth()->user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
-    }
-
 }

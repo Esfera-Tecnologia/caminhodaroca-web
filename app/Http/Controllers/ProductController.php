@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $permissao = $this->getPermissao('products');
+        $permissao = getPermissao('products');
         abort_unless($permissao?->can_view, 403);
 
         $products = Product::orderBy('nome')->get();
@@ -20,7 +20,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        $permissao = $this->getPermissao('products');
+        $permissao = getPermissao('products');
         abort_unless($permissao?->can_create, 403);
 
         $products = new Product();
@@ -29,7 +29,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $permissao = $this->getPermissao('products');
+        $permissao = getPermissao('products');
         abort_unless($permissao?->can_create, 403);
 
         $validated = $request->validate([
@@ -44,7 +44,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $permissao = $this->getPermissao('products');
+        $permissao = getPermissao('products');
         abort_unless($permissao?->can_edit, 403);
 
         return view('products.edit', compact('product'));
@@ -66,7 +66,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        $permissao = $this->getPermissao('products');
+        $permissao = getPermissao('products');
         abort_unless($permissao?->can_delete, 403);
 
         if ($product->properties()->exists()) {
@@ -77,15 +77,4 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Produto excluído com sucesso.');
     }
-
-    private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return auth()->user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
-    }
-
 }

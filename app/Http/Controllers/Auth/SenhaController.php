@@ -12,37 +12,37 @@ class SenhaController extends Controller
 {
   public function storeNovaSenha(Request $request)
   {
-      $request->validate([
-          'email' => 'required|email|exists:users,email',
-          'password' => [
-              'required',
-              'string',
-              'min:8',
-              'confirmed',
-              function ($attribute, $value, $fail) {
-                  $hasUpper = preg_match('/[A-Z]/', $value);
-                  $hasLower = preg_match('/[a-z]/', $value);
-                  $hasNumber = preg_match('/[0-9]/', $value);
-                  $hasSpecial = preg_match('/[!@#$%&*()_+\-=\[\]{};\':"\\|,.<>\/?]/', $value);
-                  
-                  $typesCount = $hasUpper + $hasLower + $hasNumber + $hasSpecial;
-                  
-                  if ($typesCount < 2) {
-                      $fail('A senha deve conter pelo menos 2 dos seguintes tipos de caracteres: letras maiúsculas (A-Z), letras minúsculas (a-z), números (0-9) ou caracteres especiais (!@#$%&*, etc.).');
-                  }
-              }
-          ],
-      ]);
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+        'password' => [
+            'required',
+            'string',
+            'min:8',
+            'confirmed',
+            function ($attribute, $value, $fail) {
+                $hasUpper = preg_match('/[A-Z]/', $value);
+                $hasLower = preg_match('/[a-z]/', $value);
+                $hasNumber = preg_match('/[0-9]/', $value);
+                $hasSpecial = preg_match('/[!@#$%&*()_+\-=\[\]{};\':"\\|,.<>\/?]/', $value);
+                
+                $typesCount = $hasUpper + $hasLower + $hasNumber + $hasSpecial;
+                
+                if ($typesCount < 2) {
+                    $fail('A senha deve conter pelo menos 2 dos seguintes tipos de caracteres: letras maiúsculas (A-Z), letras minúsculas (a-z), números (0-9) ou caracteres especiais (!@#$%&*, etc.).');
+                }
+            }
+        ],
+    ]);
 
-      $user = User::where('email', $request->email)->firstOrFail();
+    $user = User::where('email', $request->email)->firstOrFail();
 
-      $user->password = Hash::make($request->password);
-      $user->save();
+    $user->password = Hash::make($request->password);
+    $user->save();
 
-      if(! $user->isPartner()) {
+    if ($user->isResponsible()) {
         auth()->login($user);
         return redirect()->route('dashboard')->with('success', 'Senha definida com sucesso!');
-      }
+    }
     return redirect()->route('login')->with('success', 'Senha definida com sucesso! Utilize o aplicativo móvel para ter acesso ao seu cadastro');
   }
 

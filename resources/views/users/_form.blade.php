@@ -19,10 +19,10 @@
 <div class="row mb-4">
   <div class="col">
     <label for="access_profile_id" class="form-label">Perfil de Acesso *</label>
-    <select name="access_profile_id" id="access_profile_id" class="form-select" required>
+    <select name="access_profile_id[]" id="access_profile_id" class="form-select select2" required multiple>
       <option value="">Selecione...</option>
       @foreach ($accessProfiles as $profile)
-        <option value="{{ $profile->id }}" {{ old('access_profile_id', $user->access_profile_id ?? '') == $profile->id ? 'selected' : '' }}>
+        <option value="{{ $profile->id }}" {{ $user->profiles->pluck('id')->contains($profile->id) ? 'selected' : '' }}>
           {{ $profile->nome }}
         </option>
       @endforeach

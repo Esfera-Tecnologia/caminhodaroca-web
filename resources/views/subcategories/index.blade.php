@@ -7,10 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="fw-bold mb-0">Subcategorias</h2>
     @php
-      $permissoes = auth()->user()
-          ->accessProfile
-          ->permissions
-          ->firstWhere('menu_id', $menus->firstWhere('slug', 'subcategories')?->id);
+      $permissoes = getPermissao('subcategories');
     @endphp
     @if ($permissoes?->can_create)
       <a href="{{ route('subcategories.create') }}" class="btn btn-menu">

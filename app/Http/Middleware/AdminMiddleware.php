@@ -25,7 +25,7 @@ class AdminMiddleware
 
         // Verifica se o usuário tem perfil de administrador
         // Assumindo que existe um access_profile_id = 1 para administradores
-        if ($user->access_profile_id !== 1) {
+        if (! $user->profiles()->where('id', 1)->exists()) {
             return response()->json([
                 'message' => 'Acesso negado. Privilégios de administrador necessários.'
             ], 403);

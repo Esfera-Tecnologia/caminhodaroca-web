@@ -6,7 +6,6 @@ use App\Enums\StatusPreapprovedProperty;
 use App\Enums\StatusProperty;
 use App\Models\AccessProfile;
 use App\Models\Category;
-use App\Models\Menu;
 use App\Models\PreapprovedProperty;
 use App\Models\PreapprovedPropertyImage;
 use App\Models\Product;
@@ -24,19 +23,9 @@ use Illuminate\Validation\Rule;
 
 class PropertyController extends Controller
 {
-    private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return Auth::user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
-    }
-
     public function index()
     {
-        $permissao = $this->getPermissao('properties');
+        $permissao = getPermissao('properties');
         abort_unless($permissao?->can_view || auth()->user()->isResponsible(), 403);
 
         $properties = Property::query()->when(Auth::user()->isResponsible(), function ($q) {
@@ -47,7 +36,7 @@ class PropertyController extends Controller
 
     public function create()
     {
-        $permissao = $this->getPermissao('properties');
+        $permissao = getPermissao('properties');
         abort_unless($permissao?->can_create, 403);
 
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
@@ -57,7 +46,7 @@ class PropertyController extends Controller
 
     public function store(Request $request)
     {
-        $permissao = $this->getPermissao('properties');
+        $permissao = getPermissao('properties');
         abort_unless($permissao?->can_create, 403);
 
         $this->storeProperty($request);
@@ -76,15 +65,18 @@ class PropertyController extends Controller
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
 
-        if (!User::query()->where('email', $request->input('email_responsavel'))->exists()) {
+        $user = User::query()->where('email', $request->input('email_responsavel'))->first();
+        if (!$user) {
             $user = User::query()->create([
                 'name' => $request->input('nome_responsavel'),
                 'email' => $request->input('email_responsavel'),
                 'password' => bcrypt(Str::random(12)),
-                'access_profile_id' => AccessProfile::where('nome', 'Responsável')->first()->id
             ]);
             $user->notify(new WelcomeNewUserNotification($user));
         }
+        $user->profiles()->syncWithoutDetaching(
+            AccessProfile::where('nome', 'Responsável')->first()->id
+        );
         $property = Property::create($data);
 
         if ($request->hasFile('images')) {
@@ -109,7 +101,7 @@ class PropertyController extends Controller
 
     public function edit(Property $property)
     {
-        $permissao = $this->getPermissao('properties');
+        $permissao = getPermissao('properties');
         abort_unless($permissao?->can_edit, 403);
 
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();
@@ -205,7 +197,7 @@ class PropertyController extends Controller
 
     public function destroy(Property $property)
     {
-        $permissao = $this->getPermissao('properties');
+        $permissao = getPermissao('properties');
         abort_unless($permissao?->can_delete, 403);
         // Remover imagens
         if ($property->logo_path) {
@@ -380,16 +372,18 @@ class PropertyController extends Controller
         $data['property_id'] = $property->id;
         $preapproved_property = PreapprovedProperty::query()->create($data);
 
-        if (!User::query()->where('email', $request->input('email_responsavel'))->exists()) {
+        $user = User::query()->where('email', $request->input('email_responsavel'))->first();
+        if (!$user) {
             $user = User::query()->create([
                 'name' => $request->input('nome_responsavel'),
                 'email' => $request->input('email_responsavel'),
                 'password' => bcrypt(Str::random(12)),
-                'access_profile_id' => AccessProfile::where('nome', 'Responsável')->first()->id
             ]);
             $user->notify(new WelcomeNewUserNotification($user));
         }
-
+        $user->profiles()->syncWithoutDetaching(
+            AccessProfile::where('nome', 'Responsável')->first()->id
+        );
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('properties', 'public');
@@ -412,7 +406,7 @@ class PropertyController extends Controller
 
     public function edit_public(PreapprovedProperty $property)
     {
-        $permissao = $this->getPermissao('properties');
+        $permissao = getPermissao('properties');
         abort_unless($permissao?->can_edit, 403);
 
         $categories = Category::with('subcategories')->where('status', 'ativo')->get();

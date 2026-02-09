@@ -16,10 +16,7 @@
         @endif
 
         @php
-            $permissoes = auth()->user()
-                ->accessProfile
-                ->permissions
-                ->firstWhere('menu_id', $menus->firstWhere('slug', 'partners')?->id);
+            $permissoes = getPermissao('partners');
         @endphp
 
         <div class="table-responsive">

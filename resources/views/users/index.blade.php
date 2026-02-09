@@ -3,11 +3,7 @@
 @section('title', 'Usuários')
 
 @php
-  $permissoes = auth()->user()
-      ->accessProfile
-      ->permissions
-      ->firstWhere('menu_id', $menus->firstWhere('slug', 'users')?->id);
-
+  $permissoes = getPermissao('users');
   $canCreate = $permissoes?->can_create;
   $canEdit   = $permissoes?->can_edit;
   $canDelete = $permissoes?->can_delete;
@@ -45,7 +41,7 @@
         <tr>
           <td>{{ $user->name }}</td>
           <td>{{ $user->email }}</td>
-          <td>{{ $user->accessProfile->nome ?? '-' }}</td>
+          <td>{{ $user->profiles->pluck('nome')->join(', ')}}</td>
           <td>
             @if($user->status === 'ativo')
               <span class="badge bg-success">Ativo</span>

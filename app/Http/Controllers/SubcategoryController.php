@@ -11,7 +11,7 @@ class SubcategoryController extends Controller
 {
     public function index()
     {
-        $permissao = $this->getPermissao('subcategories');
+        $permissao = getPermissao('subcategories');
         abort_unless($permissao?->can_view, 403);
 
         $subcategories = Subcategory::with('category')->orderBy('nome')->get();
@@ -20,7 +20,7 @@ class SubcategoryController extends Controller
 
     public function create()
     {
-        $permissao = $this->getPermissao('subcategories');
+        $permissao = getPermissao('subcategories');
         abort_unless($permissao?->can_create, 403);
 
         $subcategory = new Subcategory();
@@ -31,7 +31,7 @@ class SubcategoryController extends Controller
 
     public function store(Request $request)
     {
-        $permissao = $this->getPermissao('subcategories');
+        $permissao = getPermissao('subcategories');
         abort_unless($permissao?->can_create, 403);
 
         $validated = $request->validate([
@@ -47,7 +47,7 @@ class SubcategoryController extends Controller
 
     public function edit(Subcategory $subcategory)
     {
-        $permissao = $this->getPermissao('subcategories');
+        $permissao = getPermissao('subcategories');
         abort_unless($permissao?->can_edit, 403);
 
         $categories = Category::where('status', 'ativo')->orderBy('nome')->get();
@@ -57,7 +57,7 @@ class SubcategoryController extends Controller
 
     public function update(Request $request, Subcategory $subcategory)
     {
-        $permissao = $this->getPermissao('subcategories');
+        $permissao = getPermissao('subcategories');
         abort_unless($permissao?->can_edit, 403);
 
         $validated = $request->validate([
@@ -73,7 +73,7 @@ class SubcategoryController extends Controller
 
     public function destroy(Subcategory $subcategory)
     {
-        $permissao = $this->getPermissao('subcategories');
+        $permissao = getPermissao('subcategories');
         abort_unless($permissao?->can_delete, 403);
 
 
@@ -84,16 +84,6 @@ class SubcategoryController extends Controller
         $subcategory->delete();
 
         return redirect()->route('subcategories.index')->with('success', 'Subcategoria excluída com sucesso.');
-    }
-
-    private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return auth()->user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
     }
 
     public function storeAjax(Request $request)

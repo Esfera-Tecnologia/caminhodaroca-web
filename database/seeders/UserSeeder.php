@@ -10,14 +10,14 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['email' => 'denys@esfera.com.br'],
             [
                 'name' => 'Denys Rodrigues',
                 'email' => 'denys@esfera.com.br',
                 'password' => Hash::make('123456'),
-                'access_profile_id' => 1,
             ]
         );
+        $user->profiles()->attach(1);
     }
 }

@@ -65,9 +65,10 @@ class RegisterController extends Controller
             'avatar' => 'https://picsum.photos/200/300',
             'registration_source' => 'api',
             'status' => 1,
-            'access_profile_id' => 8, // Perfil padrão de usuário
         ]);
-
+        $user->profiles()->attach(
+            AccessProfile::where('nome', 'Visitante')->first()->id
+        );
         // Associa as subcategorias se fornecidas
         if (!empty($data['subcategories'])) {
             $user->subcategories()->sync($data['subcategories']);
@@ -103,16 +104,18 @@ class RegisterController extends Controller
             $data = $request->validated();
             $data['logo'] = $request->file('logo')->store('partners', 'public');
             $profile = AccessProfile::query()->firstOrCreate(['nome' => 'Parceiro'], [
-                'descricao' => 'Responsável das propriedades'
+                'descricao' => 'Responsável dos parceiros'
             ])->id;
-            $user = User::query()->firstOrCreate([
-                'email' => $request->input('email'),
-            ], [
-                'name' => $request->input('name'),
-                'password' => bcrypt(Str::random(12)),
-                'access_profile_id' => $profile
-            ]);
-            $user->update(['access_profile_id' => $profile]);
+            $user = User::where('email', $request->input('email'))->first();
+            if (!$user) {
+                $user = User::create([
+                    'email' => $request->input('email'),
+                    'name' => $request->input('name'),
+                    'password' => bcrypt(Str::random(12)),
+                    'registration_source' => 'api',
+                ]);
+            }
+            $user->profiles()->syncWithoutDetaching($profile);
             if($user->wasRecentlyCreated){
                 $user->notify(new WelcomeNewUserNotification($user));
             }

@@ -36,16 +36,23 @@ class LoginRequest extends FormRequest
 
         // Recupera o usuário autenticado
         $user = Auth::user();
+        
+        // Verifica se o perfil de acesso está inativo
+        if (! $user->profiles()->where('status', 'ativo')->exists()) {
+            Auth::logout();
 
+            throw ValidationException::withMessages([
+                'email' => 'O usuário não tem nenhum perfil de acesso ativo na plataforma.',
+            ]);
+        }
         // Verifica se usuário criado via API está tentando fazer login via web
-        if ($user->registration_source !== 'web' || $user->isPartner()) {
+        if ($user->registration_source !== 'web' && ! $user->isResponsible()) {
             Auth::logout();
 
             throw ValidationException::withMessages([
                 'email' => 'Este usuário não tem permissão para acessar via web. Utilize o aplicativo móvel.',
             ]);
         }
-
         // Verifica se o usuário está inativo
         if ($user->status !== 'ativo') {
             Auth::logout();
@@ -54,16 +61,6 @@ class LoginRequest extends FormRequest
                 'email' => 'Usuário inativo. Entre em contato com o administrador.',
             ]);
         }
-
-        // Verifica se o perfil de acesso está inativo
-        if ($user->accessProfile && $user->accessProfile->status !== 'ativo') {
-            Auth::logout();
-
-            throw ValidationException::withMessages([
-                'email' => 'O perfil de acesso vinculado ao usuário está inativo. Contate o administrador.',
-            ]);
-        }
-
         RateLimiter::clear($this->throttleKey());
     }
 

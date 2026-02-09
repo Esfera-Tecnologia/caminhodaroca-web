@@ -7,10 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="fw-bold mb-0">Categorias</h2>
     @php
-      $permissoes = auth()->user()
-          ->accessProfile
-          ->permissions
-          ->firstWhere('menu_id', $menus->firstWhere('slug', 'categories')?->id);
+      $permissoes = getPermissao('categories');
     @endphp
     @if ($permissoes?->can_create)
       <a href="{{ route('categories.create') }}" class="btn btn-menu">

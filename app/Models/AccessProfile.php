@@ -25,6 +25,10 @@ class AccessProfile extends Model
     }
     public function users()
     {
-        return $this->hasMany(User::class, 'access_profile_id');
+        return $this->BelongsToMany(AccessProfile::class, 
+            'user_has_access_profile',
+            'user_id',
+            'access_profile_id',
+        );
     }
 }

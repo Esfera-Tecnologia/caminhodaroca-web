@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $permissao = $this->getPermissao('categories');
+        $permissao = getPermissao('categories');
         abort_unless($permissao?->can_view, 403);
 
         $categories = Category::orderBy('nome')->get();
@@ -20,7 +20,7 @@ class CategoryController extends Controller
 
     public function create()
     {
-        $permissao = $this->getPermissao('categories');
+        $permissao = getPermissao('categories');
         abort_unless($permissao?->can_create, 403);
 
         $category = new Category();
@@ -29,7 +29,7 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $permissao = $this->getPermissao('categories');
+        $permissao = getPermissao('categories');
         abort_unless($permissao?->can_create, 403);
 
         $validated = $request->validate([
@@ -45,7 +45,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        $permissao = $this->getPermissao('categories');
+        $permissao = getPermissao('categories');
         abort_unless($permissao?->can_edit, 403);
 
         return view('categories.edit', compact('category'));
@@ -68,7 +68,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $permissao = $this->getPermissao('categories');
+        $permissao = getPermissao('categories');
         abort_unless($permissao?->can_delete, 403);
 
         if ($category->subcategories()->exists()) {
@@ -81,16 +81,6 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()->route('categories.index')->with('success', 'Categoria excluída com sucesso.');
-    }
-
-    private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return auth()->user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
     }
 
     public function storeAjax(Request $request)

@@ -22,7 +22,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'access_profile_id',
         'can_approve_property',
         'status',
         'state',
@@ -64,6 +63,15 @@ class User extends Authenticatable
         return $this->belongsTo(AccessProfile::class);
     }
 
+    public function profiles()
+    {
+        return $this->BelongsToMany(AccessProfile::class, 
+            'user_has_access_profile',
+            'user_id',
+            'access_profile_id',
+        );
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -86,11 +94,11 @@ class User extends Authenticatable
 
     public function isResponsible(): bool
     {
-        return $this->accessProfile && $this->accessProfile->nome === 'Responsável';
+        return $this->profiles()->where('access_profiles.nome', 'Responsável')->exists();
     }
 
     public function isPartner(): bool
     {
-        return $this->accessProfile && $this->accessProfile->nome === 'Parceiro';
+        return $this->profiles()->where('access_profiles.nome', 'Parceiro')->exists();
     }
 }

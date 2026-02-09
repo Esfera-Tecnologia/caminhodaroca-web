@@ -13,25 +13,15 @@ use App\Notifications\WelcomeNewUserNotification;
 class UserController extends Controller
 {
 
-   private function getPermissao(string $slug)
-    {
-        $menuId = Menu::where('slug', $slug)->value('id');
-
-        return auth()->user()
-            ->accessProfile
-            ->permissions
-            ->firstWhere('menu_id', $menuId);
-    }
-
     public function index()
     {
-        $permissao = $this->getPermissao('users');
+        $permissao = getPermissao('users');
 
         abort_unless($permissao?->can_view, 403);
 
         $users = User::query()
             ->where('registration_source', 'web')
-            ->with('accessProfile')
+            ->with('profiles')
             ->get();
 
         return view('users.index', compact('users'));
@@ -39,7 +29,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $permissao = $this->getPermissao('users');
+        $permissao = getPermissao('users');
 
         abort_unless($permissao?->can_create, 403);
 
@@ -55,16 +45,17 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:191',
             'email' => 'required|email|unique:users,email',
-            'access_profile_id' => 'required|exists:access_profiles,id',
+            'access_profile_id' => 'required|array|min:1',
+            'access_profile_id.*' => 'required|integer|exists:access_profiles,id',
             'status' => 'required|in:ativo,inativo',
             'can_approve_property' => 'required|in:1,0',
         ]);
 
-        $user = new User($request->except('password'));
+        $user = new User($request->except('password', 'access_profile_id'));
         $user->password = Hash::make($request->password);
         $user->registration_source = 'web';
         $user->save();
-
+        $user->profiles()->sync($request->access_profile_id);
         $user->notify(new WelcomeNewUserNotification($user));
 
         return redirect()->route('users.index')->with('success', 'Usuário cadastrado com sucesso.');
@@ -73,7 +64,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
 
-       $permissao = $this->getPermissao('users');
+       $permissao = getPermissao('users');
         abort_unless($permissao?->can_edit, 403);
 
         $accessProfiles = AccessProfile::where('status', 'ativo')->orderBy('nome')->get();
@@ -86,25 +77,24 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:191',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'access_profile_id' => 'required|exists:access_profiles,id',
+            'access_profile_id' => 'required|array|min:1',
+            'access_profile_id.*' => 'required|integer|exists:access_profiles,id',
             'status' => 'required|in:ativo,inativo',
             'can_approve_property' => 'required|in:1,0',
         ]);
-
-        $user->fill($request->except('password'));
-
+        $user->fill($request->except('password', 'access_profile_id'));
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-
         $user->save();
+        $user->profiles()->sync($request->access_profile_id);
 
         return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso.');
     }
 
     public function destroy(User $user)
     {
-        $permissao = $this->getPermissao('users');
+        $permissao = getPermissao('users');
         abort_unless($permissao?->can_delete, 403);
 
         $user->delete();

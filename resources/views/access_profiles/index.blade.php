@@ -3,11 +3,7 @@
 @section('title', 'Perfis de Acesso')
 
 @php
-  $permissoes = auth()->user()
-      ->accessProfile
-      ->permissions
-      ->firstWhere('menu_id', $menus->firstWhere('slug', 'access-profiles')?->id);
-
+  $permissoes = getPermissao('access-profiles');
   $canCreate = $permissoes?->can_create;
   $canEdit   = $permissoes?->can_edit;
   $canDelete = $permissoes?->can_delete;
