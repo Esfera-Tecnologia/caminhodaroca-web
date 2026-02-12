@@ -64,7 +64,8 @@ class PropertyController extends Controller
         }
         $data['instagram'] = '@' . ltrim($data['instagram'], '@');
         $data['agenda_personalizada'] = $request->agenda_personalizada ?? [];
-
+        $data['approved'] = 1;
+        
         $user = User::query()->where('email', $request->input('email_responsavel'))->first();
         if (!$user) {
             $user = User::query()->create([
