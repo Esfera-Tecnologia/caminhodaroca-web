@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PartnerStatus;
 use App\Enums\PreapprovedPartnerStatus;
+use App\Http\Requests\UpdatePartnerRequest;
 use App\Models\Partner;
 use App\Models\PartnerEvent;
 use App\Models\PreapprovedPartner;
@@ -35,11 +36,11 @@ class PartnerController extends Controller
         return view('partners.edit', compact('partner'));
     }
 
-    public function update(Request $request, Partner $partner)
+    public function update(UpdatePartnerRequest $request, Partner $partner)
     {
         DB::beginTransaction();
         try {
-            $data = $request->all();
+            $data = $request->validated();
             if (isset($data['logo'])) {
                 if (Storage::disk('public')->exists($partner->logo)) {
                     Storage::disk('public')->delete($partner->logo);
@@ -47,8 +48,10 @@ class PartnerController extends Controller
                 $data['logo'] = $request->file('logo')->store('partners', 'public');
             }
             $partner->cities()->sync($data['cities']);
+            $existingEventIds = [];
             if (isset($data['events'])) {
                 foreach ($data['events'] as $key => $eventData) {
+                    $existingEventIds[] = $eventData['id'];
                     $event = PartnerEvent::find($eventData['id']);
                     $event->update($eventData);
                     if (isset($eventData['images'])) {
@@ -59,9 +62,11 @@ class PartnerController extends Controller
                 }
             }
 
-            $partner->events()->whereNotIn('id', array_map(function ($row){
-                return $row['id'];
-            }, $data['events']))->delete();
+            if ($existingEventIds === []) {
+                $partner->events()->delete();
+            } else {
+                $partner->events()->whereNotIn('id', $existingEventIds)->delete();
+            }
 
             if (isset($data['new_event_name'])) {
                 foreach ($data['new_event_name'] as $key => $eventName) {
@@ -80,9 +85,12 @@ class PartnerController extends Controller
             $partner->update($data);
             DB::commit();
             return redirect()->route('partners.index')->with('success', 'Parceiro atualizado com sucesso!');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
-            Log::error($e->getMessage(), $e->getTrace());
+            Log::error('Falha ao atualizar parceiro', [
+                'partner_id' => $partner->id,
+                'exception' => $e,
+            ]);
             return redirect()->route('partners.index')->with('error', 'Falha ao atualizar o parceiro!');
         }
     }

@@ -22,18 +22,21 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
     public function rules(): array
     {
         $rule = parent::rules();
+        $partner = $this->route('partner');
+
         $rule['email'] = [
             'required',
             'string',
             'email',
-            Rule::unique('partners', 'email')->ignore($this->id),
+            'max:255',
+            Rule::unique('partners', 'email')->ignore($partner?->id),
         ];
         $rule['logo'] = [
             'nullable',
             'file',
             'max:2048',
         ];
-        $rule['events.*.eventId'] = [
+        $rule['events.*.id'] = [
             'nullable',
             'int',
             'exists:events,id',
@@ -41,7 +44,6 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
         $rule['approve_updates'] = [
             'nullable',
         ];
-        $rule[''] = [];
         return $rule;
     }
 }

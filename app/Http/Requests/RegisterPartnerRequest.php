@@ -62,16 +62,19 @@ class RegisterPartnerRequest extends FormRequest
             'name' => [
                 'required',
                 'string',
+                'max:255',
             ],
             'email' => [
                 'required',
                 'string',
                 'email',
+                'max:255',
                 'unique:partners,email',
             ],
             'description' => [
                 'required',
                 'string',
+                'max:255',
             ],
             'logo' => [
                 'required',
@@ -81,11 +84,13 @@ class RegisterPartnerRequest extends FormRequest
             'instagram' => [
                 'nullable',
                 'string',
+                'max:255',
                 new InstagramRule()
             ],
             'site' => [
                 'nullable',
                 'string',
+                'max:255',
                 'url'
             ],
             'cities' => [
@@ -100,14 +105,17 @@ class RegisterPartnerRequest extends FormRequest
             'routes' => [
                 'required',
                 'string',
+                'max:255',
             ],
             'circuits' => [
                 'required',
                 'string',
+                'max:255',
             ],
             'attractions' => [
                 'required',
                 'string',
+                'max:1000',
             ],
             'events' => [
                 'nullable',
@@ -116,6 +124,7 @@ class RegisterPartnerRequest extends FormRequest
             'events.*.name' => [
                 'required',
                 'string',
+                'max:255',
             ],
             'events.*.description' => [
                 'required',
@@ -133,11 +142,13 @@ class RegisterPartnerRequest extends FormRequest
             'events.*.url' => [
                 'nullable',
                 'string',
+                'max:255',
                 'url'
             ],
             'events.*.externalLink' => [
                 'nullable',
                 'string',
+                'max:255',
                 'url'
             ],
         ];
