@@ -152,7 +152,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Link do Evento</label>
-                            <input type="url" class="form-control" name="new_event_link[]" placeholder="https://" required>
+                            <input type="url" class="form-control" name="new_event_link[]" placeholder="https://">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Descrição do Evento</label>

@@ -40,7 +40,7 @@
                             <label class="form-label">Link do Evento</label>
                             <input type="url" class="form-control" name="events[{{ $event->id }}][url]" id="url_{{ $event->id }}"
                                 placeholder="https://"
-                                value="{{ old('url', $event?->url ?? '') }}" required>
+                                value="{{ old('url', $event?->url ?? '') }}">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Descrição do Evento</label>
