@@ -100,7 +100,7 @@
     </div>
     <div class="col-md-6">
         <label class="form-label">Atrativos</label>
-        <textarea class="form-control" name="attractions" rows="3">{!! old('attractions', $partner->attractions ?? '') !!}</textarea>
+        <textarea class="form-control" name="attractions" rows="3" maxlength="1000">{!! old('attractions', $partner->attractions ?? '') !!}</textarea>
     </div>
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
