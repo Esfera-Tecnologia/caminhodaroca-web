@@ -90,13 +90,13 @@
 <hr class="my-4">
 
 <div class="row g-4">
-    <div class="col-md-6">
+    <div class="col-md-6">  
         <label class="form-label">Rotas</label>
-        <textarea class="form-control" name="routes" rows="3">{!! old('routes', $partner->routes ?? '') !!}</textarea>
+        <textarea class="form-control" name="routes" rows="3" maxlength="1000">{!! old('routes', $partner->routes ?? '') !!}</textarea>
     </div>
     <div class="col-md-6">
         <label class="form-label">Circuitos</label>
-        <textarea class="form-control" name="circuits" rows="3">{!! old('circuits', $partner->circuits ?? '') !!}</textarea>
+        <textarea class="form-control" name="circuits" rows="3" maxlength="1000">{!! old('circuits', $partner->circuits ?? '') !!}</textarea>
     </div>
     <div class="col-md-6">
         <label class="form-label">Atrativos</label>

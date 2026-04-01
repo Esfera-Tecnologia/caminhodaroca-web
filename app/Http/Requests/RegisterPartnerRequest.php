@@ -105,12 +105,12 @@ class RegisterPartnerRequest extends FormRequest
             'routes' => [
                 'required',
                 'string',
-                'max:255',
+                'max:1000',
             ],
             'circuits' => [
                 'required',
                 'string',
-                'max:255',
+                'max:1000',
             ],
             'attractions' => [
                 'required',
