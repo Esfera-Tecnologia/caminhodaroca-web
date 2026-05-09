@@ -49,6 +49,58 @@ components:
           type: string
           description: "Horário de funcionamento com agendamento ou personalizado"
       description: Horários de funcionamento da propriedade para todos os dias da semana
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        full_description:
+          type: string
+        organization:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        image_url:
+          type: string
+          format: uri
+        url:
+          type: string
+          format: uri
+        location:
+          type: string
+          description: "Nome da Cidade - UF"
+        is_highlight:
+          type: boolean
+        expired:
+          type: boolean
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+    CalendarStat:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        count:
+          type: integer
+        single_event_id:
+          type: integer
+          nullable: true
 paths:
   /api/login:
     post:
@@ -1391,3 +1443,87 @@ paths:
                 message: "Os dados informados são inválidos"
                 errors:
                   photo: ["A foto deve ter no máximo 2 mb."]
+  /api/events:
+    get:
+      summary: Lista de eventos com filtros
+      tags:
+        - Eventos
+      parameters:
+        - in: query
+          name: is_highlight
+          schema:
+            type: boolean
+          description: Filtrar por eventos em destaque (Home)
+        - in: query
+          name: filter
+          schema:
+            type: string
+            enum: [upcoming, expired]
+          description: upcoming (próximos 7 dias) ou expired (já realizados)
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Busca por nome do evento, cidade ou estado
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          description: Filtrar eventos em uma data específica (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Lista de eventos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+  /api/events/calendar-stats:
+    get:
+      summary: Estatísticas de eventos para o calendário
+      tags:
+        - Eventos
+      parameters:
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Mês (1-12)
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Ano (Ex: 2024)
+      responses:
+        '200':
+          description: Dias com eventos e contadores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalendarStat'
+  /api/events/{id}:
+    get:
+      summary: Detalhes de um evento específico
+      tags:
+        - Eventos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do evento
+      responses:
+        '200':
+          description: Detalhes do evento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Evento não encontrado
+

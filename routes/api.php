@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\PartnerController;
+use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\PropertyRatingController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +51,11 @@ Route::get('/properties/{id}', [PropertyController::class, 'show']);
 // Rotas de parceiros (públicas)
 Route::get('/partners/{id}', [PartnerController::class, 'show'])->middleware('optional_sanctum');
 Route::get('/partners', [PartnerController::class, 'index'])->middleware('optional_sanctum');
+
+// Rotas de eventos (públicas)
+Route::get('/events', [EventController::class, 'index']);
+Route::get('/events/calendar-stats', [EventController::class, 'calendarStats']);
+Route::get('/events/{id}', [EventController::class, 'show']);
 
 // Rotas protegidas (requerem autenticação)
 Route::middleware('auth:sanctum')->group(function () {

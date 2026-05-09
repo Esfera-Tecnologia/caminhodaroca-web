@@ -9,6 +9,7 @@ use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\PropertyImageController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,12 @@ Route::post('/definir-senha/{token}', [SenhaController::class, 'storeNovaSenha']
 Route::resource('categories', CategoryController::class)->middleware('auth');
 
 
+// AJAX Cidades
+Route::get('/ajax/cities/{state_id}', function ($state_id) {
+    return \App\Models\City::where('state_id', $state_id)->orderBy('name')->get();
+})->name('ajax.cities');
+
+
 // Subcategorias
 Route::resource('subcategories', SubcategoryController::class)->middleware('auth');
 Route::post('/ajax/categories', [CategoryController::class, 'storeAjax'])->name('categories.ajax.store');
@@ -79,6 +86,9 @@ Route::put('properties/pre-aprovada/{property}/update', [PropertyController::cla
 Route::resource('partners', PartnerController::class)->middleware('auth');
 Route::get('partners/pre-aprovada/{partner}/edit', [PartnerController::class, 'edit_public'])->middleware('auth')->name('partners.preapproved.edit');
 Route::put('partners/pre-aprovada/{partner}/update', [PartnerController::class, 'update_public'])->middleware('auth')->name('partners.preapproved.update');
+
+// Eventos
+Route::resource('events', EventController::class)->middleware('auth');
 
 
 

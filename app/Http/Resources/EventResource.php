@@ -15,11 +15,24 @@ class EventResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'eventId' => $this->id,
+            'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'externalLink' => $this->url ?: '',
-            'images' => $this->resource->images()->get()->pluck('image_url')->toArray(),
+            'full_description' => $this->full_description,
+            'organization' => $this->organization,
+            'start_date' => $this->start_date?->toIso8601String(),
+            'end_date' => $this->end_date?->toIso8601String(),
+            'image_url' => $this->image_url,
+            'url' => $this->url ?: '',
+            'location' => ($this->city?->name ?? '') . ' - ' . ($this->state?->code ?? ''),
+            'is_highlight' => (bool) $this->is_highlight,
+            'expired' => $this->end_date ? $this->end_date->isPast() : false,
+            'properties' => $this->properties->map(function($prop) {
+                return [
+                    'id' => $prop->id,
+                    'name' => $prop->name
+                ];
+            }),
         ];
     }
 }
