@@ -168,6 +168,22 @@ class Property extends Model
     }
 
     /**
+     * Relacionamento com as listas de favoritos que contêm esta propriedade
+     */
+    public function favoriteLists()
+    {
+        return $this->belongsToMany(FavoriteList::class, 'favorite_list_properties');
+    }
+
+    /**
+     * Relacionamento com as visitas realizadas (Check-in)
+     */
+    public function visits()
+    {
+        return $this->hasMany(PropertyVisit::class);
+    }
+
+    /**
      * Get all ratings for this property
      */
     public function ratings()

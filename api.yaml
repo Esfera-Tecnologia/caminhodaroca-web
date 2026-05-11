@@ -10,6 +10,20 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    FavoriteList:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        is_default:
+          type: boolean
+        properties_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
   schemas:
     OpeningHoursDay:
       type: object
@@ -1023,6 +1037,14 @@ paths:
                             lng:
                               type: number
                               example: -50.8741
+                    isFavorited:
+                      type: boolean
+                    isVisited:
+                      type: boolean
+                    favorite_list_ids:
+                      type: array
+                      items:
+                        type: integer
               example:
                 - id: 1
                   name: "Cabana do Lago"
@@ -1132,6 +1154,16 @@ paths:
                           type: string
                         state:
                           type: string
+                    isFavorited:
+                      type: boolean
+                    isVisited:
+                      type: boolean
+                    favorite_list_ids:
+                      type: array
+                      items:
+                        type: integer
+                    favorite_count:
+                      type: integer
               examples:
                 example1:
                   value:
@@ -1190,7 +1222,7 @@ paths:
   /api/properties/{id}/favorite:
     post:
       summary: Alterna o favorito da propriedade
-      description: Se a propriedade não estiver favoritada, adiciona aos favoritos. Se já estiver, remove dos favoritos.
+      description: Sincroniza a propriedade com as listas de favoritos informadas.
       security:
         - bearerAuth: []
       parameters:
@@ -1200,9 +1232,23 @@ paths:
           schema:
             type: integer
           description: ID da propriedade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                list_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs das listas de favoritos onde a propriedade deve estar. Envie array vazio para remover de todas.
+            example:
+              list_ids: [1, 2]
       responses:
         '200':
-          description: Favorito alternado com sucesso
+          description: Favoritos atualizados com sucesso
           content:
             application/json:
               schema:
@@ -1210,9 +1256,64 @@ paths:
                 properties:
                   favorited:
                     type: boolean
-                    description: Indica se a propriedade agora está favoritada (true) ou removida (false)
+                    description: Indica se a propriedade está em alguma lista do usuário
                   message:
                     type: string
+                  favorite_list_ids:
+                    type: array
+                    items:
+                      type: integer
+                  favorite_count:
+                    type: integer
+  /api/properties/{id}/checkin:
+    post:
+      summary: Realiza o check-in na propriedade (Visita Realizada)
+      description: Registra que o usuário visitou a propriedade. Requer validação de geolocalização (raio de 1km).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID da propriedade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                longitude:
+                  type: number
+                  format: float
+              required:
+                - latitude
+                - longitude
+            example:
+              latitude: -23.033
+              longitude: -43.690
+      responses:
+        '200':
+          description: Check-in realizado com sucesso
+          content:
+            application/json:
+              example:
+                message: "Check-in realizado com sucesso! Visita registrada."
+                isVisited: true
+        '403':
+          description: Fora do raio permitido (mais de 1000m)
+          content:
+            application/json:
+              example:
+                message: "Você está muito longe da propriedade para realizar o check-in."
+                distance: 1250
+        '422':
+          description: Check-in duplicado ou erro de validação
               examples:
                 added:
                   value:
@@ -1443,6 +1544,69 @@ paths:
                 message: "Os dados informados são inválidos"
                 errors:
                   photo: ["A foto deve ter no máximo 2 mb."]
+  /api/favorite-lists:
+    get:
+      summary: Lista todas as listas de favoritos do usuário logado
+      security:
+        - bearerAuth: []
+      tags:
+        - Favoritos
+      responses:
+        '200':
+          description: Lista de favoritos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FavoriteList'
+    post:
+      summary: Cria uma nova lista de favoritos
+      security:
+        - bearerAuth: []
+      tags:
+        - Favoritos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: Lista criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FavoriteList'
+        '422':
+          description: Erro de validação ou nome duplicado
+  /api/favorite-lists/{id}:
+    delete:
+      summary: Exclui uma lista de favoritos personalizada
+      security:
+        - bearerAuth: []
+      tags:
+        - Favoritos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID da lista de favoritos
+      responses:
+        '200':
+          description: Lista excluída com sucesso
+        '403':
+          description: Tentativa de excluir a lista padrão
+        '404':
+          description: Lista não encontrada
   /api/events:
     get:
       summary: Lista de eventos com filtros
@@ -1526,4 +1690,3 @@ paths:
                 $ref: '#/components/schemas/Event'
         '404':
           description: Evento não encontrado
-

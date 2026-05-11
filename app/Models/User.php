@@ -8,10 +8,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\FavoriteList;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
+
+    /**
+     * Boot do modelo para automações
+     */
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $user->favoriteLists()->create([
+                'name' => 'Favoritos',
+                'is_default' => true,
+            ]);
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -85,6 +99,24 @@ class User extends Authenticatable
     public function favoriteProperties()
     {
         return $this->belongsToMany(Property::class, 'user_favorite_properties');
+    }
+
+    /**
+     * Relacionamento com as listas de favoritos do usuário
+     */
+    public function favoriteLists()
+    {
+        return $this->hasMany(FavoriteList::class);
+    }
+
+    /**
+     * Relacionamento com as propriedades visitadas (Check-in)
+     */
+    public function visitedProperties()
+    {
+        return $this->belongsToMany(Property::class, 'property_visits')
+                    ->withPivot('checkin_latitude', 'checkin_longitude')
+                    ->withTimestamps();
     }
 
     public function isResponsible(): bool
