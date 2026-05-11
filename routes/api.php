@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\PropertyRatingController;
+use App\Http\Controllers\Api\FavoriteListController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,7 +59,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Propriedades
     Route::post('/properties/{id}/favorite', [PropertyController::class, 'toggleFavorite']);
+    Route::post('/properties/{id}/checkin', [PropertyController::class, 'checkin']);
     Route::post('/properties/{id}/rating', [PropertyRatingController::class, 'rateProperty'])->name('api.properties.rating');
+
+    // Listas de Favoritos
+    Route::get('/favorite-lists', [FavoriteListController::class, 'index']);
+    Route::post('/favorite-lists', [FavoriteListController::class, 'store']);
+    Route::delete('/favorite-lists/{id}', [FavoriteListController::class, 'destroy']);
 
     // Perfil do usuário
     Route::prefix('profile')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RelatedPartnerResource;
 use App\Models\Property;
+use App\Models\PropertyVisit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,21 +39,21 @@ class PropertyController extends Controller
         'custom'    => ''
     ];
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $query = Property::query()
             ->with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
             ->active()
             ->approved();
 
-        if ($keyword = request()->query('keyword')) {
+        if ($keyword = $request->query('keyword')) {
             $query->where(function($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
                   ->orWhere('descricao_servico', 'like', "%{$keyword}%");
             });
         }
 
-        if ($categories = request()->query('categories')) {
+        if ($categories = $request->query('categories')) {
             // Garantir que é array
             if (!is_array($categories)) {
                 $categories = is_string($categories) ? explode(',', $categories) : [$categories];
@@ -67,7 +68,7 @@ class PropertyController extends Controller
             }
         }
 
-        if ($subcategories = request()->query('subcategories')) {
+        if ($subcategories = $request->query('subcategories')) {
             // Garantir que é array
             if (!is_array($subcategories)) {
                 $subcategories = is_string($subcategories) ? explode(',', $subcategories) : [$subcategories];
@@ -83,13 +84,13 @@ class PropertyController extends Controller
         }
 
         // Filtro por localização(sujeito a mudanças pois tem que enviar nome da cidade e nao o ID)
-        if ($propertyLocationId = request()->query('propertyLocationId')) {
+        if ($propertyLocationId = $request->query('propertyLocationId')) {
             $query->where('cidade', 'like', "%{$propertyLocationId}%");
         }
 
         // Filtro por favoritos (requer autenticação)
-        if (request()->query('isFavorite') === 'true' || request()->query('isFavorite') === true) {
-            $user = request()->user() ?? Auth::guard('sanctum')->user();
+        if ($request->query('isFavorite') === 'true' || $request->query('isFavorite') === true) {
+            $user = $request->user() ?? Auth::guard('sanctum')->user();
 
             if (!$user) {
                 return response()->json([
@@ -97,8 +98,10 @@ class PropertyController extends Controller
                 ], 401);
             }
 
-            $query->whereHas('favoritedByUsers', function($q) use ($user) {
-                $q->where('user_id', $user->id);
+            $query->whereHas('favoriteLists', function($q) use ($user) {
+                $q->whereHas('user', function($uq) use ($user) {
+                    $uq->where('id', $user->id);
+                });
             });
         }
 
@@ -108,13 +111,27 @@ class PropertyController extends Controller
         return response()->json([], 200);
     }
 
-        $properties = $properties->map(function($property) {
+        $properties = $properties->map(function($property) use ($user) {
+            $favoriteLists = [];
+            if ($user) {
+                $favoriteLists = $property->favoriteLists()
+                    ->where('user_id', $user->id)
+                    ->pluck('favorite_lists.id')
+                    ->toArray();
+            }
+
+            $isFavorited = !empty($favoriteLists);
+            $isVisited = $user ? $property->visits()->where('user_id', $user->id)->exists() : false;
+
             return [
                 'id' => $property->id,
                 'name' => $property->name,
                 'logo' => $property->logo,
                 'type' => $property->type ?? 'Propriedade Rural',
                 'rating' => round($property->average_rating, 1),
+                'isFavorited' => $isFavorited,
+                'isVisited' => $isVisited,
+                'favorite_list_ids' => $favoriteLists,
                 'location' => [
                     'city' => $property->city ?? 'Cidade não informada',
                     'coordinates' => [
@@ -128,7 +145,7 @@ class PropertyController extends Controller
         return response()->json($properties);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(int $id, Request $request): JsonResponse
     {
         $property = Property::with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
                            ->where('status', 'ativo')
@@ -141,8 +158,18 @@ class PropertyController extends Controller
         }
 
         // Verifica se o usuário está logado e se a propriedade está favoritada
-        $user = request()->user() ?? Auth::guard('sanctum')->user();
-        $isFavorited = $user?->favoriteProperties()->where('property_id', $id)->exists() ?? false;
+        $user = $request->user() ?? Auth::guard('sanctum')->user();
+        
+        $favoriteLists = [];
+        if ($user) {
+            $favoriteLists = $property->favoriteLists()
+                ->where('user_id', $user->id)
+                ->pluck('favorite_lists.id')
+                ->toArray();
+        }
+
+        $isFavorited = !empty($favoriteLists);
+        $isVisited = $user ? $property->visits()->where('user_id', $user->id)->exists() : false;
         $userRating = $user ? ($property->ratings()->where('user_id', $user->id)->first()?->rating ?: null) : null;
 
         return response()->json([
@@ -155,6 +182,9 @@ class PropertyController extends Controller
             'type' => $property->type ?? 'Propriedade Rural',
             'link_google_maps' => $property->google_maps_url ?? '',
             'isFavorited' => $isFavorited,
+            'isVisited' => $isVisited,
+            'favorite_list_ids' => $favoriteLists,
+            'favorite_count' => count($favoriteLists),
             'address' => $this->formatAddress($property),
             'instagram' => $property->instagram ?? '',
             'location' => [
@@ -177,9 +207,12 @@ class PropertyController extends Controller
         ]);
     }
 
-    public function toggleFavorite(int $id): JsonResponse
+    /**
+     * Sincroniza a propriedade com as listas de favoritos do usuário
+     */
+    public function toggleFavorite(int $id, Request $request): JsonResponse
     {
-        $user = request()->user();
+        $user = $request->user();
 
         if (!$user) {
             return response()->json([
@@ -195,22 +228,118 @@ class PropertyController extends Controller
             ], 404);
         }
 
-        // Verifica se já está favoritado
-        $isFavorited = $user->favoriteProperties()->where('property_id', $id)->exists();
+        $request->validate([
+            'list_ids' => 'present|array',
+            'list_ids.*' => 'integer|exists:favorite_lists,id'
+        ]);
 
-        if ($isFavorited) {
-            $user->favoriteProperties()->detach($id);
-            return response()->json([
-                'favorited' => false,
-                'message' => 'Propriedade removida dos favoritos'
-            ]);
-        } else {
-            $user->favoriteProperties()->attach($id);
-            return response()->json([
-                'favorited' => true,
-                'message' => 'Propriedade adicionada aos favoritos'
-            ]);
+        // Garantir que as listas pertencem ao usuário
+        $userListIds = $user->favoriteLists()->pluck('id')->toArray();
+        foreach ($request->list_ids as $listId) {
+            if (!in_array($listId, $userListIds)) {
+                return response()->json([
+                    'message' => 'Uma ou mais listas informadas são inválidas.'
+                ], 403);
+            }
         }
+
+        // Sincronizar
+        $property->favoriteLists()->wherePivotIn('favorite_list_id', $userListIds)->detach();
+        $property->favoriteLists()->attach($request->list_ids);
+
+        return response()->json([
+            'favorited' => !empty($request->list_ids),
+            'favorite_list_ids' => $request->list_ids,
+            'favorite_count' => count($request->list_ids),
+            'message' => 'Favoritos atualizados com sucesso.'
+        ]);
+    }
+
+    /**
+     * Realiza o check-in do usuário na propriedade via QRCode
+     */
+    public function checkin(int $id, Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuário não autenticado'
+            ], 401);
+        }
+
+        $property = Property::where('status', 'ativo')->find($id);
+
+        if (!$property) {
+            return response()->json([
+                'message' => 'Propriedade não encontrada'
+            ], 404);
+        }
+
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        // 1. Verificar se já realizou check-in
+        if ($property->visits()->where('user_id', $user->id)->exists()) {
+            return response()->json([
+                'message' => 'Check-in já realizado anteriormente nesta propriedade.'
+            ], 422);
+        }
+
+        // 2. Validar distância (1000 metros)
+        if (!$property->latitude || !$property->longitude) {
+            return response()->json([
+                'message' => 'Esta propriedade não possui coordenadas cadastradas para validar o check-in.'
+            ], 422);
+        }
+
+        $distance = $this->haversineDistance(
+            $request->latitude, 
+            $request->longitude, 
+            $property->latitude, 
+            $property->longitude
+        );
+
+        if ($distance > 1000) {
+            return response()->json([
+                'message' => 'Você está muito longe da propriedade para realizar o check-in. Distância atual: ' . round($distance) . 'm',
+                'distance' => round($distance)
+            ], 403);
+        }
+
+        // 3. Registrar visita
+        $property->visits()->create([
+            'user_id' => $user->id,
+            'checkin_latitude' => $request->latitude,
+            'checkin_longitude' => $request->longitude,
+        ]);
+
+        return response()->json([
+            'message' => 'Check-in realizado com sucesso! Visita registrada.',
+            'isVisited' => true
+        ]);
+    }
+
+    /**
+     * Cálculo de distância entre dois pontos (Haversine Formula)
+     * Retorna a distância em metros
+     */
+    private function haversineDistance($lat1, $lon1, $lat2, $lon2): float
+    {
+        $earthRadius = 6371000; // metros
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 
     /**
