@@ -24,7 +24,7 @@ class EventResource extends JsonResource
             'end_date' => $this->end_date?->toIso8601String(),
             'image_url' => $this->image_url,
             'url' => $this->url ?: '',
-            'location' => ($this->city?->name ?? '') . ' - ' . ($this->state?->code ?? ''),
+            'location' => ($this->city?->name ?? '') . ', ' . ($this->state?->code ?: $this->state?->name),
             'is_highlight' => (bool) $this->is_highlight,
             'expired' => $this->end_date ? $this->end_date->isPast() : false,
             'properties' => $this->properties->map(function($prop) {

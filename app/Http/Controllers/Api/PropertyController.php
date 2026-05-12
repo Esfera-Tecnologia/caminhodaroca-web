@@ -41,6 +41,8 @@ class PropertyController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user() ?? Auth::guard('sanctum')->user();
+
         $query = Property::query()
             ->with(['categorias', 'subcategories', 'images', 'products', 'ratings'])
             ->active()
@@ -90,7 +92,6 @@ class PropertyController extends Controller
 
         // Filtro por favoritos (requer autenticação)
         if ($request->query('isFavorite') === 'true' || $request->query('isFavorite') === true) {
-            $user = $request->user() ?? Auth::guard('sanctum')->user();
 
             if (!$user) {
                 return response()->json([
