@@ -90,8 +90,8 @@ class PropertyController extends Controller
             $query->where('cidade', 'like', "%{$propertyLocationId}%");
         }
 
-        // Filtro por favoritos (requer autenticação)
-        if ($request->query('isFavorite') === 'true' || $request->query('isFavorite') === true) {
+        // Filtro por lista de favoritos (requer autenticação)
+        if ($favoriteListId = $request->query('favorite_list_id')) {
 
             if (!$user) {
                 return response()->json([
@@ -99,10 +99,9 @@ class PropertyController extends Controller
                 ], 401);
             }
 
-            $query->whereHas('favoriteLists', function($q) use ($user) {
-                $q->whereHas('user', function($uq) use ($user) {
-                    $uq->where('id', $user->id);
-                });
+            $query->whereHas('favoriteLists', function($q) use ($user, $favoriteListId) {
+                $q->where('favorite_lists.id', $favoriteListId)
+                  ->where('favorite_lists.user_id', $user->id);
             });
         }
 
