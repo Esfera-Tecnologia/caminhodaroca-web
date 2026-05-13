@@ -46,12 +46,12 @@ class EventController extends Controller
         // Filtros de Categoria de Tempo (Próximos / Expirados)
         if ($request->filter === 'upcoming') {
             // Próximos 7 dias a partir de hoje
-            $query->where('start_date', '>=', now())
+            $query->where('start_date', '>=', now()->startOfDay())
                   ->where('start_date', '<=', now()->addDays(7));
             $query->orderBy('start_date', 'asc');
         } elseif ($request->filter === 'expired') {
             // Já aconteceram
-            $query->where('end_date', '<', now());
+            $query->where('end_date', '<', now()->endOfDay());
             $query->orderBy('start_date', 'desc');
         } else {
             // Ordenação padrão: mais próximos primeiro
