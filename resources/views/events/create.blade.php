@@ -9,7 +9,7 @@
   </div>
 
   @if ($errors->any())
-    <div class="alert alert-danger">
+    <div class="alert alert-danger not-fade">
       <strong>Erros encontrados:</strong>
       <ul class="mb-0 mt-2">
         @foreach ($errors->all() as $erro)

@@ -2,7 +2,10 @@
     <!-- Lado Esquerdo: Foto de Capa -->
     <div class="col-md-3">
         <label class="form-label">Foto de Capa *</label>
-        <input type="file" name="image" id="image" class="form-control" accept=".jpg,.jpeg,.png" onchange="previewImage(this)">
+        <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept=".jpg,.jpeg,.png" onchange="previewImage(this)">
+        @error('image')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
         <img id="preview-image" 
              src="{{ isset($event->image) ? asset('storage/' . $event->image) : asset('assets/teste3.png') }}" 
              class="preview-img mt-2" alt="Preview Capa">
@@ -19,19 +22,25 @@
             <!-- Título -->
             <div class="col-md-12">
                 <label class="form-label">Título do Evento *</label>
-                <input type="text" name="name" class="form-control" value="{{ old('name', $event->name ?? '') }}" required placeholder="Ex: Feira da Roça 2024">
+                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $event->name ?? '') }}" required placeholder="Ex: Feira da Roça 2024">
+                @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Descrição Breve -->
             <div class="col-md-12">
                 <label class="form-label">Descrição Breve *</label>
-                <input type="text" name="description" class="form-control" value="{{ old('description', $event->description ?? '') }}" required placeholder="Um resumo rápido do que é o evento">
+                <input type="text" name="description" class="form-control @error('description') is-invalid @enderror" value="{{ old('description', $event->description ?? '') }}" required placeholder="Um resumo rápido do que é o evento">
+                @error('description')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Parceiro -->
             <div class="col-md-6">
                 <label class="form-label">Organização (Parceiro Responsável) *</label>
-                <select name="partner_id" class="form-select select2" required>
+                <select name="partner_id" class="form-select select2 @error('partner_id') is-invalid @enderror" required>
                     <option value="">Selecione um Parceiro</option>
                     @foreach($partners as $partner)
                         <option value="{{ $partner->id }}" {{ old('partner_id', $event->partner_id ?? '') == $partner->id ? 'selected' : '' }}>
@@ -39,28 +48,40 @@
                         </option>
                     @endforeach
                 </select>
+                @error('partner_id')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Organização Texto -->
             <div class="col-md-6">
                 <label class="form-label">Nome da Organização (Exibição)</label>
-                <input type="text" name="organization" class="form-control" value="{{ old('organization', $event->organization ?? '') }}" placeholder="Ex: SENAR / Sindicato Rural">
+                <input type="text" name="organization" class="form-control @error('organization') is-invalid @enderror" value="{{ old('organization', $event->organization ?? '') }}" placeholder="Ex: SENAR / Sindicato Rural">
+                @error('organization')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Datas -->
             <div class="col-md-6">
                 <label class="form-label">Data Inicial *</label>
-                <input type="datetime-local" name="start_date" class="form-control" value="{{ old('start_date', isset($event->start_date) ? $event->start_date->format('Y-m-d\TH:i') : '') }}" required>
+                <input type="datetime-local" name="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', isset($event->start_date) ? $event->start_date->format('Y-m-d\TH:i') : '') }}" required>
+                @error('start_date')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="col-md-6">
                 <label class="form-label">Data Final *</label>
-                <input type="datetime-local" name="end_date" class="form-control" value="{{ old('end_date', isset($event->end_date) ? $event->end_date->format('Y-m-d\TH:i') : '') }}" required>
+                <input type="datetime-local" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', isset($event->end_date) ? $event->end_date->format('Y-m-d\TH:i') : '') }}" required>
+                @error('end_date')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Localização: Estado -->
             <div class="col-md-6">
                 <label class="form-label">Estado *</label>
-                <select name="state_id" id="state_id" class="form-select select2" required>
+                <select name="state_id" id="state_id" class="form-select select2 @error('state_id') is-invalid @enderror" required>
                     <option value="">Selecione o Estado</option>
                     @foreach($states as $state)
                         <option value="{{ $state->id }}" {{ old('state_id', $event->state_id ?? '') == $state->id ? 'selected' : '' }}>
@@ -68,12 +89,15 @@
                         </option>
                     @endforeach
                 </select>
+                @error('state_id')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Localização: Cidade -->
             <div class="col-md-6">
                 <label class="form-label">Cidade *</label>
-                <select name="city_id" id="city_id" class="form-select select2" required>
+                <select name="city_id" id="city_id" class="form-select select2 @error('city_id') is-invalid @enderror" required>
                     <option value="">Selecione primeiro o Estado</option>
                     @if(isset($cities))
                         @foreach($cities as $city)
@@ -83,32 +107,44 @@
                         @endforeach
                     @endif
                 </select>
+                @error('city_id')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Propriedades Vinculadas (Múltiplo) -->
             <hr class="my-4">
             <div class="col-md-12">
                 <label class="form-label">Propriedades Vinculadas</label>
-                <select name="property_ids[]" class="form-select select2" multiple data-placeholder="Selecione as propriedades que participarão do evento">
+                <select name="property_ids[]" class="form-select select2 @error('property_ids') is-invalid @enderror" multiple data-placeholder="Selecione as propriedades que participarão do evento">
                     @foreach($properties as $property)
                         <option value="{{ $property->id }}" {{ in_array($property->id, old('property_ids', $selectedProperties ?? [])) ? 'selected' : '' }}>
                             {{ $property->name }}
                         </option>
                     @endforeach
                 </select>
+                @error('property_ids')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Link -->
             <div class="col-md-12">
                 <label class="form-label">Link do Evento (Site/Inscrição)</label>
-                <input type="url" name="url" class="form-control" value="{{ old('url', $event->url ?? '') }}" placeholder="https://exemplo.com/evento">
+                <input type="url" name="url" class="form-control @error('url') is-invalid @enderror" value="{{ old('url', $event->url ?? '') }}" placeholder="https://exemplo.com/evento">
+                @error('url')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Sobre o Evento -->
             <hr class="my-4">
             <div class="col-md-12">
                 <label class="form-label">Sobre o Evento (Descrição Completa) *</label>
-                <textarea name="full_description" class="form-control" rows="5" required placeholder="Conte em detalhes o que terá no evento...">{{ old('full_description', $event->full_description ?? '') }}</textarea>
+                <textarea name="full_description" class="form-control @error('full_description') is-invalid @enderror" rows="5" required placeholder="Conte em detalhes o que terá no evento...">{{ old('full_description', $event->full_description ?? '') }}</textarea>
+                @error('full_description')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
     </div>
@@ -130,13 +166,6 @@
         padding: 2px 8px !important;
         margin: 2px !important;
         font-size: 0.9rem !important;
-    }
-    .select2-search.select2-search--inline {
-        flex-grow: 1 !important;
-    }
-    .select2-search__field {
-        width: 100% !important;
-        margin-top: 0 !important;
     }
 </style>
 @endpush

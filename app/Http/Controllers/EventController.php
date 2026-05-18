@@ -30,7 +30,10 @@ class EventController extends Controller
         $properties = Property::where('status', 'ativo')->orderBy('name')->get();
         $states = State::orderBy('name')->get();
         
-        return view('events.create', compact('partners', 'properties', 'states'));
+        $stateId = old('state_id');
+        $cities = $stateId ? City::where('state_id', $stateId)->orderBy('name')->get() : collect();
+        
+        return view('events.create', compact('partners', 'properties', 'states', 'cities'));
     }
 
     public function store(Request $request)
@@ -64,7 +67,9 @@ class EventController extends Controller
         $partners = Partner::where('status', 'ativo')->orderBy('name')->get();
         $properties = Property::where('status', 'ativo')->orderBy('name')->get();
         $states = State::orderBy('name')->get();
-        $cities = City::where('state_id', $event->state_id)->orderBy('name')->get();
+        
+        $stateId = old('state_id', $event->state_id);
+        $cities = $stateId ? City::where('state_id', $stateId)->orderBy('name')->get() : collect();
         
         $selectedProperties = $event->properties->pluck('id')->toArray();
 
@@ -115,6 +120,13 @@ class EventController extends Controller
 
     protected function validateEvent(Request $request, $id = null)
     {
+        if ($request->has('url') && !empty($request->input('url'))) {
+            $url = $request->input('url');
+            if (!preg_match('/^https?:\/\//i', $url)) {
+                $request->merge(['url' => 'https://' . $url]);
+            }
+        }
+
         return $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',

@@ -68,19 +68,34 @@ $(document).ready(function () {
    //inicia select2
   $('.select2').each(function () {
       const $this = $(this);
-      if ($this.hasClass('select2-hidden-accessible')) {
-        $this.select2('destroy');
-      }
 
       setTimeout(() => {
-        $this.select2({
-          theme: 'bootstrap-5',
-          width: '100%',
-          language: 'pt-BR'
-        });
+        // Se já foi inicializado localmente (ex: com configurações de placeholder, closeOnSelect, etc.),
+        // não sobrescrevemos a instância para não perder as configurações personalizadas.
+        if (!$this.hasClass('select2-hidden-accessible')) {
+          $this.select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            language: {
+              noResults: function () {
+                return "Nenhum resultado encontrado";
+              },
+              searching: function () {
+                return "Buscando...";
+              },
+              inputTooShort: function (args) {
+                return "Digite " + (args.minimum - args.input.length) + " ou mais caracteres";
+              }
+            }
+          });
+        }
 
-        // Aplica borda e altura padrão do Bootstrap
-        $this.next('.select2-container').find('.select2-selection').addClass('form-select');
+        // Aplica borda e altura padrão do Bootstrap (form-select para simples, form-control para múltiplos)
+        if ($this.attr('multiple')) {
+          $this.next('.select2-container').find('.select2-selection').addClass('form-control');
+        } else {
+          $this.next('.select2-container').find('.select2-selection').addClass('form-select');
+        }
       }, 10);
     });
 });

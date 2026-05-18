@@ -25,7 +25,8 @@ class EventController extends Controller
 
         // Filtro por Data Específica (Calendário)
         if ($request->has('date')) {
-            $query->whereDate('start_date', $request->date);
+            $query->whereDate('start_date', '<=', $request->date)
+                  ->whereDate('end_date', '>=', $request->date);
         }
 
         // Busca por Nome ou Local (Cidade/Estado)
@@ -78,23 +79,37 @@ class EventController extends Controller
         $month = $request->month ?? now()->month;
         $year = $request->year ?? now()->year;
 
-        $stats = Event::select(
-                DB::raw('DATE(start_date) as date'), 
-                DB::raw('count(*) as count'), 
-                DB::raw('MAX(id) as single_event_id')
-            )
-            ->whereYear('start_date', $year)
-            ->whereMonth('start_date', $month)
-            ->where('status', 'approved')
-            ->groupBy('date')
+        $startDate = \Carbon\Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = \Carbon\Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        $events = Event::where('status', 'approved')
+            ->where(function($q) use ($startDate, $endDate) {
+                $q->whereDate('start_date', '<=', $endDate->format('Y-m-d'))
+                  ->whereDate('end_date', '>=', $startDate->format('Y-m-d'));
+            })
             ->get();
 
-        return response()->json($stats->map(function($stat) {
-            return [
-                'date' => $stat->date,
-                'count' => (int) $stat->count,
-                'single_event_id' => $stat->count == 1 ? (int) $stat->single_event_id : null
-            ];
-        }));
+        $stats = [];
+
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dateStr = $date->format('Y-m-d');
+            
+            $activeEvents = $events->filter(function($event) use ($dateStr) {
+                $eventStart = \Carbon\Carbon::parse($event->start_date)->format('Y-m-d');
+                $eventEnd = \Carbon\Carbon::parse($event->end_date)->format('Y-m-d');
+                return $eventStart <= $dateStr && $eventEnd >= $dateStr;
+            });
+            
+            $count = $activeEvents->count();
+            if ($count > 0) {
+                $stats[] = [
+                    'date' => $dateStr,
+                    'count' => $count,
+                    'single_event_id' => $count === 1 ? (int) $activeEvents->first()->id : null
+                ];
+            }
+        }
+
+        return response()->json($stats);
     }
 }
