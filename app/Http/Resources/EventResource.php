@@ -19,7 +19,7 @@ class EventResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'full_description' => $this->full_description,
-            'organization' => $this->organization,
+            'organization' => !empty($this->organization) ? $this->organization : ($this->partner?->name ?? ''),
             'start_date' => $this->start_date?->toIso8601String(),
             'end_date' => $this->end_date?->toIso8601String(),
             'image_url' => $this->image_url,

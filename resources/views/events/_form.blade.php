@@ -3,11 +3,12 @@
     <div class="col-md-3">
         <label class="form-label">Foto de Capa *</label>
         <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept=".jpg,.jpeg,.png" onchange="previewImage(this)">
+        <input type="hidden" name="image_base64" id="image_base64" value="{{ old('image_base64') }}">
         @error('image')
             <div class="invalid-feedback d-block">{{ $message }}</div>
         @enderror
         <img id="preview-image" 
-             src="{{ isset($event->image) ? asset('storage/' . $event->image) : asset('assets/teste3.png') }}" 
+             src="{{ old('image_base64') ?: (isset($event->image) ? asset('storage/' . $event->image) : asset('assets/teste3.png')) }}" 
              class="preview-img mt-2" alt="Preview Capa">
         
         <div class="form-check form-switch mt-4">
@@ -229,6 +230,7 @@
             let reader = new FileReader();
             reader.onload = function(e) {
                 $('#preview-image').attr('src', e.target.result);
+                $('#image_base64').val(e.target.result);
             }
             reader.readAsDataURL(input.files[0]);
         }

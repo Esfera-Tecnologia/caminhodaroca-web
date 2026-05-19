@@ -45,6 +45,23 @@ class EventController extends Controller
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('events', 'public');
+        } elseif ($request->filled('image_base64') && strpos($request->input('image_base64'), 'data:image/') === 0) {
+            $base64String = $request->input('image_base64');
+            @list($type, $image_data) = explode(';', $base64String);
+            @list(, $image_data) = explode(',', $image_data);
+            
+            $decodedData = base64_decode($image_data);
+            
+            preg_match('/data:image\/(png|jpg|jpeg)/i', $type, $matches);
+            $extension = isset($matches[1]) ? strtolower($matches[1]) : 'png';
+            if ($extension === 'jpeg') {
+                $extension = 'jpg';
+            }
+            
+            $filename = 'events/' . uniqid() . '.' . $extension;
+            Storage::disk('public')->put($filename, $decodedData);
+            
+            $data['image'] = $filename;
         }
 
         $data['status'] = 'approved';
@@ -88,6 +105,27 @@ class EventController extends Controller
                 Storage::disk('public')->delete($event->image);
             }
             $data['image'] = $request->file('image')->store('events', 'public');
+        } elseif ($request->filled('image_base64') && strpos($request->input('image_base64'), 'data:image/') === 0) {
+            if ($event->image) {
+                Storage::disk('public')->delete($event->image);
+            }
+            
+            $base64String = $request->input('image_base64');
+            @list($type, $image_data) = explode(';', $base64String);
+            @list(, $image_data) = explode(',', $image_data);
+            
+            $decodedData = base64_decode($image_data);
+            
+            preg_match('/data:image\/(png|jpg|jpeg)/i', $type, $matches);
+            $extension = isset($matches[1]) ? strtolower($matches[1]) : 'png';
+            if ($extension === 'jpeg') {
+                $extension = 'jpg';
+            }
+            
+            $filename = 'events/' . uniqid() . '.' . $extension;
+            Storage::disk('public')->put($filename, $decodedData);
+            
+            $data['image'] = $filename;
         }
 
         $data['is_highlight'] = $request->has('is_highlight');
@@ -127,6 +165,14 @@ class EventController extends Controller
             }
         }
 
+        if ($request->filled('image_base64')) {
+            if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/i', $request->input('image_base64'))) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'image' => 'O formato da imagem temporária é inválido.'
+                ]);
+            }
+        }
+
         return $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
@@ -135,7 +181,7 @@ class EventController extends Controller
             'state_id' => 'required|exists:states,id',
             'city_id' => 'required|exists:cities,id',
             'full_description' => 'required|string',
-            'image' => ($id ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png|max:5120',
+            'image' => ($id || $request->filled('image_base64') ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png|max:5120',
             'partner_id' => 'required|exists:partners,id',
             'organization' => 'nullable|string|max:255',
             'url' => 'nullable|url|max:255',

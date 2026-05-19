@@ -15,12 +15,15 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::with(['city', 'state:id,code', 'properties'])
+        $query = Event::with(['city', 'state:id,code', 'properties', 'partner'])
             ->where('status', 'approved');
 
         // Filtro de Destaques (Home)
         if ($request->has('is_highlight')) {
             $query->where('is_highlight', $request->boolean('is_highlight'));
+            if ($request->boolean('is_highlight')) {
+                $query->where('end_date', '>=', now());
+            }
         }
 
         // Filtro por Data Específica (Calendário)
@@ -67,7 +70,7 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with(['city', 'state:id,name', 'properties'])->findOrFail($id);
+        $event = Event::with(['city', 'state:id,name', 'properties', 'partner'])->findOrFail($id);
         return new EventResource($event);
     }
 

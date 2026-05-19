@@ -135,9 +135,15 @@ class PropertyController extends Controller
 
 
         if (!Auth::user()->isResponsible()) {
+            $oldEmail = $property->email_responsavel;
+            $newEmail = $request->input('email_responsavel');
+            $newName = $request->input('nome_responsavel');
+
             $property->update($data);
             $this->syncCategoriasSubcategorias($property, $request);
             $property->products()->sync($request->input('product_ids', []));
+
+            $this->updateResponsibleUserEmail($oldEmail, $newEmail, $newName);
         }
 
         $preapproved = $property->preapproved_property()->first();
@@ -457,11 +463,22 @@ class PropertyController extends Controller
             $dataProperty = $data;
             $dataProperty['approved'] = 1;
             $dataProperty['status'] = StatusProperty::ATIVO;
-            $property->property()->update($dataProperty);
-            $property->property()->first()->images()->delete();
-            $property->property()->first()->images()->createMany($property->images->toArray());
-            $this->syncCategoriasSubcategorias($property->property, $request);
-            $property->property()->first()->products()->sync($request->input('product_ids', []));
+
+            $realProperty = $property->property()->first();
+            if ($realProperty) {
+                $oldEmail = $realProperty->email_responsavel;
+                $newEmail = $request->input('email_responsavel');
+                $newName = $request->input('nome_responsavel');
+
+                $realProperty->update($dataProperty);
+
+                $this->updateResponsibleUserEmail($oldEmail, $newEmail, $newName);
+
+                $realProperty->images()->delete();
+                $realProperty->images()->createMany($property->images->toArray());
+                $this->syncCategoriasSubcategorias($realProperty, $request);
+                $realProperty->products()->sync($request->input('product_ids', []));
+            }
         }
 
         $property->update($data);
@@ -469,4 +486,35 @@ class PropertyController extends Controller
         return redirect()->route('properties.index')->with('success', 'Atualização enviado para validação!');
     }
 
+    private function updateResponsibleUserEmail($oldEmail, $newEmail, $newName)
+    {
+        if ($oldEmail && $newEmail && $oldEmail !== $newEmail) {
+            $oldUser = User::where('email', $oldEmail)->first();
+            $newUser = User::where('email', $newEmail)->first();
+
+            if ($newUser) {
+                // Se o novo email já está cadastrado, apenas garante o perfil de Responsável
+                $newUser->profiles()->syncWithoutDetaching(
+                    AccessProfile::where('nome', 'Responsável')->first()->id
+                );
+            } elseif ($oldUser) {
+                // Se o usuário antigo existe e o novo email está livre, atualiza os dados
+                $oldUser->update([
+                    'email' => $newEmail,
+                    'name' => $newName,
+                ]);
+            } else {
+                // Se nenhum existe, cria o novo usuário
+                $user = User::create([
+                    'name' => $newName,
+                    'email' => $newEmail,
+                    'password' => bcrypt(Str::random(12)),
+                ]);
+                $user->notify(new WelcomeNewUserNotification($user));
+                $user->profiles()->syncWithoutDetaching(
+                    AccessProfile::where('nome', 'Responsável')->first()->id
+                );
+            }
+        }
+    }
 }

@@ -1,15 +1,16 @@
 @php
-  $status = old('status', $user->status ?? 'ativo');
+  $status = old('status', $user?->status ?? 'ativo');
+  $canApprove = old('can_approve_property', $user?->can_approve_property ?? 0);
 @endphp
 
 <div class="row mb-4">
   <div class="col-md-6">
     <label for="name" class="form-label">Nome *</label>
-    <input type="text" name="name" id="name" value="{{ old('name', $user->name ?? '') }}" class="form-control" required>
+    <input type="text" name="name" id="name" value="{{ old('name', $user?->name ?? '') }}" class="form-control" required>
   </div>
   <div class="col-md-6">
     <label for="email" class="form-label">E-mail *</label>
-    <input type="email" name="email" id="email" value="{{ old('email', $user->email ?? '') }}" class="form-control" required>
+    <input type="email" name="email" id="email" value="{{ old('email', $user?->email ?? '') }}" class="form-control" required>
     @error('email')
       <div class="text-danger mt-1">{{ $message }}</div>
     @enderror
@@ -22,12 +23,12 @@
     <select name="access_profile_id[]" id="access_profile_id" class="form-select select2" required multiple>
       <option value="">Selecione...</option>
       @foreach ($accessProfiles as $profile)
-        <option value="{{ $profile->id }}" {{ $user->profiles->pluck('id')->contains($profile->id) ? 'selected' : '' }}>
+        <option value="{{ $profile->id }}" {{ in_array($profile->id, old('access_profile_id', $user?->profiles?->pluck('id')?->toArray() ?? [])) ? 'selected' : '' }}>
           {{ $profile->nome }}
         </option>
       @endforeach
     </select>
-     @error('nome')
+     @error('access_profile_id')
       <div class="text-danger mt-1">{{ $message }}</div>
     @enderror
   </div>
@@ -41,8 +42,8 @@
   <div class="col">
     <label for="can_approve_property" class="form-label">Aprova cadastros? *</label>
     <select name="can_approve_property" id="can_approve_property" class="form-select" required>
-      <option value="1" {{ $user?->can_approve_property ? 'selected' : '' }}>Sim</option>
-      <option value="0" {{ !$user?->can_approve_property ? 'selected' : '' }}>Não</option>
+      <option value="1" {{ $canApprove == 1 ? 'selected' : '' }}>Sim</option>
+      <option value="0" {{ $canApprove == 0 ? 'selected' : '' }}>Não</option>
     </select>
   </div>
 </div>
