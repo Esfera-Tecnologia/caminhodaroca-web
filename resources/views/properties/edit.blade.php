@@ -6,9 +6,14 @@
     <div class="content-box mx-auto" style="max-width: 1400px;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="fw-bold mb-0">Editar Propriedade</h2>
-            <a class="btn text-danger btn-export fs-5" target="_blank"
-               href="{{ route('properties.pdf', $property instanceof \App\Models\PreapprovedProperty?$property->property:$property) }}"><i
-                        class="fas fa-file-pdf"></i></a>
+            <div class="d-flex align-items-center gap-2">
+                <a class="btn text-dark btn-export fs-5" target="_blank" title="Gerar QRCode"
+                   href="{{ route('properties.qrcode', $property instanceof \App\Models\PreapprovedProperty?$property->property:$property) }}"><i
+                            class="fas fa-qrcode"></i></a>
+                <a class="btn text-danger btn-export fs-5" target="_blank" title="Exportar PDF"
+                   href="{{ route('properties.pdf', $property instanceof \App\Models\PreapprovedProperty?$property->property:$property) }}"><i
+                            class="fas fa-file-pdf"></i></a>
+            </div>
         </div>
 
         @if ($errors->any())

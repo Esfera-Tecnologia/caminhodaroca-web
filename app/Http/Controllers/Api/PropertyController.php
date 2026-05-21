@@ -304,7 +304,7 @@ class PropertyController extends Controller
 
         if ($distance > 1000) {
             return response()->json([
-                'message' => 'Você está muito longe da propriedade para realizar o check-in. Distância atual: ' . round($distance) . 'm',
+                'message' => 'Você está muito longe da propriedade para realizar o check-in. Distância permitida: 1000m, sua distância ' . round($distance) . 'm.',
                 'distance' => round($distance)
             ], 403);
         }

@@ -80,6 +80,7 @@ Route::post('/imagens/remover', [PropertyImageController::class, 'remover'])->na
 
 Route::resource('properties', PropertyController::class)->middleware('auth');
 Route::get('properties/pdf/{property}', [PropertyController::class, 'generatePdf'])->middleware('auth')->name('properties.pdf');
+Route::get('properties/qrcode/{property}', [PropertyController::class, 'generateQrCode'])->middleware('auth')->name('properties.qrcode');
 Route::get('properties/pre-aprovada/{property}/edit', [PropertyController::class, 'edit_public'])->middleware('auth')->name('properties.preapproved.edit');
 Route::put('properties/pre-aprovada/{property}/update', [PropertyController::class, 'update_public'])->middleware('auth')->name('properties.preapproved.update');
 

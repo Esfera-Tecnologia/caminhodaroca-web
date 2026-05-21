@@ -342,6 +342,12 @@ class PropertyController extends Controller
         return $pdf->stream("property_{$property->id}.pdf");
     }
 
+    public function generateQrCode(Property $property)
+    {
+        $qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" . urlencode($property->id);
+        return redirect()->away($qrCodeUrl);
+    }
+
     public function testePdf(Property $property)
     {
         $categorias = $property->categorias()->where('status', 'ativo')->get();
