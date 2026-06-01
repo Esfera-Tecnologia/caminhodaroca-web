@@ -1,0 +1,50 @@
+name: Deploy Caminho da Roça (HMG/Dev - Self-Hosted)
+
+on:
+  push:
+    branches:
+      - dev   # dispara quando fizer push na branch dev
+
+jobs:
+  deploy:
+    name: Deploy para Servidor HMG/Dev
+    runs-on: self-hosted   # runner dentro da VPN
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run composer install if composer.json exists
+        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
+
+      - name: Atualizar diretório do projeto (preservando o .env do servidor)
+        run: |
+          DEPLOY_PATH="/var/www/caminhodaroca-hmg"
+
+          # Garante que o diretório existe
+          sudo mkdir -p $DEPLOY_PATH
+          sudo chown -R $USER:$USER $DEPLOY_PATH
+
+          # Copia os arquivos do repositório, mas EXCLUI o .env (assim mantemos o .env manual do servidor)
+          rsync -av --delete --exclude=".git" --exclude="node_modules" --exclude=".env" ./ $DEPLOY_PATH
+
+      - name: Rodar comandos pós-deploy
+        run: |
+          cd /var/www/caminhodaroca-hmg
+
+          mkdir -p storage bootstrap/cache
+          # Ajustar permissões
+          sudo chown -R www-data:www-data storage bootstrap/cache
+          sudo chmod -R 775 storage bootstrap/cache
+          sudo rm -rf storage/app/public
+          
+          # Aponte para o link de dados de homologação (storage-data-hmg)
+          sudo ln -s /var/www/storage-data-hmg storage/app/public
+
+          # Executar otimizações e migrations do Laravel usando o .env local do servidor de dev
+          php artisan migrate --force
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan storage:link
+
+      - name: Finalizar
+        run: echo "Deploy de Homologação (Dev) concluído com sucesso!"
