@@ -38,14 +38,15 @@ class WelcomeNewUserNotification extends Notification
         return (new MailMessage)
             ->subject('Bem-vindo(a) ao Caminho da Roça!')
             ->greeting("Olá {$this->user->name},")
-            ->line("É um prazer tê-lo(a) conosco! Seu cadastro no sistema de Caminho da Roça foi realizado com sucesso.")
-            ->line("Aqui estão os detalhes básicos do seu acesso:")
+            ->line("Seja muito bem-vindo(a) ao Caminho da Roça. Seu cadastro foi realizado com sucesso!")
+            ->line("Confira abaixo os dados básicos de acesso:")
             ->line("• Usuário: {$this->user->email}")
             ->line("• Data do Cadastro: " . now()->format('d/m/Y'))
-            ->line("📌 Próximos passos:")
             ->action('Clique aqui para cadastrar sua senha', $url)
-            ->line("Explore as funcionalidades que tornam sua jornada mais prática e eficiente.")
-            ->line("Estamos à disposição para ajudá-lo(a) em sua experiência.")
-            ->salutation("Atenciosamente,\nCaminho da Roça");
+            ->line("Após o cadastro da senha, você poderá acessar o sistema para visualizar e atualizar as informações da sua propriedade, como endereço, telefone, fotos e outros dados, além de explorar todas as funcionalidades disponíveis na plataforma. Em caso de dúvidas ou necessidade de suporte, nossa equipe estará à disposição pelos canais abaixo:")
+            ->line("• E-mail: contato@caminhodaroca.app.br")
+            ->line("• WhatsApp: (21) 96867-0746")
+            ->line("\nConte conosco nessa jornada!\n")
+            ->salutation("Atenciosamente,\nEquipe Caminho da Roça");
     }
 }
