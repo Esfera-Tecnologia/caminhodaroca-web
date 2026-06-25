@@ -39,7 +39,7 @@
                 @foreach($events as $event)
                     <tr>
                         <td>{{ $event->name }}</td>
-                        <td>{{ $event->start_date?->format('d/m/Y') }}</td>
+                        <td data-order="{{ $event->start_date?->format('Y-m-d H:i:s') }}">{{ $event->start_date?->format('d/m/Y') }}</td>
                         <td>{{ $event->city?->name }} / {{ $event->state?->code }}</td>
                         <td>
                             @if($event->is_highlight)
