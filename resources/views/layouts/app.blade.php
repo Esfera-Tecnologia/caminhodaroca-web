@@ -101,5 +101,11 @@
   <script src="{{ asset('js/scripts.js') }}"></script>
 
   @stack('scripts')
+
+@if(env('SHOW_TEST_BANNER', false))
+  <div style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #dc3545; color: white; text-align: center; padding: 2px 0; font-weight: bold; font-size: 11px; z-index: 9999;">
+    AMBIENTE DE TESTES
+  </div>
+@endif
 </body>
 </html>
