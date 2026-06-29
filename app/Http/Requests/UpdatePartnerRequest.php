@@ -44,6 +44,10 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
         $rule['approve_updates'] = [
             'nullable',
         ];
+        $rule['status'] = [
+            'required',
+            Rule::enum(\App\Enums\PartnerStatus::class),
+        ];
         return $rule;
     }
 }
