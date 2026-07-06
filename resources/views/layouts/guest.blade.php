@@ -28,9 +28,22 @@
         </div>
 
 @if(env('SHOW_TEST_BANNER', false))
-  <div style="position: fixed; top: 0; left: 0; width: 100%; background-color: #dc3545; color: white; text-align: center; padding: 2px 0; font-weight: bold; font-size: 11px; z-index: 9999;">
-    HOMOLOGAÇÃO
+  <div style="position: fixed; top: 0; left: 0; width: 100%; height: 20px; line-height: 20px; background-color: #dc3545; color: white; text-align: center; font-weight: bold; font-size: 11px; z-index: 9999;">
+    AMBIENTE DE TESTES
   </div>
+  <style>
+    html, body {
+      overflow: hidden !important;
+      height: 100% !important;
+    }
+    body {
+      padding-top: 20px !important;
+      box-sizing: border-box !important;
+    }
+    body .min-h-screen {
+      min-height: calc(100vh - 20px) !important;
+    }
+  </style>
 @endif
     </body>
 </html>

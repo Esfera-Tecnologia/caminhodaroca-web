@@ -385,10 +385,6 @@ class PropertyController extends Controller
         $data['property_id'] = $property->id;
         $preapproved_property = PreapprovedProperty::query()->create($data);
 
-
-        $user->profiles()->syncWithoutDetaching(
-            AccessProfile::where('nome', 'Responsável')->first()->id
-        );
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('properties', 'public');
