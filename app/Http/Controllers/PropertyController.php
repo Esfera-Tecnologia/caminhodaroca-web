@@ -73,7 +73,7 @@ class PropertyController extends Controller
                 'email' => $request->input('email_responsavel'),
                 'password' => bcrypt(Str::random(12)),
             ]);
-            $user->notify(new WelcomeNewUserNotification($user));
+            $user->notify(new WelcomeNewUserNotification($user, $request->input('name')));
         }
         $user->profiles()->syncWithoutDetaching(
             AccessProfile::where('nome', 'Responsável')->first()->id
@@ -385,15 +385,7 @@ class PropertyController extends Controller
         $data['property_id'] = $property->id;
         $preapproved_property = PreapprovedProperty::query()->create($data);
 
-        $user = User::query()->where('email', $request->input('email_responsavel'))->first();
-        if (!$user) {
-            $user = User::query()->create([
-                'name' => $request->input('nome_responsavel'),
-                'email' => $request->input('email_responsavel'),
-                'password' => bcrypt(Str::random(12)),
-            ]);
-            $user->notify(new WelcomeNewUserNotification($user));
-        }
+
         $user->profiles()->syncWithoutDetaching(
             AccessProfile::where('nome', 'Responsável')->first()->id
         );
