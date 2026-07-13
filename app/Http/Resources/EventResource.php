@@ -27,12 +27,14 @@ class EventResource extends JsonResource
             'location' => ($this->city?->name ?? '') . ', ' . ($this->state?->code ?: $this->state?->name),
             'is_highlight' => (bool) $this->is_highlight,
             'expired' => $this->end_date ? $this->end_date->isPast() : false,
-            'properties' => $this->properties->map(function($prop) {
-                return [
-                    'id' => $prop->id,
-                    'name' => $prop->name
-                ];
-            }),
+            'properties' => $this->whenLoaded('properties', function () {
+                return optional($this->properties)->map(function ($prop) {
+                    return [
+                        'id' => $prop->id,
+                        'name' => $prop->name
+                    ];
+                }) ?? [];
+            }, []),
         ];
     }
 }
