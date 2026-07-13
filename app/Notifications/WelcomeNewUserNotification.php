@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Password;
 class WelcomeNewUserNotification extends Notification
 {
     protected $user;
+    protected $propertyName;
 
-    public function __construct($user)
+    public function __construct($user, $propertyName = null)
     {
         $this->user = $user;
+        $this->propertyName = $propertyName;
     }
 
     public function via($notifiable)
@@ -37,7 +39,7 @@ class WelcomeNewUserNotification extends Notification
 
         return (new MailMessage)
             ->subject('Bem-vindo(a) ao Caminho da Roça!')
-            ->greeting("Olá {$this->user->name},")
+            ->greeting($this->propertyName ? "Olá, {$this->propertyName}!" : "Olá {$this->user->name},")
             ->line("Seja muito bem-vindo(a) ao Caminho da Roça. Seu cadastro foi realizado com sucesso!")
             ->line("Confira abaixo os dados básicos de acesso:")
             ->line("• Usuário: {$this->user->email}")
@@ -47,6 +49,6 @@ class WelcomeNewUserNotification extends Notification
             ->line("• E-mail: contato@caminhodaroca.app.br")
             ->line("• WhatsApp: (21) 96867-0746")
             ->line("\nConte conosco nessa jornada!\n")
-            ->salutation("Atenciosamente,\nEquipe Caminho da Roça");
+            ->salutation("Atenciosamente,\n\nEquipe Caminho da Roça");
     }
 }
