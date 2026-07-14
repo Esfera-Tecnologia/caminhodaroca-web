@@ -31,7 +31,11 @@ return new class extends Migration
             WHERE start_date IS NULL
         ");
 
-        // 3. Drop existing foreign keys and constraints on event_images and preapproved_events
+        // 3. Clean up orphan records before applying new constraints
+        DB::statement("DELETE FROM event_images WHERE event_id NOT IN (SELECT id FROM partner_events)");
+        DB::statement("DELETE FROM preapproved_events WHERE event_id NOT IN (SELECT id FROM partner_events)");
+
+        // 4. Drop existing foreign keys and constraints on event_images and preapproved_events
         Schema::table('event_images', function (Blueprint $table) {
             $table->dropForeign(['event_id']);
             $table->foreign('event_id')->references('id')->on('partner_events')->cascadeOnDelete();
@@ -42,7 +46,7 @@ return new class extends Migration
             $table->foreign('event_id')->references('id')->on('partner_events')->cascadeOnDelete();
         });
 
-        // 4. Delete old records from events table to keep it clean for D11 Events
+        // 5. Delete old records from events table to keep it clean for D11 Events
         // DB::statement("DELETE FROM events WHERE start_date IS NULL");
     }
 
