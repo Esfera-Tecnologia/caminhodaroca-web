@@ -11,7 +11,6 @@ class PartnerEvent extends Model
 {
     use HasFactory;
     
-    protected $table = 'events';
     protected $fillable = [
         'partner_id',
         'name',

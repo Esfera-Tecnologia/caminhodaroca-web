@@ -70,16 +70,17 @@ class PartnerController extends Controller
 
             if (isset($data['new_event_name'])) {
                 foreach ($data['new_event_name'] as $key => $eventName) {
-                    if (isset($data['new_event_imagem'][$key])) {
-                        $data['new_event_imagem'][$key] = $request->file('new_event_imagem')[$key]->store('partners/events', 'public');
-                    }
                     $eventData = [
                         'name' => $eventName,
                         'url' => $data['new_event_link'][$key] ?? null,
-                        'description' => $data['new_event_description'][$key],
-                        'imagem' => $data['new_event_imagem'][$key] ?? null,
+                        'description' => $data['new_event_description'][$key] ?? null,
                     ];
-                    $partner->events()->create($eventData);
+                    $newEvent = $partner->events()->create($eventData);
+
+                    if (isset($data['new_event_imagem'][$key])) {
+                        $imagePath = $request->file('new_event_imagem')[$key]->store('partners/events', 'public');
+                        $newEvent->images()->create(['image' => $imagePath]);
+                    }
                 }
             }
             $partner->update($data);
@@ -145,16 +146,17 @@ class PartnerController extends Controller
             }
             if (isset($data['new_event_name'])) {
                 foreach ($data['new_event_name'] as $key => $eventName) {
-                    if (isset($data['new_event_imagem'][$key])) {
-                        $data['new_event_imagem'][$key] = $request->file('new_event_imagem')[$key]->store('partners/events', 'public');
-                    }
                     $eventData = [
                         'name' => $eventName,
                         'url' => $data['new_event_link'][$key] ?? null,
-                        'description' => $data['new_event_description'][$key],
-                        'imagem' => $data['new_event_imagem'][$key] ?? null,
+                        'description' => $data['new_event_description'][$key] ?? null,
                     ];
-                    $partner->events()->create($eventData);
+                    $newEvent = $partner->events()->create($eventData);
+                    
+                    if (isset($data['new_event_imagem'][$key])) {
+                        $imagePath = $request->file('new_event_imagem')[$key]->store('partners/events', 'public');
+                        $newEvent->images()->create(['image' => $imagePath]);
+                    }
                 }
             }
             if (($request->has('approve_updates') && $request->input('approve_updates')) || ($partner->status != $request->input('status'))) {

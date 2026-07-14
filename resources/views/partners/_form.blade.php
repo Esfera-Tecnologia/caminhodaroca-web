@@ -111,9 +111,11 @@
         </div>
         <p class="text-muted small mb-3">Informe os dados de cada evento, incluindo um link e uma imagem.</p>
 
-        @foreach($partner->events as $event)
-            @include('partners.partials.events', ['event' => $event])
-        @endforeach
+        <div id="eventos-container">
+            @foreach($partner->events as $event)
+                @include('partners.partials.events', ['event' => $event])
+            @endforeach
+        </div>
     </div>
 
 </div>

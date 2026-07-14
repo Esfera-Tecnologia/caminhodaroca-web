@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\City;
 use App\Models\Event;
-use App\Models\Partner;
 use App\Models\Property;
 use App\Models\State;
 use Illuminate\Http\Request;
@@ -26,14 +25,13 @@ class EventController extends Controller
         $permissao = getPermissao('events');
         abort_unless($permissao?->can_create, 403);
 
-        $partners = Partner::where('status', 'ativo')->orderBy('name')->get();
         $properties = Property::where('status', 'ativo')->orderBy('name')->get();
         $states = State::orderBy('name')->get();
         
         $stateId = old('state_id');
         $cities = $stateId ? City::where('state_id', $stateId)->orderBy('name')->get() : collect();
         
-        return view('events.create', compact('partners', 'properties', 'states', 'cities'));
+        return view('events.create', compact('properties', 'states', 'cities'));
     }
 
     public function store(Request $request)
@@ -81,7 +79,6 @@ class EventController extends Controller
         $permissao = getPermissao('events');
         abort_unless($permissao?->can_edit, 403);
 
-        $partners = Partner::where('status', 'ativo')->orderBy('name')->get();
         $properties = Property::where('status', 'ativo')->orderBy('name')->get();
         $states = State::orderBy('name')->get();
         
@@ -90,7 +87,7 @@ class EventController extends Controller
         
         $selectedProperties = $event->properties->pluck('id')->toArray();
 
-        return view('events.edit', compact('event', 'partners', 'properties', 'states', 'cities', 'selectedProperties'));
+        return view('events.edit', compact('event', 'properties', 'states', 'cities', 'selectedProperties'));
     }
 
     public function update(Request $request, Event $event)
@@ -182,7 +179,6 @@ class EventController extends Controller
             'city_id' => 'required|exists:cities,id',
             'full_description' => 'required|string',
             'image' => ($id || $request->filled('image_base64') ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png|max:5120',
-            'partner_id' => 'required|exists:partners,id',
             'organization' => 'nullable|string|max:255',
             'url' => 'nullable|url|max:255',
             'property_ids' => 'nullable|array',
@@ -196,7 +192,6 @@ class EventController extends Controller
             'city_id.required' => 'A cidade é obrigatória.',
             'full_description.required' => 'O campo "Sobre o Evento" é obrigatório.',
             'image.required' => 'A foto de capa é obrigatória.',
-            'partner_id.required' => 'O parceiro vinculado é obrigatório.',
         ]);
     }
 }

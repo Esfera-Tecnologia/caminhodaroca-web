@@ -12,7 +12,6 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'partner_id',
         'name',
         'description',
         'start_date',
@@ -41,13 +40,7 @@ class Event extends Model
         return $this->belongsToMany(Property::class, 'event_has_property');
     }
 
-    /**
-     * Relacionamento com Parceiro
-     */
-    public function partner(): BelongsTo
-    {
-        return $this->belongsTo(Partner::class);
-    }
+    // Removed partner relation as it belongs to PartnerEvent
 
     /**
      * Relacionamento com Estado

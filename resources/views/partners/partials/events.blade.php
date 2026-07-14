@@ -1,4 +1,4 @@
-<div id="eventos-container" class="eventos-container d-flex flex-column gap-3 pb-4">
+<div class="eventos-container d-flex flex-column gap-3 pb-4">
     <div class="card shadow-sm border event-item">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-3">

@@ -38,22 +38,6 @@
                 @enderror
             </div>
 
-            <!-- Parceiro -->
-            <div class="col-md-6">
-                <label class="form-label">Organização (Parceiro Responsável) *</label>
-                <select name="partner_id" class="form-select select2 @error('partner_id') is-invalid @enderror" required>
-                    <option value="">Selecione um Parceiro</option>
-                    @foreach($partners as $partner)
-                        <option value="{{ $partner->id }}" {{ old('partner_id', $event->partner_id ?? '') == $partner->id ? 'selected' : '' }}>
-                            {{ $partner->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('partner_id')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
-
             <!-- Organização Texto -->
             <div class="col-md-6">
                 <label class="form-label">Nome da Organização (Exibição)</label>

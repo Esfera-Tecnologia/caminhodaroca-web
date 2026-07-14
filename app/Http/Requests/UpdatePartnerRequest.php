@@ -39,7 +39,12 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
         $rule['events.*.id'] = [
             'nullable',
             'int',
-            'exists:events,id',
+            'exists:partner_events,id',
+        ];
+        $rule['events.*.eventId'] = [
+            'nullable',
+            'int',
+            'exists:partner_events,id',
         ];
         $rule['approve_updates'] = [
             'nullable',
@@ -48,6 +53,17 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
             'required',
             Rule::enum(\App\Enums\PartnerStatus::class),
         ];
+
+        // Regras para novos eventos para que sejam retornados no $request->validated()
+        $rule['new_event_name'] = 'nullable|array';
+        $rule['new_event_name.*'] = 'required|string|max:255';
+        $rule['new_event_link'] = 'nullable|array';
+        $rule['new_event_link.*'] = 'nullable|url|max:255';
+        $rule['new_event_description'] = 'nullable|array';
+        $rule['new_event_description.*'] = 'nullable|string';
+        $rule['new_event_imagem'] = 'nullable|array';
+        $rule['new_event_imagem.*'] = 'nullable|file|max:2048';
+
         return $rule;
     }
 }
