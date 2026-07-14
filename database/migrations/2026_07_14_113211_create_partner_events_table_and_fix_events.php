@@ -12,6 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 0. Drop if exists to recover from a previous failed migration attempt
+        Schema::dropIfExists('partner_events');
+
         // 1. Create partner_events table
         Schema::create('partner_events', function (Blueprint $table) {
             $table->id();
