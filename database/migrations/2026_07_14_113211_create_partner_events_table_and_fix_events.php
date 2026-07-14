@@ -39,13 +39,23 @@ return new class extends Migration
         DB::statement("DELETE FROM preapproved_events WHERE event_id NOT IN (SELECT id FROM partner_events)");
 
         // 4. Drop existing foreign keys and constraints on event_images and preapproved_events
+        try {
+            Schema::table('event_images', function (Blueprint $table) {
+                $table->dropForeign(['event_id']);
+            });
+        } catch (\Exception $e) {}
+
         Schema::table('event_images', function (Blueprint $table) {
-            $table->dropForeign(['event_id']);
             $table->foreign('event_id')->references('id')->on('partner_events')->cascadeOnDelete();
         });
 
+        try {
+            Schema::table('preapproved_events', function (Blueprint $table) {
+                $table->dropForeign(['event_id']);
+            });
+        } catch (\Exception $e) {}
+
         Schema::table('preapproved_events', function (Blueprint $table) {
-            $table->dropForeign(['event_id']);
             $table->foreign('event_id')->references('id')->on('partner_events')->cascadeOnDelete();
         });
 
