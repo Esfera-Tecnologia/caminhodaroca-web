@@ -22,14 +22,15 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
     public function rules(): array
     {
         $rule = parent::rules();
-        $partner = $this->route('id');
+        $partner = $this->route('partner') ?? $this->route('id');
+        $partnerId = $partner instanceof \App\Models\Partner ? $partner->id : $partner;
 
         $rule['email'] = [
             'required',
             'string',
             'email',
             'max:255',
-            Rule::unique('partners', 'email')->ignore($partner?->id),
+            Rule::unique('partners', 'email')->ignore($partnerId),
         ];
         $rule['logo'] = [
             'nullable',
