@@ -36,6 +36,18 @@ class Partner extends Model
         'approved' => 'boolean'
     ];
 
+    protected static function booted()
+    {
+        static::updated(function ($partner) {
+            if ($partner->isDirty('status')) {
+                if ($partner->user) {
+                    $userStatus = $partner->status === PartnerStatus::ATIVO ? 'ativo' : 'inativo';
+                    $partner->user->update(['status' => $userStatus]);
+                }
+            }
+        });
+    }
+
     public function events(): HasMany
     {
         return $this->hasMany(PartnerEvent::class);

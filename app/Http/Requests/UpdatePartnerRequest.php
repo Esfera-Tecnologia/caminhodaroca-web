@@ -22,7 +22,7 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
     public function rules(): array
     {
         $rule = parent::rules();
-        $partner = $this->route('partner');
+        $partner = $this->route('id');
 
         $rule['email'] = [
             'required',
@@ -50,7 +50,7 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
             'nullable',
         ];
         $rule['status'] = [
-            'required',
+            'nullable',
             Rule::enum(\App\Enums\PartnerStatus::class),
         ];
 
