@@ -427,10 +427,12 @@ class PropertyController extends Controller
 
         // Atualiza a logo
         if ($request->hasFile('logo')) {
-            if ($property->logo_path) {
+            if ($property->logo_path && Storage::disk('public')->exists($property->logo_path)) {
                 Storage::disk('public')->delete($property->logo_path);
             }
             $data['logo_path'] = $request->file('logo')->store('logos', 'public');
+        } elseif ($property->logo_path) {
+            $data['logo_path'] = $property->logo_path;
         }
 
 

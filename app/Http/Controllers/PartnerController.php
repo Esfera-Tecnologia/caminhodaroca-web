@@ -124,10 +124,12 @@ class PartnerController extends Controller
         try {
             $data = $request->all();
             if (isset($data['logo'])) {
-                if (Storage::disk('public')->exists($partner->logo)) {
+                if ($partner->logo && Storage::disk('public')->exists($partner->logo)) {
                     Storage::disk('public')->delete($partner->logo);
                 }
                 $data['logo'] = $request->file('logo')->store('partners', 'public');
+            } elseif ($partner->logo) {
+                $data['logo'] = $partner->logo;
             }
             $partner->cities()->sync($data['cities']);
             if (isset($data['events'])) {
