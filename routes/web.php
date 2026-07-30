@@ -6,6 +6,7 @@ use App\Http\Controllers\AccessProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubcategoryController;
+use App\Http\Controllers\PartnerCategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ProductController;
@@ -50,6 +51,10 @@ Route::post('/definir-senha/{token}', [SenhaController::class, 'storeNovaSenha']
 
 // Categorias
 Route::resource('categories', CategoryController::class)->middleware('auth');
+
+
+// Categorias de Parceiros
+Route::resource('partner-categories', PartnerCategoryController::class)->middleware('auth');
 
 
 // AJAX Cidades

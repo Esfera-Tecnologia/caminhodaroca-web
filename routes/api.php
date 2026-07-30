@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\PropertyRatingController;
+use App\Http\Controllers\Api\PartnerCategoryController;
 use App\Http\Controllers\Api\FavoriteListController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,9 @@ Route::get('/cities', [LocationController::class, 'cities']);
 // Rotas de categorias (públicas)
 Route::get('/categories', [CategoryController::class, 'categories']);
 Route::get('/subcategories', [CategoryController::class, 'subcategories']);
+
+// Rotas de categorias de parceiros (públicas)
+Route::get('/partner-categories', [PartnerCategoryController::class, 'index']);
 
 // Rotas de propriedades (públicas)
 Route::get('/properties', [PropertyController::class, 'index']);
