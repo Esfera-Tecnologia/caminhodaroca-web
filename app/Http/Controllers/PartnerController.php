@@ -164,6 +164,7 @@ class PartnerController extends Controller
             if (($request->has('approve_updates') && $request->input('approve_updates')) || ($partner->status != $request->input('status'))) {
                 $data['status'] = PreapprovedPartnerStatus::APPROVED;
                 $dataPartner = $data;
+                $dataPartner['partner_category_id'] = $partner->partner_category_id;
                 $dataPartner['status'] = PartnerStatus::ATIVO;
                 $dataPartner['approved'] = 1;
                 unset($dataPartner['_token']);

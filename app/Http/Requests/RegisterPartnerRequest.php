@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\PartnerCategory;
 use App\Rules\InstagramRule;
-use App\Rules\URLRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class RegisterPartnerRequest extends FormRequest
 {
@@ -58,7 +58,7 @@ class RegisterPartnerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => [
                 'required',
                 'string',
@@ -152,11 +152,34 @@ class RegisterPartnerRequest extends FormRequest
                 'url'
             ],
         ];
+
+        if (!$this->is('api/register/partner', 'api/partners/*')) {
+            return $rules;
+        }
+
+        $categoryId = $this->input('partner_category_id');
+        $category = is_numeric($categoryId)
+            ? PartnerCategory::active()->find((int) $categoryId)
+            : null;
+        $experienceRule = $category?->experiencias_oferecidas ? 'required' : 'nullable';
+
+        $rules['partner_category_id'] = [
+            'required',
+            'integer',
+            Rule::exists('partner_categories', 'id')
+                ->where(fn ($query) => $query->where('status', 'ativo')),
+        ];
+        $rules['routes'] = [$experienceRule, 'string', 'max:1000'];
+        $rules['circuits'] = [$experienceRule, 'string', 'max:1000'];
+        $rules['attractions'] = [$experienceRule, 'string', 'max:1000'];
+
+        return $rules;
     }
 
     public function attributes(): array
     {
         return [
+            'partner_category_id' => 'categoria',
             'name' => 'nome',
             'email' => 'e-mail',
             'description' => 'descrição',

@@ -22,6 +22,7 @@ class PartnerResource extends JsonResource
         if(isset($this->individual) && $this->individual) {
             return [
                 'id' => $this->id,
+                'partner_category_id' => $this->partner_category_id,
                 'logo' => $this->logo_url,
                 'name' => $this->name,
                 'cities' => $this->resource->cities->pluck('name', 'id'),
