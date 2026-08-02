@@ -18,6 +18,7 @@ class Partner extends Model
 
     protected $fillable = [
         'user_id',
+        'partner_category_id',
         'name',
         'email',
         'description',
@@ -56,6 +57,11 @@ class Partner extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function partnerCategory(): BelongsTo
+    {
+        return $this->belongsTo(PartnerCategory::class, 'partner_category_id');
     }
 
     public function preapproved_partner(): HasMany

@@ -16,6 +16,7 @@ class PreapprovedPartner extends Model
     protected $fillable = [
         'partner_id',
         'user_id',
+        'partner_category_id',
         'name',
         'email',
         'description',
@@ -45,6 +46,11 @@ class PreapprovedPartner extends Model
     public function partner(): BelongsTo
     {
         return $this->belongsTo(Partner::class, 'partner_id', 'id');
+    }
+
+    public function partnerCategory(): BelongsTo
+    {
+        return $this->belongsTo(PartnerCategory::class, 'partner_category_id');
     }
 
     public function getLogoUrlAttribute(): string
