@@ -133,8 +133,8 @@
 
                     <hr class="my-4">
 
-                    <!-- Bloco adaptável conforme a categoria selecionada (experiências oferecidas) -->
-                    <div id="experiencias-section" class="d-none">
+                    <!-- Experiências oferecidas: sempre visíveis; obrigatórias conforme a categoria selecionada -->
+                    <div id="experiencias-section">
                         <h6 class="fw-semibold mb-1">Experiências Oferecidas</h6>
                         <p class="text-muted small mb-3">Conte sobre rotas, circuitos e atrativos relacionados à sua instituição.</p>
                         <div class="row g-4">
@@ -247,10 +247,9 @@
                 $(btn).closest('.event-item').remove();
             }
 
-            // Adapta o formulário conforme a categoria selecionada
+            // Rotas/Circuitos/Atrativos: sempre visíveis, obrigatórios conforme a categoria
             $('#partner_category_id').on('change', function () {
                 const experiencias = $(this).find('option:selected').data('experiencias') == 1;
-                $('#experiencias-section').toggleClass('d-none', !experiencias);
                 $('#routes, #circuits, #attractions').each(function () {
                     if (experiencias) {
                         $(this).attr('required', 'required');

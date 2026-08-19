@@ -61,6 +61,17 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
                 ->where(fn ($query) => $query->where('status', 'ativo')),
         ];
 
+        // Rotas/Circuitos/Atrativos: obrigatórios somente se a categoria exigir experiências oferecidas
+        $categoryId = $this->input('partner_category_id');
+        $category = is_numeric($categoryId)
+            ? \App\Models\PartnerCategory::active()->find((int) $categoryId)
+            : null;
+        $experienceRule = $category?->experiencias_oferecidas ? 'required' : 'nullable';
+
+        $rule['routes'] = [$experienceRule, 'string', 'max:1000'];
+        $rule['circuits'] = [$experienceRule, 'string', 'max:1000'];
+        $rule['attractions'] = [$experienceRule, 'string', 'max:1000'];
+
         // Regras para novos eventos para que sejam retornados no $request->validated()
         $rule['new_event_name'] = 'nullable|array';
         $rule['new_event_name.*'] = 'required|string|max:255';

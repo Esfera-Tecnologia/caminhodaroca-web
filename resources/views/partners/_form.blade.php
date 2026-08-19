@@ -52,6 +52,7 @@
                             <option value="">Selecione</option>
                             @foreach(\App\Models\PartnerCategory::active()->orderBy('titulo')->get() as $category)
                                 <option value="{{ $category->id }}"
+                                        data-experiencias="{{ $category->experiencias_oferecidas ? 1 : 0 }}"
                                     {{ (old('partner_category_id', $partner->partner_category_id ?? '') == $category->id) ? 'selected' : '' }}>
                                     {{ $category->titulo }}
                                 </option>
@@ -107,15 +108,15 @@
 <div class="row g-4">
     <div class="col-md-6">  
         <label class="form-label">Rotas</label>
-        <textarea class="form-control" name="routes" rows="3" maxlength="1000">{!! old('routes', $partner->routes ?? '') !!}</textarea>
+        <textarea id="routes" class="form-control" name="routes" rows="3" maxlength="1000">{!! old('routes', $partner->routes ?? '') !!}</textarea>
     </div>
     <div class="col-md-6">
         <label class="form-label">Circuitos</label>
-        <textarea class="form-control" name="circuits" rows="3" maxlength="1000">{!! old('circuits', $partner->circuits ?? '') !!}</textarea>
+        <textarea id="circuits" class="form-control" name="circuits" rows="3" maxlength="1000">{!! old('circuits', $partner->circuits ?? '') !!}</textarea>
     </div>
     <div class="col-md-6">
         <label class="form-label">Atrativos</label>
-        <textarea class="form-control" name="attractions" rows="3" maxlength="1000">{!! old('attractions', $partner->attractions ?? '') !!}</textarea>
+        <textarea id="attractions" class="form-control" name="attractions" rows="3" maxlength="1000">{!! old('attractions', $partner->attractions ?? '') !!}</textarea>
     </div>
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
@@ -193,6 +194,23 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        // Rotas/Circuitos/Atrativos: sempre visíveis, obrigatórios conforme a categoria selecionada
+        function atualizarExperienciasObrigatorias() {
+            const experiencias = $('#partner_category_id').find('option:selected').data('experiencias') == 1;
+            $('#routes, #circuits, #attractions').each(function () {
+                if (experiencias) {
+                    $(this).attr('required', 'required');
+                } else {
+                    $(this).removeAttr('required');
+                }
+            });
+        }
+        $(document).ready(function () {
+            atualizarExperienciasObrigatorias();
+            $('#partner_category_id').on('change', atualizarExperienciasObrigatorias);
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             const eventosContainer = document.getElementById('eventos-container');
             const addEventoBtn = document.getElementById('add-evento');
