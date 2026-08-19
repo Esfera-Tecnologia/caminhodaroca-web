@@ -120,6 +120,7 @@
                         <div class="col-12">
                             <label class="form-label">Municípios de atuação *</label>
                             <select class="form-select select2" name="cities[]" id="cities" multiple required>
+                                <option value="">Selecione os municípios</option>
                                 @foreach($cities as $city)
                                     <option value="{{ $city->id }}"
                                         @selected(in_array($city->id, old('cities', [])))>{{ $city->name }}</option>
@@ -260,12 +261,6 @@
             }).trigger('change');
 
             $('#add-evento').on('click', addEvento);
-
-            $('#cities').select2({
-                placeholder: 'Selecione os municípios',
-                allowClear: true,
-                width: '100%'
-            });
 
             $('#form-parceiro-publico').on('submit', function (e) {
                 const cities = $('#cities').val();
