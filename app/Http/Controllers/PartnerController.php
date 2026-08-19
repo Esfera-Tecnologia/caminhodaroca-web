@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\PartnerStatus;
 use App\Enums\PreapprovedPartnerStatus;
+use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
+use App\Http\Requests\RegisterPartnerRequest;
 use App\Http\Requests\UpdatePartnerRequest;
+use App\Models\City;
 use App\Models\Partner;
+use App\Models\PartnerCategory;
 use App\Models\PartnerEvent;
 use App\Models\PreapprovedPartner;
 use App\Models\PreapprovedPartnerEvent;
@@ -110,6 +114,32 @@ class PartnerController extends Controller
         }
     }
 
+    public function create_public()
+    {
+        $categories = PartnerCategory::active()->orderBy('titulo')->get();
+        $cities = City::whereHas('state', fn ($q) => $q->where('code', 'RJ'))->orderBy('name')->get();
+        return view('partners.public_create', compact('categories', 'cities'));
+    }
+
+    public function store_public(RegisterPartnerRequest $request)
+    {
+        try {
+            $response = app(ApiRegisterController::class)->partner($request);
+
+            if ($response->getStatusCode() >= 400) {
+                $message = $response->getData()->message ?? 'Não foi possível concluir o cadastro. Tente novamente.';
+                return redirect()->route('partners.public.create')->with('error', $message);
+            }
+
+            return redirect()->route('partners.public.create')
+                ->with('success', 'Cadastro realizado com sucesso! A instituição/parceiro será analisada pela equipe do Caminho da Roça.');
+        } catch (\Throwable $e) {
+            Log::error('Falha no cadastro público de parceiro', ['exception' => $e]);
+            return redirect()->route('partners.public.create')
+                ->with('error', 'Não foi possível concluir o cadastro. Tente novamente.');
+        }
+    }
+
     public function edit_public(PreapprovedPartner $partner)
     {
         $permissao = getPermissao('partners');
@@ -164,7 +194,7 @@ class PartnerController extends Controller
             if (($request->has('approve_updates') && $request->input('approve_updates')) || ($partner->status != $request->input('status'))) {
                 $data['status'] = PreapprovedPartnerStatus::APPROVED;
                 $dataPartner = $data;
-                $dataPartner['partner_category_id'] = $partner->partner_category_id;
+                $dataPartner['partner_category_id'] = $data['partner_category_id'] ?? $partner->partner_category_id;
                 $dataPartner['status'] = PartnerStatus::ATIVO;
                 $dataPartner['approved'] = 1;
                 unset($dataPartner['_token']);

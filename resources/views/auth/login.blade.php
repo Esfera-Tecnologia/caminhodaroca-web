@@ -65,6 +65,7 @@
 
                 <span class="text-muted small d-block mb-2">Quero fazer parte do Caminho da Roça</span>
                 <a href="{{ route('properties.public.create') }}" class="btn btn-outline-success w-100">Cadastrar minha propriedade</a>
+                <a href="{{ route('partners.public.create') }}" class="btn btn-outline-success w-100 mt-2">Seja um Parceiro</a>
             </div>
 
         </div>

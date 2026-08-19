@@ -41,10 +41,25 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         <label class="form-label">E-mail do Parceiro *</label>
                         <input type="email" class="form-control" required name="email"
                             value="{{ old('email', $partner->email ?? '') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Categoria *</label>
+                        <select class="form-select @error('partner_category_id') is-invalid @enderror" required name="partner_category_id" id="partner_category_id">
+                            <option value="">Selecione</option>
+                            @foreach(\App\Models\PartnerCategory::active()->orderBy('titulo')->get() as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ (old('partner_category_id', $partner->partner_category_id ?? '') == $category->id) ? 'selected' : '' }}>
+                                    {{ $category->titulo }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('partner_category_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>

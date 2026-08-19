@@ -153,7 +153,7 @@ class RegisterPartnerRequest extends FormRequest
             ],
         ];
 
-        if (!$this->is('api/register/partner', 'api/partners/*')) {
+        if (!$this->is('api/register/partner', 'api/partners/*', 'cadastro-parceiro-publico')) {
             return $rules;
         }
 

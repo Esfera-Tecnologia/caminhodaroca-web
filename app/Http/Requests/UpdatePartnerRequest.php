@@ -54,6 +54,12 @@ class UpdatePartnerRequest extends RegisterPartnerRequest
             'nullable',
             Rule::enum(\App\Enums\PartnerStatus::class),
         ];
+        $rule['partner_category_id'] = [
+            'required',
+            'integer',
+            Rule::exists('partner_categories', 'id')
+                ->where(fn ($query) => $query->where('status', 'ativo')),
+        ];
 
         // Regras para novos eventos para que sejam retornados no $request->validated()
         $rule['new_event_name'] = 'nullable|array';

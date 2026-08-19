@@ -107,4 +107,8 @@ Route::middleware('auth')->group(function () {
 Route::get('cadastro-propriedade-publica', [PropertyController::class, 'create_public'])->name('properties.public.create');
 Route::post('cadastro-propriedade-publica', [PropertyController::class, 'store_public'])->name('properties.public.store');
 
+// Cadastro público de Instituições/Parceiros (SENAR Rio)
+Route::get('cadastro-parceiro-publico', [PartnerController::class, 'create_public'])->name('partners.public.create');
+Route::post('cadastro-parceiro-publico', [PartnerController::class, 'store_public'])->name('partners.public.store');
+
 require __DIR__.'/auth.php';
