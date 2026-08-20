@@ -126,6 +126,10 @@ class PartnerController extends Controller
         try {
             $response = app(ApiRegisterController::class)->partner($request);
 
+            if ($request->expectsJson()) {
+                return $response;
+            }
+
             if ($response->getStatusCode() >= 400) {
                 $message = $response->getData()->message ?? 'Não foi possível concluir o cadastro. Tente novamente.';
                 return redirect()->route('partners.public.create')->with('error', $message);
@@ -135,6 +139,9 @@ class PartnerController extends Controller
                 ->with('success', 'Cadastro realizado com sucesso! A instituição/parceiro será analisada pela equipe do Caminho da Roça.');
         } catch (\Throwable $e) {
             Log::error('Falha no cadastro público de parceiro', ['exception' => $e]);
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Não foi possível concluir o cadastro. Tente novamente.'], 500);
+            }
             return redirect()->route('partners.public.create')
                 ->with('error', 'Não foi possível concluir o cadastro. Tente novamente.');
         }
