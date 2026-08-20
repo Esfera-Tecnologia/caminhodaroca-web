@@ -12,6 +12,7 @@ use App\Http\Requests\RegisterFinishRequest;
 use App\Models\AccessProfile;
 use App\Models\Partner;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -106,15 +107,35 @@ class RegisterController extends Controller
             $profile = AccessProfile::query()->firstOrCreate(['nome' => 'Parceiro'], [
                 'descricao' => 'Responsável dos parceiros'
             ])->id;
+            // Busca o usuário pelo e-mail; se não existir, cria.
             $user = User::where('email', $request->input('email'))->first();
             if (!$user) {
-                $user = User::create([
-                    'email' => $request->input('email'),
-                    'name' => $request->input('name'),
-                    'password' => bcrypt(Str::random(12)),
-                    'registration_source' => 'api',
-                ]);
+                try {
+                    $user = User::create([
+                        'email' => $request->input('email'),
+                        'name' => $request->input('name'),
+                        'password' => bcrypt(Str::random(12)),
+                        'registration_source' => 'api',
+                    ]);
+                } catch (QueryException $e) {
+                    // Corrida entre envios simultâneos: outro request já criou o usuário
+                    // com o mesmo e-mail entre a consulta e o insert. Reaproveita o existente.
+                    if ($e->errorInfo[1] === 1062) {
+                        $user = User::where('email', $request->input('email'))->firstOrFail();
+                    } else {
+                        throw $e;
+                    }
+                }
             }
+
+            // Evita duplicidade de parceiro: se o usuário já possui um cadastro, não cria outro.
+            if ($user->partner()->exists()) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Este e-mail já possui um parceiro cadastrado aguardando aprovação. Em caso de dúvidas, entre em contato conosco.',
+                ], 422);
+            }
+
             $user->profiles()->syncWithoutDetaching($profile);
             if($user->wasRecentlyCreated){
                 $user->notify(new WelcomeNewUserNotification($user));

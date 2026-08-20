@@ -141,6 +141,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        // Expõe a instância do validador para validações dinâmicas em páginas específicas
+        window.caminhoRocaValidators = window.caminhoRocaValidators || {};
+        window.caminhoRocaValidators[form.id] = validator;
+
         // Detecta se já existe logo carregada (edição)
         const previewLogo = document.querySelector('#preview-logo');
         const hasExistingLogo = previewLogo && previewLogo.src.includes('/storage/');
