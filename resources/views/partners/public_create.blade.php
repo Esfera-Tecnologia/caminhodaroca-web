@@ -66,6 +66,7 @@
                                    type="file" name="logo" id="logo" required />
                             <img id="preview-logo" src="{{ asset('assets/teste3.png') }}" class="preview-img mt-2"
                                  alt="Preview Logo" />
+                            <input type="hidden" name="logo_base64" id="logo_base64" value="{{ old('logo_base64') }}">
                             @error('logo')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
@@ -235,10 +236,21 @@
             function previewLogo(input) {
                 if (input.files && input.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = e => $('#preview-logo').attr('src', e.target.result);
+                    reader.onload = e => {
+                        $('#preview-logo').attr('src', e.target.result);
+                        $('#logo_base64').val(e.target.result);
+                    };
                     reader.readAsDataURL(input.files[0]);
                 }
             }
+
+            // Restaura a logo escolhida quando o formulário volta de um erro (via base64)
+            $(function () {
+                const b64 = $('#logo_base64').val();
+                if (b64) {
+                    $('#preview-logo').attr('src', b64);
+                }
+            });
 
             function addEvento() {
                 const index = eventoIndex++;
@@ -323,6 +335,7 @@
                 form.reset();
                 $('#cities').val(null).trigger('change');
                 $('#preview-logo').attr('src', '{{ asset('assets/teste3.png') }}');
+                $('#logo_base64').val('');
                 $('#eventos-container').empty();
                 $('#partner_category_id').trigger('change');
             }

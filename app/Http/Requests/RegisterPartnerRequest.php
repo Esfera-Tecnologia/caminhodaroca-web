@@ -15,6 +15,44 @@ class RegisterPartnerRequest extends FormRequest
             'site'      => $this->prefixUrl($this->site),
             'events'    => $this->prepareEvents($this->events),
         ]);
+
+        // Mantém a logo mesmo quando o formulário volta de um erro (base64)
+        if (!$this->hasFile('logo') && !empty($this->input('logo_base64'))) {
+            $file = $this->base64ToUploadedFile((string) $this->input('logo_base64'));
+            if ($file) {
+                $this->files->set('logo', $file);
+                $this->convertedFiles = null; // força a re-conversão do cache de arquivos
+            }
+        }
+    }
+
+    private function base64ToUploadedFile(string $dataUrl): ?\Illuminate\Http\UploadedFile
+    {
+        if (!str_starts_with($dataUrl, 'data:') || !str_contains($dataUrl, ',')) {
+            return null;
+        }
+
+        [$meta, $base64] = explode(',', $dataUrl, 2);
+        $decoded = base64_decode($base64, true);
+        if ($decoded === false || $decoded === '') {
+            return null;
+        }
+
+        $mime = '';
+        if (preg_match('/^data:([^;]+);/', $meta, $m)) {
+            $mime = $m[1];
+        }
+
+        $ext = 'png';
+        $mimeMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+        if (isset($mimeMap[$mime])) {
+            $ext = $mimeMap[$mime];
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'logo');
+        file_put_contents($tmp, $decoded);
+
+        return new \Illuminate\Http\UploadedFile($tmp, 'logo.' . $ext, $mime ?: null, UPLOAD_ERR_OK, true);
     }
 
     private function prefixUrl(?string $value): ?string
