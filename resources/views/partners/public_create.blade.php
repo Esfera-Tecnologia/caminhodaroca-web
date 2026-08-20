@@ -22,7 +22,9 @@
                     </div>
 
                     @if (session('success'))
-                        <div class="alert alert-success not-fade">{{ session('success') }}</div>
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
                     @endif
                     @if (session('error'))
                         <div class="alert alert-danger not-fade">{{ session('error') }}</div>
@@ -37,8 +39,6 @@
                             </ul>
                         </div>
                     @endif
-
-                    <div id="form-alerts" class="alert d-none not-fade" role="alert"></div>
 
                     <div class="mb-4">
                         <label for="partner_category_id" class="form-label">Categoria *</label>
@@ -66,7 +66,6 @@
                                    type="file" name="logo" id="logo" required />
                             <img id="preview-logo" src="{{ asset('assets/teste3.png') }}" class="preview-img mt-2"
                                  alt="Preview Logo" />
-                            <input type="hidden" name="logo_base64" id="logo_base64" value="{{ old('logo_base64') }}">
                             @error('logo')
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
@@ -75,7 +74,7 @@
                             <div class="row gy-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Nome da Instituição/Parceiro *</label>
-                                    <input type="text" class="form-control" required name="name"
+                                    <input type="text" class="form-control" required name="name" id="name"
                                            value="{{ old('name') }}">
                                     @error('name')
                                         <div class="text-danger small">{{ $message }}</div>
@@ -83,7 +82,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">E-mail *</label>
-                                    <input type="email" class="form-control" required name="email"
+                                    <input type="email" class="form-control" required name="email" id="email"
                                            value="{{ old('email') }}">
                                     @error('email')
                                         <div class="text-danger small">{{ $message }}</div>
@@ -95,7 +94,7 @@
 
                     <div class="mt-4">
                         <label class="form-label">Descrição *</label>
-                        <textarea class="form-control" rows="4" required name="description">{{ old('description') }}</textarea>
+                        <textarea class="form-control" rows="4" required name="description" id="description">{{ old('description') }}</textarea>
                         @error('description')
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
@@ -238,19 +237,10 @@
                     const reader = new FileReader();
                     reader.onload = e => {
                         $('#preview-logo').attr('src', e.target.result);
-                        $('#logo_base64').val(e.target.result);
                     };
                     reader.readAsDataURL(input.files[0]);
                 }
             }
-
-            // Restaura a logo escolhida quando o formulário volta de um erro (via base64)
-            $(function () {
-                const b64 = $('#logo_base64').val();
-                if (b64) {
-                    $('#preview-logo').attr('src', b64);
-                }
-            });
 
             function addEvento() {
                 const index = eventoIndex++;
@@ -274,71 +264,33 @@
                 });
             }).trigger('change');
 
-            $('#add-evento').on('click', addEvento);
+            // Registra no just-validate a obrigatoriedade dinâmica de Rotas/Circuitos/Atrativos.
+            // A validação global só captura campos já marcados como required no carregamento da página.
+            document.addEventListener('DOMContentLoaded', function () {
+                const validator = (window.caminhoRocaValidators || {})['form-parceiro-publico'];
+                if (!validator) return;
 
-            $('#form-parceiro-publico').on('submit', function (e) {
-                e.preventDefault();
+                const requerExperiencias = function () {
+                    const opt = $('#partner_category_id').find('option:selected');
+                    return opt.length > 0 && opt.data('experiencias') == 1;
+                };
 
-                const form = this;
-                const cities = $('#cities').val();
-                if (!cities || cities.length === 0) {
-                    mostrarAviso('Selecione pelo menos um município de atuação.', 'danger');
-                    return;
-                }
-
-                const formData = new FormData(form);
-                const token = document.querySelector('input[name="_token"]').value;
-                const submitBtn = form.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': token
-                    },
-                    body: formData
-                })
-                .then(res => res.json().then(data => ({ ok: res.ok, data: data })).catch(() => ({ ok: res.ok, data: { message: 'Erro inesperado.' } })))
-                .then(({ ok, data }) => {
-                    if (ok) {
-                        mostrarAviso(data.message || 'Cadastro realizado com sucesso!', 'success');
-                        resetFormulario(form);
-                    } else {
-                        const erros = data.errors || {};
-                        const mensagens = Object.values(erros).flat();
-                        mostrarAviso(
-                            mensagens.length
-                                ? mensagens.join(' ')
-                                : (data.message || 'Não foi possível concluir o cadastro.'),
-                            'danger'
-                        );
-                    }
-                })
-                .catch(() => {
-                    mostrarAviso('Não foi possível concluir o cadastro. Tente novamente.', 'danger');
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
+                ['routes', 'circuits', 'attractions'].forEach(function (id) {
+                    validator.addField('#' + id, [
+                        {
+                            validator: function () {
+                                if (!requerExperiencias()) return true;
+                                const valor = document.getElementById(id).value;
+                                return valor && valor.trim().length > 0;
+                            },
+                            errorMessage: 'Este campo é obrigatório.'
+                        }
+                    ]);
                 });
             });
 
-            function mostrarAviso(message, type) {
-                const box = document.getElementById('form-alerts');
-                box.className = 'alert alert-' + type + ' not-fade';
-                box.textContent = message;
-                box.classList.remove('d-none');
-                box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            $('#add-evento').on('click', addEvento);
 
-            function resetFormulario(form) {
-                form.reset();
-                $('#cities').val(null).trigger('change');
-                $('#preview-logo').attr('src', '{{ asset('assets/teste3.png') }}');
-                $('#logo_base64').val('');
-                $('#eventos-container').empty();
-                $('#partner_category_id').trigger('change');
-            }
         </script>
     @endpush
 @endsection

@@ -136,7 +136,7 @@ class PartnerController extends Controller
             }
 
             return redirect()->route('partners.public.create')
-                ->with('success', 'Cadastro realizado com sucesso! A instituição/parceiro será analisada pela equipe do Caminho da Roça.');
+                ->with('success', 'Cadastro enviado para validação!');
         } catch (\Throwable $e) {
             Log::error('Falha no cadastro público de parceiro', ['exception' => $e]);
             if ($request->expectsJson()) {
