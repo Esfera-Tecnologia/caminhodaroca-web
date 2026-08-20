@@ -22,13 +22,13 @@
                     </div>
 
                     @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                        <div class="alert alert-success not-fade">{{ session('success') }}</div>
                     @endif
                     @if (session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        <div class="alert alert-danger not-fade">{{ session('error') }}</div>
                     @endif
                     @if ($errors->any())
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger not-fade">
                             <strong>Verifique os campos abaixo:</strong>
                             <ul class="mb-0 mt-2">
                                 @foreach ($errors->all() as $erro)
@@ -37,6 +37,8 @@
                             </ul>
                         </div>
                     @endif
+
+                    <div id="form-alerts" class="alert d-none not-fade" role="alert"></div>
 
                     <div class="mb-4">
                         <label for="partner_category_id" class="form-label">Categoria *</label>
@@ -263,12 +265,67 @@
             $('#add-evento').on('click', addEvento);
 
             $('#form-parceiro-publico').on('submit', function (e) {
+                e.preventDefault();
+
+                const form = this;
                 const cities = $('#cities').val();
                 if (!cities || cities.length === 0) {
-                    e.preventDefault();
-                    alert('Selecione pelo menos um município de atuação.');
+                    mostrarAviso('Selecione pelo menos um município de atuação.', 'danger');
+                    return;
                 }
+
+                const formData = new FormData(form);
+                const token = document.querySelector('input[name="_token"]').value;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: formData
+                })
+                .then(res => res.json().then(data => ({ ok: res.ok, data: data })).catch(() => ({ ok: res.ok, data: { message: 'Erro inesperado.' } })))
+                .then(({ ok, data }) => {
+                    if (ok) {
+                        mostrarAviso(data.message || 'Cadastro realizado com sucesso!', 'success');
+                        resetFormulario(form);
+                    } else {
+                        const erros = data.errors || {};
+                        const mensagens = Object.values(erros).flat();
+                        mostrarAviso(
+                            mensagens.length
+                                ? mensagens.join(' ')
+                                : (data.message || 'Não foi possível concluir o cadastro.'),
+                            'danger'
+                        );
+                    }
+                })
+                .catch(() => {
+                    mostrarAviso('Não foi possível concluir o cadastro. Tente novamente.', 'danger');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                });
             });
+
+            function mostrarAviso(message, type) {
+                const box = document.getElementById('form-alerts');
+                box.className = 'alert alert-' + type + ' not-fade';
+                box.textContent = message;
+                box.classList.remove('d-none');
+                box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function resetFormulario(form) {
+                form.reset();
+                $('#cities').val(null).trigger('change');
+                $('#preview-logo').attr('src', '{{ asset('assets/teste3.png') }}');
+                $('#eventos-container').empty();
+                $('#partner_category_id').trigger('change');
+            }
         </script>
     @endpush
 @endsection
