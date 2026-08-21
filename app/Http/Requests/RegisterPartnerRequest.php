@@ -33,14 +33,44 @@ class RegisterPartnerRequest extends FormRequest
         if (empty($events)) {
             return $events;
         }
-        foreach ($events as $i => $event) {
-            $normalized = $this->prefixUrl($event['externalLink'] ?? null);
 
-            $events[$i]['externalLink'] = $normalized;
+        foreach ($events as $index => $event) {
+            if (!is_array($event)) {
+                unset($events[$index]);
+                continue;
+            }
 
-            $events[$i]['url'] = $normalized;
+            // Descarta eventos totalmente vazios (sem nome, descrição, link ou imagem)
+            if ($this->isEventEmpty($event, $index)) {
+                unset($events[$index]);
+                continue;
+            }
+
+            // O link do evento pode vir como "url" (formulário web) ou "externalLink" (API/mobile).
+            // Normaliza e mantém ambos sincronizados para não perder o valor digitado.
+            $rawUrl = $event['externalLink'] ?? $event['url'] ?? null;
+            $normalized = $this->prefixUrl($rawUrl);
+
+            $events[$index]['externalLink'] = $normalized;
+            $events[$index]['url'] = $normalized;
         }
-        return $events;
+
+        return $events ?: null;
+    }
+
+    /**
+     * Verifica se um evento está totalmente vazio (nenhum campo e nenhuma imagem).
+     */
+    private function isEventEmpty(array $event, int $index): bool
+    {
+        foreach (['name', 'description', 'url', 'externalLink'] as $field) {
+            if (!empty(trim((string) ($event[$field] ?? '')))) {
+                return false;
+            }
+        }
+
+        // Considera preenchido se houver alguma imagem enviada
+        return !$this->hasFile("events.$index.images");
     }
 
     /**
@@ -173,6 +203,11 @@ class RegisterPartnerRequest extends FormRequest
         $rules['circuits'] = [$experienceRule, 'string', 'max:1000'];
         $rules['attractions'] = [$experienceRule, 'string', 'max:1000'];
 
+        // Aceite dos Termos de Uso exigido apenas no cadastro público web
+        if ($this->is('cadastro-parceiro-publico')) {
+            $rules['terms'] = ['required', 'accepted'];
+        }
+
         return $rules;
     }
 
@@ -199,6 +234,14 @@ class RegisterPartnerRequest extends FormRequest
             'events.*.images.*' => 'imagem do evento',
             'events.*.url' => 'link externo do evento',
             'events.*.externalLink' => 'link externo do evento',
+            'terms' => 'termos de uso',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'terms.accepted' => 'Você deve aceitar os termos de uso para continuar.',
         ];
     }
 }

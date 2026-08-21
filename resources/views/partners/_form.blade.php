@@ -21,11 +21,11 @@
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label class="form-label">Nome do Parceiro *</label>
-                        <input type="text" class="form-control" required name="name" value="{{ old('name', $partner->name ?? '') }}">
+                        <input type="text" class="form-control" required name="name" id="name" value="{{ old('name', $partner->name ?? '') }}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Status *</label>
-                        <select class="form-select" required name="status">
+                        <select class="form-select" required name="status" id="status">
                             <option value="">Selecione</option>
                             @php
                                 if($partner instanceof \App\Models\Partner)
@@ -43,7 +43,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">E-mail do Parceiro *</label>
-                        <input type="email" class="form-control" required name="email"
+                        <input type="email" class="form-control" required name="email" id="email"
                             value="{{ old('email', $partner->email ?? '') }}">
                     </div>
                     <div class="col-md-6">
@@ -69,7 +69,7 @@
     <div class="col-12">
         <label class="form-label">Descrição *</label>
         <textarea class="form-control" rows="4" required
-                  name="description">{!! old('description', $partner->description ?? '') !!}</textarea>
+                  name="description" id="description">{!! old('description', $partner->description ?? '') !!}</textarea>
     </div>
 </div>
 
@@ -142,7 +142,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h6 class="fw-semibold mb-0">Evento <span class="evento-index"></span></h6>
-                <button type="button" class="btn btn-sm btn-outline-danger remove-evento" onclick="removeEvent($(this))" aria-label="Remover evento">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-evento" aria-label="Remover evento">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -155,11 +155,7 @@
                         class="form-control"
                         type="file"
                         name="new_event_imagem[]" />
-                    <img src="{{ 
-                        isset($partner->logo) 
-                            ? asset('storage/' . $partner->logo)
-                            : asset('assets/teste3.png') 
-                        }}"
+                    <img src="{{ asset('assets/teste3.png') }}"
                         class="preview-img mt-2" />
                     </div>
                 <div class="col">
@@ -173,7 +169,7 @@
                             <input type="url" class="form-control" name="new_event_link[]" placeholder="https://">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Descrição do Evento</label>
+                            <label class="form-label">Descrição do Evento *</label>
                             <textarea class="form-control" rows="2" name="new_event_description[]" placeholder="Compartilhe os principais detalhes"></textarea>
                         </div>
                     </div>
@@ -212,9 +208,62 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
+            const validator = (window.caminhoRocaValidators || {})['form-parceiro'];
             const eventosContainer = document.getElementById('eventos-container');
             const addEventoBtn = document.getElementById('add-evento');
             const eventoTemplate = document.getElementById('evento-template');
+
+            // Rotas/Circuitos/Atrativos: obrigatórios conforme a categoria (mesmo padrão do cadastro)
+            if (validator) {
+                const requerExperiencias = function () {
+                    const opt = $('#partner_category_id').find('option:selected');
+                    return opt.length > 0 && opt.data('experiencias') == 1;
+                };
+                ['routes', 'circuits', 'attractions'].forEach(function (id) {
+                    validator.addField('#' + id, [
+                        {
+                            validator: function () {
+                                if (!requerExperiencias()) return true;
+                                const el = document.getElementById(id);
+                                return el && el.value && el.value.trim().length > 0;
+                            },
+                            errorMessage: 'Este campo é obrigatório.'
+                        }
+                    ]);
+                });
+            }
+
+            // Registra nome/descrição de um evento no just-validate (mesmo padrão do cadastro)
+            function registrarEventoParceiro(item) {
+                if (!validator) return;
+                const $item = $(item);
+                const inputNome = $item.find('input[name$="[name]"], input[name="new_event_name[]"]')[0];
+                const inputDesc = $item.find('textarea[name$="[description]"], textarea[name="new_event_description[]"]')[0];
+                const inputLink = $item.find('input[name$="[url]"], input[name="new_event_link[]"]')[0];
+                const inputImg = $item.find('input[type="file"]')[0];
+                if (!inputNome || !inputDesc) return;
+
+                // Evento totalmente vazio → não cobra nome/descrição
+                const eventoVazio = function () {
+                    return !(inputNome.value || '').trim()
+                        && !(inputDesc.value || '').trim()
+                        && !(inputLink ? (inputLink.value || '').trim() : '')
+                        && (inputImg ? inputImg.files.length : 0) === 0;
+                };
+
+                validator.addField(inputNome, [
+                    {
+                        validator: () => eventoVazio() || (inputNome.value || '').trim().length > 0,
+                        errorMessage: 'Este campo é obrigatório.'
+                    }
+                ]);
+                validator.addField(inputDesc, [
+                    {
+                        validator: () => eventoVazio() || (inputDesc.value || '').trim().length > 0,
+                        errorMessage: 'Este campo é obrigatório.'
+                    }
+                ]);
+            }
 
             if (!eventosContainer || !addEventoBtn || !eventoTemplate) {
                 return;
@@ -230,23 +279,12 @@
                 });
             }
 
-            function toggleRemoveButtons() {
-                const itens = eventosContainer.querySelectorAll('.event-item');
-                itens.forEach((item) => {
-                    const botaoRemover = item.querySelector('.remove-evento');
-                    if (botaoRemover) {
-                        const esconder = itens.length === 1;
-                        botaoRemover.classList.toggle('d-none', esconder);
-                        botaoRemover.disabled = esconder;
-                    }
-                });
-            }
-
             function adicionarEvento() {
                 const clone = eventoTemplate.content.cloneNode(true);
                 eventosContainer.appendChild(clone);
+                const itens = eventosContainer.querySelectorAll('.event-item');
+                registrarEventoParceiro(itens[itens.length - 1]);
                 updateIndices();
-                toggleRemoveButtons();
             }
 
             addEventoBtn.addEventListener('click', function () {
@@ -262,22 +300,22 @@
                 if (!item) {
                     return;
                 }
-                const itens = eventosContainer.querySelectorAll('.event-item');
-                if (itens.length === 1) {
-                    return;
+                if (validator) {
+                    $(item).find('input[name$="[name]"], textarea[name$="[description]"], input[name="new_event_name[]"], textarea[name="new_event_description[]"]').each(function () {
+                        validator.removeField(this);
+                    });
                 }
                 item.remove();
                 updateIndices();
-                toggleRemoveButtons();
+            });
+
+            // Registra os eventos já existentes (carregados do banco)
+            eventosContainer.querySelectorAll('.event-item').forEach(function (item) {
+                registrarEventoParceiro(item);
             });
 
             updateIndices();
-            toggleRemoveButtons();
         });
-        function removeEvent(button){
-            const item = button.closest('.eventos-container');
-            item.remove();
-        }
         $(function () {
             function getAllOptionValues() {
                 return $('#cities').find('option:not(:disabled)').map(function () {

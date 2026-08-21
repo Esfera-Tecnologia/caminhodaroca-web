@@ -4,7 +4,6 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h6 class="fw-semibold mb-0">Evento <span class="evento-index">{{ $loop->index+1 }}</span></h6>
                 <button type="button" class="btn btn-sm btn-outline-danger remove-evento"
-                        onclick="removeEvent($(this))"
                         aria-label="Remover evento">
                     <i class="fas fa-trash-alt"></i>
                 </button>
@@ -17,7 +16,7 @@
                         onchange="previewLogo(this)"
                         class="form-control"
                         type="file"
-                        name="events[{{ $event->id }}][images]" />
+                        name="events[{{ $event->id }}][images][]" />
                     <img src="{{ 
                         isset($event->images->first()?->image_url) 
                             ? $event->images->first()?->image_url
@@ -43,7 +42,7 @@
                                 value="{{ old('url', $event?->url ?? '') }}">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Descrição do Evento</label>
+                            <label class="form-label">Descrição do Evento *</label>
                             <textarea class="form-control" id="description_{{ $event?->id??':id' }}"
                                     name="events[{{ $event->id }}][description]">{!! $event?->description !!}</textarea>
                         </div>

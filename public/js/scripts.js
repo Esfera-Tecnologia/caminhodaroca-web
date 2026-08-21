@@ -250,11 +250,6 @@ document.addEventListener('DOMContentLoaded', function () {
               temErro = !validateFormPropriedade(form);
               break;
 
-            // Exemplo: outros formulários podem ser adicionados aqui
-            // case 'form-produto':
-            //   temErro = !validateFormProduto(form);
-            //   break;
-
             default:
               // Nenhuma validação extra, segue normalmente
               break;
