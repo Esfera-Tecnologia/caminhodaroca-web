@@ -103,6 +103,7 @@ class RegisterController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->validated();
+            unset($data['terms']); // campo de aceite dos termos não é persistido
             $data['logo'] = $request->file('logo')->store('partners', 'public');
             $profile = AccessProfile::query()->firstOrCreate(['nome' => 'Parceiro'], [
                 'descricao' => 'Responsável dos parceiros'

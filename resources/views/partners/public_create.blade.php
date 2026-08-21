@@ -40,25 +40,6 @@
                         </div>
                     @endif
 
-                    <div class="mb-4">
-                        <label for="partner_category_id" class="form-label">Categoria *</label>
-                        <select name="partner_category_id" id="partner_category_id" class="form-select" required>
-                            <option value="">Selecione a categoria</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}"
-                                        data-experiencias="{{ $category->experiencias_oferecidas ? 1 : 0 }}"
-                                        @selected(old('partner_category_id') == $category->id)>
-                                    {{ $category->titulo }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('partner_category_id')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <hr class="my-4">
-
                     <div class="row g-4">
                         <div class="col-md-3">
                             <label class="form-label">Logotipo *</label>
@@ -70,7 +51,7 @@
                                 <div class="text-danger small">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="col">
+                        <div class="col-md-9">
                             <div class="row gy-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Nome da Instituição/Parceiro *</label>
@@ -89,9 +70,26 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="row gy-3">
+                                <div class="col-md-12">
+                                    <label for="partner_category_id" class="form-label">Categoria *</label>
+                                    <select name="partner_category_id" id="partner_category_id" class="form-select" required>
+                                        <option value="">Selecione a categoria</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                    data-experiencias="{{ $category->experiencias_oferecidas ? 1 : 0 }}"
+                                                    @selected(old('partner_category_id') == $category->id)>
+                                                {{ $category->titulo }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('partner_category_id')
+                                        <div class="text-danger small">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
-
                     <div class="mt-4">
                         <label class="form-label">Descrição *</label>
                         <textarea class="form-control" rows="4" required name="description" id="description">{{ old('description') }}</textarea>
@@ -181,9 +179,19 @@
                         <div id="eventos-container"></div>
                     </div>
 
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="terms" id="terms" value="1" required @checked(old('terms'))>
+                        <label class="form-check-label" for="terms">
+                            Eu concordo com os <a href="https://senar-rio.com.br/caminhodaroca/termo-de-uso/" target="_blank" rel="noopener">Termos de Uso</a>
+                        </label>
+                        @error('terms')
+                            <div class="text-danger small">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="text-end mt-4 mb-5 pb-5">
                         <a href="{{ url('/') }}" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success">Enviar Cadastro</button>
+                        <button type="submit" class="btn btn-success" id="btn-enviar-cadastro" disabled>Enviar Cadastro</button>
                     </div>
 
                 </div>
@@ -192,7 +200,7 @@
     </form>
 
     <template id="evento-template">
-        <div class="card shadow-sm border event-item mb-3">
+        <div class="card shadow-sm border event-item mb-3" data-index="__INDEX__">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <h6 class="fw-semibold mb-0">Evento <span class="evento-index"></span></h6>
@@ -205,13 +213,15 @@
                     <div class="col-md-3">
                         <label class="form-label">Imagem do Evento</label>
                         <input accept=".jpg,.jpeg,.png,.gif" class="form-control" type="file"
-                               name="events[__INDEX__][images][]" />
+                               name="events[__INDEX__][images][]" onchange="previewEventImage(this)" />
+                        <img class="event-image-preview preview-img mt-2" src="{{ asset('assets/teste3.png') }}"
+                             alt="Preview Imagem do Evento" />
                     </div>
                     <div class="col">
                         <div class="row gy-2">
                             <div class="col">
                                 <label class="form-label">Nome do Evento *</label>
-                                <input type="text" class="form-control" name="events[__INDEX__][name]" required>
+                                <input type="text" class="form-control" id="event-__INDEX__-name" name="events[__INDEX__][name]" required>
                             </div>
                             <div class="col">
                                 <label class="form-label">Link do Evento</label>
@@ -219,7 +229,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Descrição do Evento *</label>
-                                <textarea class="form-control" name="events[__INDEX__][description]" required></textarea>
+                                <textarea class="form-control" id="event-__INDEX__-description" name="events[__INDEX__][description]" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -242,14 +252,63 @@
                 }
             }
 
+            // Preview da imagem do evento (como a logo)
+            function previewEventImage(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        $(input).closest('.event-item').find('.event-image-preview').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
             function addEvento() {
                 const index = eventoIndex++;
                 const html = $('#evento-template').html().replace(/__INDEX__/g, index);
                 $('#eventos-container').append(html);
+
+                // Registra nome/descrição do evento no just-validate (mesmo padrão dos demais campos)
+                const validator = (window.caminhoRocaValidators || {})['form-parceiro-publico'];
+                if (!validator) return;
+
+                const $item = $('#eventos-container .event-item').last();
+                const inputNome = $item.find('input[name$="[name]"]')[0];
+                const inputDesc = $item.find('textarea[name$="[description]"]')[0];
+                const inputLink = $item.find('input[name$="[url]"]')[0];
+                const inputImg = $item.find('input[type="file"]')[0];
+
+                // Evento totalmente vazio → não cobra nome/descrição (será descartado no servidor)
+                const eventoVazio = function () {
+                    return !(inputNome.value || '').trim()
+                        && !(inputDesc.value || '').trim()
+                        && !(inputLink.value || '').trim()
+                        && (inputImg.files.length || 0) === 0;
+                };
+
+                validator.addField('#event-' + index + '-name', [
+                    {
+                        validator: () => eventoVazio() || (inputNome.value || '').trim().length > 0,
+                        errorMessage: 'Este campo é obrigatório.'
+                    }
+                ]);
+                validator.addField('#event-' + index + '-description', [
+                    {
+                        validator: () => eventoVazio() || (inputDesc.value || '').trim().length > 0,
+                        errorMessage: 'Este campo é obrigatório.'
+                    }
+                ]);
             }
 
             function removeEvent(btn) {
-                $(btn).closest('.event-item').remove();
+                const $item = $(btn).closest('.event-item');
+                const idx = $item.data('index');
+                const validator = (window.caminhoRocaValidators || {})['form-parceiro-publico'];
+                if (validator && idx !== undefined) {
+                    validator.removeField('#event-' + idx + '-name');
+                    validator.removeField('#event-' + idx + '-description');
+                }
+                $item.remove();
             }
 
             // Rotas/Circuitos/Atrativos: sempre visíveis, obrigatórios conforme a categoria
@@ -290,6 +349,16 @@
             });
 
             $('#add-evento').on('click', addEvento);
+
+            // Habilita o botão de envio somente após aceitar os Termos de Uso
+            $(function () {
+                const terms = document.getElementById('terms');
+                const btn = document.getElementById('btn-enviar-cadastro');
+                if (!terms || !btn) return;
+                const atualizar = () => { btn.disabled = !terms.checked; };
+                terms.addEventListener('change', atualizar);
+                atualizar(); // aplica o estado inicial (ex.: ao voltar de um erro com o aceite marcado)
+            });
 
         </script>
     @endpush

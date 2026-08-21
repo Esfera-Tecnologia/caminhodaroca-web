@@ -59,9 +59,11 @@ class PartnerController extends Controller
                     $event = PartnerEvent::find($eventData['id']);
                     $event->update($eventData);
                     if (isset($eventData['images'])) {
-                        $eventData['images'] = $request->file('events')[$key]['images']->store('partners/events', 'public');
                         $event->images()->delete();
-                        $event->images()->create(['image' => $eventData['images']]);
+                        foreach ($eventData['images'] as $image) {
+                            $imagePath = $image->store('partners/events', 'public');
+                            $event->images()->create(['image' => $imagePath]);
+                        }
                     }
                 }
             }
@@ -174,9 +176,11 @@ class PartnerController extends Controller
                     $event = PreapprovedPartnerEvent::find($eventData['id']);
                     $event->update($eventData);
                     if (isset($eventData['images'])) {
-                        $eventData['images'] = $request->file('events')[$key]['images']->store('partners/events', 'public');
                         $event->images()->delete();
-                        $event->images()->create(['image' => $eventData['images']]);
+                        foreach ($eventData['images'] as $image) {
+                            $imagePath = $image->store('partners/events', 'public');
+                            $event->images()->create(['image' => $imagePath]);
+                        }
                     }
                 }
                 $partner->events()->whereNotIn('id', array_map(function ($row){
