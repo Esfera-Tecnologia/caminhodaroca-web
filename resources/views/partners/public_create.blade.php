@@ -182,7 +182,7 @@
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" name="terms" id="terms" value="1" required @checked(old('terms'))>
                         <label class="form-check-label" for="terms">
-                            Eu concordo com os <a href="https://senar-rio.com.br/caminhodaroca/termo-de-uso/" target="_blank" rel="noopener">Termos de Uso</a>
+                            Eu concordo com os <a href="#" data-bs-toggle="modal" data-bs-target="#modalTermos" role="button">Termos de Uso</a>
                         </label>
                         @error('terms')
                             <div class="text-danger small">{{ $message }}</div>
@@ -198,6 +198,28 @@
             </div>
         </div>
     </form>
+
+    <!-- Modal Termos de Uso -->
+    <div class="modal fade" id="modalTermos" tabindex="-1" aria-labelledby="modalTermosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTermosLabel">Termos de Uso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe src="https://senar-rio.com.br/caminhodaroca/termo-de-uso/"
+                            title="Termos de Uso"
+                            class="w-100"
+                            style="height: 60vh; border: 0; display: block;"
+                            loading="lazy"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <template id="evento-template">
         <div class="card shadow-sm border event-item mb-3" data-index="__INDEX__">
