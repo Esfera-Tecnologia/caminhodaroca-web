@@ -162,6 +162,11 @@ class PartnerController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
+
+            // Remove campos transitórios do formulário (não são colunas do banco)
+            unset($data['_token'], $data['_method']);
+            unset($data['new_event_name'], $data['new_event_link'], $data['new_event_description'], $data['new_event_imagem']);
+
             if (isset($data['logo'])) {
                 if ($partner->logo && Storage::disk('public')->exists($partner->logo)) {
                     Storage::disk('public')->delete($partner->logo);
@@ -170,7 +175,7 @@ class PartnerController extends Controller
             } elseif ($partner->logo) {
                 $data['logo'] = $partner->logo;
             }
-            $partner->cities()->sync($data['cities']);
+            $partner->cities()->sync($data['cities'] ?? []);
             if (isset($data['events'])) {
                 foreach ($data['events'] as $key => $eventData) {
                     $event = PreapprovedPartnerEvent::find($eventData['id']);
@@ -187,17 +192,17 @@ class PartnerController extends Controller
                     return $row['id'];
                 }, $data['events']))->delete();
             }
-            if (isset($data['new_event_name'])) {
-                foreach ($data['new_event_name'] as $key => $eventName) {
+            if ($request->has('new_event_name')) {
+                foreach ($request->input('new_event_name') as $key => $eventName) {
                     $eventData = [
                         'name' => $eventName,
-                        'url' => $data['new_event_link'][$key] ?? null,
-                        'description' => $data['new_event_description'][$key] ?? null,
+                        'url' => $request->input('new_event_link')[$key] ?? null,
+                        'description' => $request->input('new_event_description')[$key] ?? null,
                     ];
                     $newEvent = $partner->events()->create($eventData);
-                    
-                    if (isset($data['new_event_imagem'][$key])) {
-                        $imagePath = $request->file('new_event_imagem')[$key]->store('partners/events', 'public');
+
+                    if ($request->hasFile("new_event_imagem.{$key}")) {
+                        $imagePath = $request->file("new_event_imagem.{$key}")->store('partners/events', 'public');
                         $newEvent->images()->create(['image' => $imagePath]);
                     }
                 }
@@ -211,12 +216,14 @@ class PartnerController extends Controller
                 unset($dataPartner['_token']);
                 unset($dataPartner['_method']);
                 $this->syncPartnerEventsFromPreapproved($partner);
-                $partner->partner->cities()->sync($data['cities']);
+                $partner->partner->cities()->sync($data['cities'] ?? []);
                 unset($dataPartner['cities']);
                 unset($dataPartner['events']);
                 unset($dataPartner['approve_updates']);
                 $partner->partner()->update($dataPartner);
             }
+            unset($data['cities'], $data['events'], $data['approve_updates']);
+
             $partner->update($data);
             DB::commit();
             return redirect()->route('partners.index')->with('success', 'Parceiro atualizado com sucesso!');
