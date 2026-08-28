@@ -17,6 +17,7 @@ class PreapprovedPartnerResource extends JsonResource
         return [
             'id' => $this->resource->partner_id,
             'partner_category_id' => $this->partner_category_id,
+            'partner_category_name' => $this->partnerCategory?->titulo,
             'logo' => $this->logo_url,
             'name' => $this->name,
             'cities' => $this->resource->cities->pluck('name', 'id'),
