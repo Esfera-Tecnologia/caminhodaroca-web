@@ -232,65 +232,91 @@
     <!-- Funcionamento -->
     <div class="section">
         <div class="section-title">Horário de Funcionamento</div>
-        <div><strong>Tipo de funcionamento:</strong> {{ $property->tipo_funcionamento->label() ?? 'Não informado' }}
+        <div><strong>Tipo de funcionamento:</strong> {{ $property->tipo_funcionamento?->label() ?? 'Não informado' }}
         </div>
 
-        @if($property->agenda_personalizada)
-            @php
-                $agenda = $property->agenda_personalizada;
-                $diasOrdenados = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'];
-            @endphp
+        @php
+            $tipoFuncionamento = $property->tipo_funcionamento?->value ?? 'todos';
 
-            @if($property->observacoes_funcionamento)
-                <div style="margin-top: 15px;"><strong>Observações:</strong> {{ $property->observacoes_funcionamento }}
-                </div>
-            @endif
-            @if(count(array_filter($agenda, function($dia){
-                return $dia['ativo'] == 1;
-            })) > 0 && ! in_array($property->tipo_funcionamento, [App\Enums\WorkingTypeProperty::AGENDAMENTO, App\Enums\WorkingTypeProperty::PERSONALIZADO]))
-                <table class="non-table">
-                    <thead>
-                    <tr>
-                        <th>Dia</th>
-                        <th>Abertura</th>
-                        <th>Fechamento</th>
-                        <th>Fecha almoço</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($diasOrdenados as $dia)
-                        @if(isset($agenda[$dia]) && $agenda[$dia]['ativo'])
-                            @php
-                                $diaInfo = $agenda[$dia];
-                                $fechaAlmoco = $diaInfo['fecha_almoco'] ?? '0';
-                                // Horários padrão baseados no exemplo original
-                                $horarios = [
-                                    'segunda' => ['abertura' => '09:00', 'fechamento' => '18:00'],
-                                    'terça' => ['abertura' => '09:00', 'fechamento' => '18:00'],
-                                    'quarta' => ['abertura' => '09:00', 'fechamento' => '18:00'],
-                                    'quinta' => ['abertura' => '09:00', 'fechamento' => '20:00'],
-                                    'sexta' => ['abertura' => '09:00', 'fechamento' => '22:00'],
-                                    'sábado' => ['abertura' => '08:00', 'fechamento' => '22:00'],
-                                    'domingo' => ['abertura' => '08:00', 'fechamento' => '18:00']
-                                ];
-                            @endphp
-                            <tr>
-                                <td style="text-transform: capitalize;">{{ $diaInfo['dia'] ?? $dia }}</td>
-                                <td>
-                                    {{ $horarios[$dia]['abertura'] ?? '--:--' }}
-                                </td>
-                                <td>
-                                    {{ $horarios[$dia]['fechamento'] ?? '--:--' }}
-                                </td>
-                                <td>
-                                    {{ $fechaAlmoco == '1' ? 'Sim' : 'Não' }}
-                                </td>
-                            </tr>
-                        @endif
-                    @endforeach
-                    </tbody>
-                </table>
-            @endif
+            $diasOrdenados = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'];
+
+            // Normaliza a chave do dia para aceitar tanto "sabado" quanto "sábado"
+            $normalizarDia = function ($valor) {
+                return strtr(mb_strtolower((string) $valor), [
+                    'á' => 'a', 'ã' => 'a', 'â' => 'a', 'à' => 'a',
+                    'é' => 'e', 'ê' => 'e', 'í' => 'i',
+                    'ó' => 'o', 'ô' => 'o', 'õ' => 'o',
+                    'ú' => 'u', 'ç' => 'c',
+                ]);
+            };
+
+            $agendaPersonalizada = $property->agenda_personalizada;
+            if (is_string($agendaPersonalizada)) {
+                $agendaPersonalizada = json_decode($agendaPersonalizada, true);
+            }
+            if (! is_array($agendaPersonalizada)) {
+                $agendaPersonalizada = [];
+            }
+
+            $agendaPorDia = [];
+            foreach ($agendaPersonalizada as $chaveDia => $dadosDia) {
+                $agendaPorDia[$normalizarDia($chaveDia)] = $dadosDia;
+            }
+
+            // Exibe o horário no formato H:i (aceita "08:00" ou "08:00:00")
+            $formatarHora = function ($valor) {
+                return empty($valor) ? '--:--' : substr((string) $valor, 0, 5);
+            };
+
+            // Com agendamento / personalizado: mostra somente o texto informado
+            $mostraTexto = in_array($tipoFuncionamento, ['agendamento', 'personalizado', 'feriados'], true);
+
+            // Finais de semana: exibe apenas sábado e domingo
+            $diasVisiveis = $tipoFuncionamento === 'fins'
+                ? ['sábado', 'domingo']
+                : $diasOrdenados;
+
+            $diasAtivos = 0;
+            foreach ($diasVisiveis as $dia) {
+                $dadosDia = $agendaPorDia[$normalizarDia($dia)] ?? null;
+                if ($dadosDia && ($dadosDia['ativo'] ?? 0) == 1) {
+                    $diasAtivos++;
+                }
+            }
+
+            $mostraTabela = ! $mostraTexto && $diasAtivos > 0;
+        @endphp
+
+        @if($mostraTexto && $property->observacoes_funcionamento)
+            <div style="margin-top: 15px;">{!! nl2br(e($property->observacoes_funcionamento)) !!}</div>
+        @endif
+
+        @if($mostraTabela)
+            <table class="non-table">
+                <thead>
+                <tr>
+                    <th>Dia</th>
+                    <th>Abertura</th>
+                    <th>Fechamento</th>
+                    <th>Fecha almoço</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($diasVisiveis as $dia)
+                    @php
+                        $dadosDia = $agendaPorDia[$normalizarDia($dia)] ?? null;
+                    @endphp
+                    @if($dadosDia && ($dadosDia['ativo'] ?? 0) == 1)
+                        <tr>
+                            <td style="text-transform: capitalize;">{{ $dadosDia['dia'] ?? $dia }}</td>
+                            <td>{{ $formatarHora($dadosDia['abertura'] ?? null) }}</td>
+                            <td>{{ $formatarHora($dadosDia['fechamento'] ?? null) }}</td>
+                            <td>{{ in_array($dadosDia['fecha_almoco'] ?? '0', ['1', 1, true], true) ? 'Sim' : 'Não' }}</td>
+                        </tr>
+                    @endif
+                @endforeach
+                </tbody>
+            </table>
         @endif
         <span>Aceita animais de estimação: {{ $property->aceita_animais ? 'Sim' : 'Não' }}</span><br>
         <span>Possui acessibilidade: {{ $property->possui_acessibilidade ? 'Sim' : 'Não' }}</span><br>
