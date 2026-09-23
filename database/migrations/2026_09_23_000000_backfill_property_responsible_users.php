@@ -117,7 +117,7 @@ return new class extends Migration
             }
         }
 
-        Log::info('Migração backfill_property_responsible_users concluída.', [
+        $this->reportSummary([
             'propriedades_verificadas' => $properties->count(),
             'usuarios_criados' => $createdUsers,
             'perfis_responsavel_vinculados' => $linkedProfiles,
@@ -128,12 +128,33 @@ return new class extends Migration
     }
 
     /**
-     * Sem rollback proposital: os usuários criados podem já ter definido senha,
+     * Não rollback proposital: os usuários criados podem já ter definido senha,
      * recebido favoritos ou outros vínculos, e apagá-los destruiria dados legítimos.
      */
     public function down(): void
     {
         //
+    }
+
+    /**
+     * Imprime o resumo no console e tenta registá-lo no log.
+     *
+     * O registo nunca pode derrubar a migração: em produção o usuário que roda o
+     * deploy pode não ter permissão de escrita em storage/logs (foi exactamente o
+     * que aconteceu no primeiro deploy desta migração).
+     */
+    private function reportSummary(array $summary): void
+    {
+        $payload = json_encode($summary, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        // Sai no output do `php artisan migrate`, logo aparece no log do deploy.
+        echo 'backfill_property_responsible_users: ' . $payload . PHP_EOL;
+
+        try {
+            Log::info('Migração backfill_property_responsible_users concluída.', $summary);
+        } catch (\Throwable $e) {
+            echo 'backfill_property_responsible_users: log indisponível (' . $e->getMessage() . ')' . PHP_EOL;
+        }
     }
 
     /**
